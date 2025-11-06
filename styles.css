@@ -7383,9 +7383,9 @@ cursor: move;
 }
 
 .paper {
+  position: relative;
   width: 100%;
   max-width: 480px;
-  aspect-ratio: 210 / 297; /* A4-Verhältnis */
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
@@ -7395,6 +7395,21 @@ cursor: move;
   transform-origin: left center;
   opacity: 0;
   transition: transform 1.2s cubic-bezier(0.23, 1, 0.32, 1), opacity 1s ease;
+  overflow: hidden; /* verhindert Überlauf-Effekte */
+}
+
+/* mobile Optimierung */
+@media (max-width: 768px) {
+  .paper {
+    transform: none;
+    padding: 1.5rem;
+    max-width: 100%;
+    aspect-ratio: auto; /* entfernt die starre A4-Höhe */
+  }
+
+  .letter-side {
+    top: 0;
+  }
 }
 
 /* Animation sichtbar machen */
