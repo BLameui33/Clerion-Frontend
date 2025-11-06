@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Clerion</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/css/shepherd.css"/>
+
+    <link rel="icon" href="/clerion-logo.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Clerion",
+  "url": "https://clerion.de",
+  "logo": "https://clerion.de/clerion-logo.png"
+}
+</script>
+</head>
+<body>
+    <div class="container">
+        <main id="app-container">
+            <div class="app-header">
+                <h1 id="welcome-message"></h1>
+                <div>
+        <a href="dashboard.html" class="btn btn-primary btn-header" style="margin-right: 1rem;">Zur Fallbearbeitung</a>
+        <a href="konto.html" class="button-secondary">Konto</a>
+        <button id="logout-button">Logout</button>
+    </div>
+</div>
+            <div class="app-layout">
+                <div class="app-sidebar">
+                    <div id="team-dashboard" class="card">
+                        <h3>Team-Verwaltung</h3>
+                        <form id="invite-member-form">
+                            <input type="email" id="member-email-input" placeholder="E-Mail des neuen Mitglieds" required>
+                            <button type="submit">Einladen</button>
+                        </form>
+                        <hr>
+                        <h4>Aktive Mitglieder</h4>
+                        <ul id="member-list">
+                            </ul>
+                    </div>
+
+                    <div id="branding-dashboard" class="card">
+                        <h3>Branding & Vorlage</h3>
+                        <form id="branding-form">
+    <label>Firmenlogo hochladen (optional)</label>
+    
+    <div id="logo-preview-container" style="margin-top: 0.5rem; margin-bottom: 1rem;"></div>
+    
+    <input type="file" id="logo-file-input" accept="image/png, image/jpeg" hidden>
+
+    <label for="logo-file-input" class="custom-file-upload">
+        Datei auswählen...
+    </label>
+                            <p class="small-link" style="margin: 0;">Optimal: Breites PNG (z.B. 600x200 Pixel) mit transparentem Hintergrund.</p>
+                            
+                            <label for="footer-text-input" style="margin-top: 1rem;">Fußzeilentext (optional)</label>
+                            <textarea id="footer-text-input" rows="3" placeholder="z.B. Firmenname | Adresse | Tel: 0123..."></textarea>
+
+                            <label for="sender-info-block-input" style="margin-top: 1rem;">Absender-Infoblock (optional)</label>
+                            <p class="small-link" style="margin: 0;">Wird über der Empfängeradresse hinzugefügt.</p>
+                            <textarea id="sender-info-block-input" rows="4" placeholder="z.B. Ihr Ansprechpartner: Max Mustermann&#10;Tel: 0123-456789&#10;E-Mail: max@firma.de"></textarea>
+                            
+                            <button type="submit" style="margin-top: 1rem;">Branding speichern</button>
+                        </form>
+                    </div>
+
+                    
+                    <div id="subscription-dashboard" class="card">
+    <h3>Abo & Lizenzen</h3>
+    <div id="subscription-status">
+        <p>Status: <span id="org-status-badge" class="badge">...</span></p>
+        <p>Lizenzen: <span id="seat-count-info">...</span></p>
+    </div>
+    <hr>
+
+    <div id="buy-subscription-container" class="hidden">
+        <label for="seat-quantity-input-buy">Anzahl der Lizenzen für den Start:</label>
+        <input type="number" id="seat-quantity-input-buy" value="1" min="1" style="margin-bottom: 1rem;">
+        
+        <div class="button-group-vertical">
+            <button type="button" id="buy-premium-button" class="btn btn-secondary">Premium kaufen</button>
+            <button type="button" id="buy-premium-plus-button" class="btn btn-primary">Premium Plus kaufen</button>
+        </div>
+    </div>
+
+    <form id="manage-subscription-container" class="hidden">
+        <label for="seat-quantity-input-manage">Anzahl der Mitarbeiterlizenzen</label>
+        <input type="number" id="seat-quantity-input-manage" value="1" min="1">
+        <button type="submit" id="manage-subscription-button">Abo verwalten / Sitze anpassen</button>
+    </form>
+</div>
+                </div>
+                <div class="app-main-content">
+                    <div class="card">
+                     <h2>Fall-Übersicht (Alle Mitarbeiter)</h2>
+                     <div class="date-filter-group">
+                            <input type="date" id="start-date-input">
+                            <span>bis</span>
+                            <input type="date" id="end-date-input">
+                            <button id="date-search-button">Suchen</button>
+                        </div>
+                        <div id="all-cases-container">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </main> 
+        
+        <div id="delete-organization-section" style="text-align: center; padding: 2rem 0;">
+            <button id="open-delete-org-modal-button" class="button-delete-trigger">Organisation endgültig löschen</button>
+        </div>
+
+        <footer class="main-footer" style="margin-top: 2rem; border-top: 1px solid #eee;">
+             <div class="footer-container">
+                <p>&copy; 2025 Clerion</p>
+                <div class="footer-links">
+                    <a href="b2b-hilfe.html">Hilfe & FAQ für Geschäftskunden</a>
+                    <a href="Datenschutz.html">Datenschutz</a>
+                    <a href="Impressum.html">Impressum</a>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <div id="notification-container"></div>
+    
+    <div id="delete-modal-overlay" class="modal-overlay hidden">
+    <div id="delete-modal-content" class="modal-content">
+        <button id="close-modal-button" class="modal-close-button">&times;</button>
+        <h3 id="delete-modal-title"></h3>
+        <p id="delete-modal-text"></p>
+        <p id="delete-modal-warning" style="font-weight: bold; color: var(--error-color);"></p>
+        <button id="final-delete-button" class="button-danger">Ich verstehe, endgültig löschen</button>
+    </div>
+</div>
+
+<div id="case-detail-modal-overlay" class="modal-overlay hidden">
+        <div id="case-detail-modal-content" class="modal-content" style="max-width: 800px; text-align: left;">
+            <button id="close-case-detail-modal-button" class="modal-close-button">&times;</button>
+            
+            <h3 id="modal-case-title">Falldetails</h3>
+            <div id="modal-case-details">
+                </div>
+        </div>
+    </div>
+    <div id="pdf-viewer-modal-overlay" class="modal-overlay hidden">
+        <div id="pdf-viewer-modal-content" class="modal-content" style="max-width: 900px; width: 90vw; height: 90vh; display: flex; flex-direction: column;">
+            <div class="pdf-viewer-header">
+                <h3 id="pdf-viewer-title">Antragsvorschau</h3>
+                <div class="pdf-navigation">
+                    <button id="pdf-viewer-prev" class="btn btn-secondary">&lt; Zurück</button>
+                    <span>Seite <span id="pdf-viewer-page-num">1</span> / <span id="pdf-viewer-page-count">1</span></span>
+                    <button id="pdf-viewer-next" class="btn btn-secondary">Weiter &gt;</button>
+                </div>
+                <button id="close-pdf-viewer-modal-button" class="modal-close-button">&times;</button>
+            </div>
+            <div class="pdf-viewer-body">
+                <div id="pdf-viewer-render-area">
+                    <canvas id="pdf-viewer-canvas"></canvas>
+                </div>
+                <div class="modal-notes-section">
+                    <h4>Interne Notiz (sichtbar für alle Mitarbeiter)</h4>
+                    <textarea id="admin-app-note-textarea"></textarea>
+                    <button id="save-admin-app-note-button" class="btn btn-primary">Notiz speichern</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div> <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="admin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/js/shepherd.min.js"></script>
+</body>
+</html>

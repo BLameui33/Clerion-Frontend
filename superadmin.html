@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super-Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <link rel="icon" href="/clerion-logo.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Clerion",
+  "url": "https://clerion.de",
+  "logo": "https://clerion.de/clerion-logo.png"
+}
+</script>
+</head>
+<body>
+    <div class="container">
+        <main>
+            <div class="app-header">
+                <h1>Super-Admin Übersicht</h1>
+                <a href="dashboard.html" class="button-secondary">Zum normalen Dashboard</a>
+            </div>
+
+            <div class="card">
+  <h2>Eingereichte Formulare</h2>
+  <div class="table-container" style="max-height: 400px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th>Datei</th>
+          <th>Beschreibung</th>
+          <th>Uploader</th>
+          <th>Datum</th>
+          <th>Aktionen</th>
+        </tr>
+      </thead>
+      <tbody id="submitted-list"></tbody>
+    </table>
+  </div>
+</div>
+
+            <div class="card">
+    <h2>Kunden-Übersicht</h2>
+
+    <div class="table-controls" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+        <input type="search" id="search-input" class="form-input" placeholder="Nach Name oder E-Mail suchen...">
+        <select id="status-filter" class="form-input">
+            <option value="all">Alle Status</option>
+            <option value="active">Active</option>
+            <option value="premium_plus">Premium Plus</option>
+            <option value="free">Free</option>
+        </select>
+    </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Org ID</th>
+                                <th>Name</th>
+                                <th>Owner E-Mail</th>
+                                <th>Konto erstellt am</th>
+                                <th>Abo-Status</th>
+                                <th>Lizenzen (Genutzt / Gekauft)</th>
+                                <th>Erstellte Fälle</th>
+                                <th>Anträge</th>
+        <th style="width: 250px;">Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="org-table-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+  <div class="card" style="margin-top: 2rem;">
+  <h2>📚 Vorlagenbibliothek verwalten</h2>
+
+  <div class="table-container" style="max-height: 500px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th>Titel</th>
+          <th>Kategorie</th>
+          <th>Beschreibung</th>
+          <th>Dateiname</th>
+          <th>Aktionen</th>
+        </tr>
+      </thead>
+      <tbody id="public-templates-list"></tbody>
+    </table>
+  </div>
+</div>
+        </main>
+    </div>
+    <script src="superadmin.js"></script>
+</body>
+</html>

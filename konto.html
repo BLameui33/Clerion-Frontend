@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontoeinstellungen - Clerion</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <link rel="icon" href="/clerion-logo.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Clerion",
+  "url": "https://clerion.de",
+  "logo": "https://clerion.de/clerion-logo.png"
+}
+</script>
+</head>
+<body class="page-konto">
+    <div class="container">
+        <main id="app-container">
+            <div class="app-header">
+                <h1>Kontoeinstellungen</h1>
+                <a href="dashboard.html" class="button-secondary">Zurück zum Dashboard</a>
+            </div>
+
+            <div class="app-layout">
+                <div class="app-main-content" style="max-width: 800px; margin: 2rem auto;">
+                    
+                    <div class="card">
+                        <h3>E-Mail-Adresse ändern</h3>
+                        <form id="change-email-form">
+                            <input type="email" id="new-email-input" class="form-input" placeholder="Neue E-Mail-Adresse" required>
+                            <button type="submit">Änderung anfordern</button>
+                        </form>
+                        <p class="small-link" style="margin-top: 0.5rem;">Sie erhalten einen Bestätigungslink an die neue Adresse.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Passwort ändern</h3>
+                        <form id="change-password-form">
+        <div class="password-wrapper">
+            <input type="password" id="current-password-input" class="form-input" placeholder="Aktuelles Passwort" required>
+            <span class="password-toggle">👁️</span>
+        </div>
+        <div class="password-wrapper">
+            <input type="password" id="new-password-input" class="form-input" placeholder="Neues Passwort" required>
+            <span class="password-toggle">👁️</span>
+        </div>
+        <div class="password-wrapper">
+            <input type="password" id="confirm-new-password-input" class="form-input" placeholder="Neues Passwort bestätigen" required>
+            <span class="password-toggle">👁️</span>
+        </div>
+        <button type="submit">Passwort ändern</button>
+    </form>
+</div>
+
+                    <div class="card" style="border-color: var(--error-color);">
+                        <h3 style="color: var(--error-color);">Konto löschen</h3>
+                        <p>Achtung: Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Daten werden unwiderruflich gelöscht.</p>
+                        <button id="open-delete-modal-button" class="button-delete-trigger" style="width: auto;">Konto endgültig löschen...</button>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="notification-container"></div>
+
+    <div id="delete-modal-overlay" class="modal-overlay hidden">
+        <div id="delete-modal-content" class="modal-content">
+            <button id="close-modal-button" class="modal-close-button">&times;</button>
+            <h3 id="delete-modal-title">Konto wirklich löschen?</h3>
+            <p id="delete-modal-text">Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre persönlichen Daten, Fallverläufe und Dokumente werden unwiderruflich gelöscht.</p>
+            <p id="delete-modal-warning" style="font-weight: bold; color: var(--error-color);">Ein aktives Abonnement bei Stripe wird hierdurch NICHT gekündigt. Bitte kündigen Sie dieses vorher.</p>
+            <button id="final-delete-button" class="button-danger">Ich verstehe, endgültig löschen</button>
+        </div>
+    </div>
+
+    <script src="konto.js"></script>
+</body>
+</html>
