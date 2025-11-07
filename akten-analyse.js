@@ -368,19 +368,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
    
     if (pageCount <= 10) {
-        priceId = 'price_1RpXKsRqMqM536APijhy2TYz'; 
+        priceId = 'price_1SQtHP2KOTi9fZsRHGPHOIKd'; 
         priceText = '3,99 €';
     } 
     
     
     else if (pageCount <= 25) {
-        priceId = 'price_1Ro5pCRqMqM536APwIMcl3Pe'; 
+        priceId = 'price_1SQtIF2KOTi9fZsRkjx22LfI'; 
         priceText = '7,99 €';
     } else if (pageCount <= 50) {
-        priceId = 'price_1Ro5qKRqMqM536APTEojOaet'; 
+        priceId = 'price_1SQtIg2KOTi9fZsRrFSUmnRW'; 
         priceText = '13,99 €';
     } else if (pageCount <= 100) {
-        priceId = 'price_1Ro5qxRqMqM536APBnTsZ118'; 
+        priceId = 'price_1SQtJD2KOTi9fZsRVQ79PW5e'; 
         priceText = '24,99 €';
     } else {
         pricingOptions.innerHTML = `<p class="error-message">Ihr Dokument ist mit ${pageCount} Seiten zu groß (max. 100 Seiten).</p>`;
