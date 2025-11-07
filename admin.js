@@ -1312,6 +1312,15 @@ if (deleteModalOverlay) deleteModalOverlay.addEventListener('click', (e) => {
                     body: JSON.stringify({ quantity })
                 });
                 const data = await response.json();
+
+                // 🔹 Hier der neue Teil:
+            if (data.skipStripe) {
+                alert("Superadmin erkannt – Premium Plus wurde automatisch aktiviert!");
+                // Optional: Seite neu laden oder Status aktualisieren
+                location.reload();
+                return;
+            }
+            
                 if (!response.ok) throw new Error(data.message);
                 window.open(data.url, '_blank');
             } catch (error) {
