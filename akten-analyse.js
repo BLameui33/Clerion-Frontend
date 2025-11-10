@@ -472,24 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // =======================================================================
     // HIER IST DIE FEHLENDE FUNKTION
     // =======================================================================
-   async function waitForCaseToBeReady(caseId, maxAttempts = 10) {
-    for (let i = 0; i < maxAttempts; i++) {
-        const res = await fetch(`${API_BASE_URL}/api/cases/${caseId}`, {
-            headers: { 'Authorization': `Bearer ${authToken}` }
-        });
-        const data = await res.json();
-
-        // Prüfe, ob der Fall vollständig ist
-        if (data.clientId && data.aiExplanation) {
-            return data;
-        }
-
-        // Noch nicht fertig -> 1 Sekunde warten
-        await new Promise(r => setTimeout(r, 1000));
-    }
-
-    throw new Error("Timeout: Fall ist nach 10 Sekunden nicht vollständig gespeichert.");
-}
+ 
 
    
     async function runDeepAnalysis(file, clientId) {
@@ -498,64 +481,69 @@ document.addEventListener('DOMContentLoaded', () => {
     if (clientId) formData.append('clientId', clientId);
 
     try {
-        //  Fix 1: Client-ID sofort merken
         selectedClientId = clientId;
 
-        //  Analyse an Backend senden
+        // 1. Analyse an Backend senden.
+        // Dieser Call wartet, bis die KI-Analyse & Speicherung im Backend fertig ist.
         const response = await fetch(`${API_BASE_URL}/api/cases/analyze-large-document`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${authToken}` },
             body: formData
         });
 
-        const data = await response.json();
+        const data = await response.json(); // Enthält { analysis, caseId }
         if (!response.ok) throw new Error(data.message);
 
         currentCaseId = data.caseId;
 
-        //  Erstes Analyseergebnis anzeigen (Sofort-Feedback)
-        displayAnalysisResult(data.analysis);
+        // 2. Fall ist garantiert gespeichert.
+        // Wir holen jetzt EINMAL die vollen Details (inkl. Notizen etc.),
+        // statt 10 Sekunden lang zu pollen.
+        const caseDetailsResponse = await fetch(`${API_BASE_URL}/api/cases/${data.caseId}`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
 
-        //  Kurze Pause, bis Backend den neuen Fall fertig gespeichert hat
-        const fullCase = await waitForCaseToBeReady(data.caseId);
+        let fullCase;
+        let parsedAnalysis = data.analysis; // Fallback
 
-        if (fullCase && fullCase.aiExplanation) {
-            const parsed =
+        if (caseDetailsResponse.ok) {
+            fullCase = await caseDetailsResponse.json();
+            // Nimm die (potenziell) frischere aiExplanation aus dem vollen Fall-Objekt
+            parsedAnalysis =
                 typeof fullCase.aiExplanation === 'string'
                     ? JSON.parse(fullCase.aiExplanation)
                     : fullCase.aiExplanation;
-
-            // Finales Analyseergebnis anzeigen
-            displayAnalysisResult(parsed, fullCase);
+        } else {
+            // Notfall-Fallback: Wenn das Holen der Details fehlschlägt,
+            // zeigen wir zumindest das Analyse-Ergebnis an.
+            console.warn("Konnte volle Falldetails nicht nachladen, zeige pures Analyse-Ergebnis.");
+            fullCase = { id: data.caseId, notes: '' }; // Simuliere ein Objekt für die Notizen
+            parsedAnalysis = data.analysis;
         }
 
-        //  Noch kurz warten, bevor der Verlauf aktualisiert wird
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // 3. Zeige das finale Ergebnis an
+        displayAnalysisResult(parsedAnalysis, fullCase);
 
-        //   Verlauf erst jetzt aktualisieren
-        try {
-            const historyResponse = await fetch(`${API_BASE_URL}/api/clients/${clientId}/cases?type=file`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            });
-            const updatedCases = await historyResponse.json();
+        // 4. Aktualisiere den Verlauf
+        // (Wir warten kurz, damit der Nutzer das Ergebnis sieht, bevor die Liste neu lädt)
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
-            if (Array.isArray(updatedCases) && updatedCases.length > 0) {
-            
-                renderFileHistory(updatedCases);
-            }
+        await fetchFileHistory(selectedClientId);
 
-            //  Klient in der Sidebar visuell wieder markieren
-            document.querySelectorAll('#client-list li').forEach(item => {
-                item.classList.toggle('selected', item.dataset.clientId == clientId);
-            });
-        } catch (err) {
-            console.warn("Fehler beim Aktualisieren des Verlaufs:", err);
-        }
-
+        // Stelle sicher, dass der neue Fall in der Liste markiert ist
+        document.querySelectorAll('#file-history-list li').forEach(item => {
+             item.classList.toggle('selected', item.dataset.caseId == currentCaseId);
+        });
+        // Und auch der Klient (falls einer ausgewählt war)
+        document.querySelectorAll('#client-list li').forEach(item => {
+            item.classList.toggle('selected', item.dataset.clientId == selectedClientId);
+        });
 
     } catch (error) {
-        console.error(error);
+        console.error("Fehler bei der Aktenanalyse:", error);
         analysisResultContent.innerHTML = `<p style="color: var(--danger-color);">${error.message}</p>`;
+        // Wichtig: Fehler weiterwerfen, damit initializeApp den Ladebalken ausblendet
+        throw error;
     }
 }
 
