@@ -482,11 +482,11 @@ function updateUI() {
         // 2. Nur den Antragshelfer-Button basierend auf dem Abo-Status ein- oder ausblenden.
         // Das gilt für B2C und B2B gleichermaßen.
         if (antragshelferLink) {
-            antragshelferLink.classList.toggle('hidden', !isPremiumPlus);
+            antragshelferLink.classList.remove('hidden');
         }
         if (vertragAssistantLink) {
-    vertragAssistantLink.classList.toggle('hidden', !isPremiumPlus);
-}
+            vertragAssistantLink.classList.remove('hidden');
+        }
 
         // 3. Spezifische UI-Elemente für B2B vs. B2C steuern
         if (isB2B) {
@@ -537,8 +537,8 @@ function updateUI() {
     if (fileTabButton) fileTabButton.classList.toggle('hidden', !hasActiveSubscription);
 
     // Premium Plus-Feature: Sichtbar NUR für "Premium Plus"
-    if (antragshelferLink) antragshelferLink.classList.toggle('hidden', !isPremiumPlus);
-    if (vertragAssistantLink) vertragAssistantLink.classList.toggle('hidden', !isPremiumPlus);
+    if (antragshelferLink) antragshelferLink.classList.remove('hidden');
+            if (vertragAssistantLink) vertragAssistantLink.classList.remove('hidden');
 
     // Logik für Nutzer OHNE Abo (Zähler und Button-Deaktivierung)
     if (!hasActiveSubscription && currentUser.pdfCount !== undefined) {
