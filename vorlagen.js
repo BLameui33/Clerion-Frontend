@@ -110,9 +110,10 @@ if (categorySelect) {
 
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('description', e.target.description.value);
-  formData.append('category', category);
   formData.append('description', title);
+  //formData.append('description', e.target.description.value);
+  formData.append('category', category);
+  
 
   try {
     const res = await fetch("https://api.clerion.de/api/superadmin/upload-vorlage", {
