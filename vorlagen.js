@@ -114,7 +114,7 @@ if (categorySelect) {
   formData.append('description', title);
 
   try {
-    const res = await fetch("https://api.clerion/api/superadmin/upload-vorlage", {
+    const res = await fetch("https://api.clerion.de/api/superadmin/upload-vorlage", {
       method: "POST",
       body: formData,
       headers: {
