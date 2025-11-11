@@ -440,6 +440,11 @@ async function processApplicationFile(file) {
         }
 
         const data = await response.json();
+
+         if (data.xfaNotice) {
+            showXfaNotice(data.xfaNotice);
+        }
+
         await openPdfEditor(data.applicationId);
 
     } catch (error) {
@@ -447,6 +452,20 @@ async function processApplicationFile(file) {
         window.location.reload();
     }
 }
+
+function showXfaNotice(message) {
+  const modal = document.getElementById('xfaNoticeModal');
+  const text = document.getElementById('xfaNoticeText');
+  const closeBtn = document.getElementById('xfaNoticeClose');
+
+  text.textContent = message;
+  modal.classList.remove('hidden');
+
+  closeBtn.onclick = () => {
+    modal.classList.add('hidden');
+  };
+}
+
 
 
     async function startNewApplication(e) {
