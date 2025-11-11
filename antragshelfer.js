@@ -432,49 +432,20 @@ async function processApplicationFile(file) {
             body: formData 
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
-            // Spezialfall: XFA- / falsches Formularformat
-            if (data.code === 'UNSUPPORTED_XFA_PDF') {
-                showXfaNotice(
-                    'Das hochgeladene PDF verwendet ein spezielles Behörden-Formularformat ' +
-                    '(XFA), das in Browsern und im Clerion-Antragshelfer nicht interaktiv ' +
-                    'bearbeitet werden kann.\n\n' +
-                    'Bitte laden Sie das Formular in Adobe Acrobat Reader, ' +
-                    'speichern Sie es dort als „Standard-PDF“ (Datei → Speichern als...), ' +
-                    'und laden Sie die neue Version anschließend hier erneut hoch.'
-                );
-
-                // Hier optional Upload-Bereich zurücksetzen, statt Seite neu zu laden
-                // z.B.: uploadSection.innerHTML = ursprünglichesHTML;
-                return;
-            }
-
-            throw new Error(data.message || 'Der Antrag konnte nicht erstellt werden.');
+            const errorData = await response.json();
+            const newUrl = `${window.location.pathname}?id=${data.applicationId}`;
+        window.history.pushState({ id: data.applicationId }, '', newUrl);
+            throw new Error(errorData.message || 'Der Antrag konnte nicht erstellt werden.');
         }
 
-        // Alles ok → Editor öffnen
+        const data = await response.json();
         await openPdfEditor(data.applicationId);
 
     } catch (error) {
         alert(`Fehler: ${error.message}`);
         window.location.reload();
     }
-}
-
-
-function showXfaNotice(message) {
-  const modal = document.getElementById('xfaNoticeModal');
-  const text = document.getElementById('xfaNoticeText');
-  const closeBtn = document.getElementById('xfaNoticeClose');
-
-  text.textContent = message;
-  modal.classList.remove('hidden');
-
-  closeBtn.onclick = () => {
-    modal.classList.add('hidden');
-  };
 }
 
 
