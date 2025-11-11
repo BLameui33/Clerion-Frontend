@@ -6300,7 +6300,7 @@ cursor: move;
 
     /* 1. Die PDF-Spalte wird neu positioniert */
     #editor-pdf-container {
-        position: relative; /* Ändert die Positionierung, um im Fluss zu bleiben */
+        position: absolute; /* Ändert die Positionierung, um im Fluss zu bleiben */
         width: 100%;        /* Nimmt die volle Breite ein */
         height: 60vh;       /* Nimmt 60% der Bildschirmhöhe ein */
         
