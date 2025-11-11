@@ -15,10 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filtert die Daten basierend auf der Sucheingabe
         const filteredData = allTemplates
             .map(category => {
-                const filteredForms = category.formulare.filter(form => 
-                    form.titel.toLowerCase().includes(filterLowerCase) || 
-                    form.beschreibung.toLowerCase().includes(filterLowerCase)
-                );
+                const filteredForms = category.formulare.filter(form => {
+    const titel = typeof form.titel === 'string' ? form.titel.toLowerCase() : '';
+    const beschreibung = typeof form.beschreibung === 'string' ? form.beschreibung.toLowerCase() : '';
+    return titel.includes(filterLowerCase) || beschreibung.includes(filterLowerCase);
+});
                 return { ...category, formulare: filteredForms };
             })
             .filter(category => category.formulare.length > 0);
