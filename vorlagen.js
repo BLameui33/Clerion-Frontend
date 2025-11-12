@@ -68,33 +68,61 @@ document.addEventListener('DOMContentLoaded', () => {
      * Initialisierungsfunktion: Lädt die JSON-Daten und richtet die Suche ein
      */
     async function initialize() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/vorlagen/vorlagen.json`);
-            if (!response.ok) throw new Error('Vorlagen konnten nicht geladen werden.');
-            allTemplates = await response.json();
+    try {
+        // 1. Neue API nutzen: flache Liste aller öffentlichen Vorlagen
+        const response = await fetch(`${API_BASE_URL}/api/superadmin/public-templates`, {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("behoerdenhilfe_token") || ''}`
+            }
+        });
+        if (!response.ok) throw new Error('Vorlagen konnten nicht geladen werden.');
+        const flatTemplates = await response.json();
 
-            // Dropdown füllen, falls vorhanden
-const categorySelect = document.getElementById('categorySelect');
-if (categorySelect) {
-  allTemplates.forEach(cat => {
-    const opt = document.createElement('option');
-    opt.value = cat.kategorie;
-    opt.textContent = cat.kategorie;
-    categorySelect.appendChild(opt);
-  });
-}
-            
-            renderTemplates(); // Zeigt initial alle Vorlagen an
-
-            // Event-Listener für die Live-Suche
-            searchInput.addEventListener('input', (e) => {
-                renderTemplates(e.target.value);
+        // 2. Aus der flachen Liste wieder Kategorien-Struktur bauen,
+        //    damit renderTemplates() nichts geändert werden muss
+        const grouped = {};
+        flatTemplates.forEach(t => {
+            const catName = t.category || 'Sonstige / Allgemeine Verwaltung';
+            if (!grouped[catName]) {
+                grouped[catName] = {
+                    kategorie: catName,
+                    formulare: []
+                };
+            }
+            grouped[catName].formulare.push({
+                titel: t.titel,
+                beschreibung: t.beschreibung,
+                datei: t.filename
             });
+        });
 
-        } catch (error) {
-            templatesContainer.innerHTML = `<p class="error">${error.message}</p>`;
+        allTemplates = Object.values(grouped);
+
+        // 3. Dropdown füllen, falls vorhanden
+        const categorySelect = document.getElementById('categorySelect');
+        if (categorySelect) {
+            // optional: Grundoption
+            // categorySelect.innerHTML = '<option value="">Kategorie wählen</option>';
+            allTemplates.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.kategorie;
+                opt.textContent = cat.kategorie;
+                categorySelect.appendChild(opt);
+            });
         }
+            
+        renderTemplates(); // Zeigt initial alle Vorlagen an
+
+        // 4. Event-Listener für die Live-Suche
+        searchInput.addEventListener('input', (e) => {
+            renderTemplates(e.target.value);
+        });
+
+    } catch (error) {
+        console.error(error);
+        templatesContainer.innerHTML = `<p class="error">${error.message}</p>`;
     }
+}
 
     document.getElementById("formUpload").addEventListener("submit", async (e) => {
   e.preventDefault();
