@@ -15,9 +15,22 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filtert die Daten basierend auf der Sucheingabe
         const filteredData = allTemplates
             .map(category => {
-                const filteredForms = category.formulare.filter(form => {
-    const titel = typeof form.titel === 'string' ? form.titel.toLowerCase() : '';
-    const beschreibung = typeof form.beschreibung === 'string' ? form.beschreibung.toLowerCase() : '';
+    const filteredForms = category.formulare.filter(form => {
+    // Titel kann String ODER Array sein
+    let rawTitel = form.titel;
+    let titel = '';
+
+    if (Array.isArray(rawTitel)) {
+        titel = rawTitel.join(' ').toLowerCase();
+    } else if (typeof rawTitel === 'string') {
+        titel = rawTitel.toLowerCase();
+    }
+
+    const beschreibung =
+        typeof form.beschreibung === 'string'
+            ? form.beschreibung.toLowerCase()
+            : '';
+
     return titel.includes(filterLowerCase) || beschreibung.includes(filterLowerCase);
 });
                 return { ...category, formulare: filteredForms };
@@ -46,17 +59,20 @@ document.addEventListener('DOMContentLoaded', () => {
             formList.className = 'form-list';
             
             category.formulare.forEach(form => {
-                const formItem = document.createElement('li');
-                formItem.className = 'form-item';
-                formItem.innerHTML = `
-                    <div class="form-item-text">
-                        <strong>${form.titel}</strong>
-                        <p>${form.beschreibung}</p>
-                    </div>
-                    <a href="antragshelfer.html?vorlage=${form.datei}" class="btn btn-primary">Verwenden</a>
-                `;
-                formList.appendChild(formItem);
-            });
+    const formItem = document.createElement('li');
+    formItem.className = 'form-item';
+
+    const displayTitel = Array.isArray(form.titel) ? form.titel[0] : form.titel;
+
+    formItem.innerHTML = `
+        <div class="form-item-text">
+            <strong>${displayTitel}</strong>
+            <p>${form.beschreibung}</p>
+        </div>
+        <a href="antragshelfer.html?vorlage=${form.datei}" class="btn btn-primary">Verwenden</a>
+    `;
+    formList.appendChild(formItem);
+});
 
             categoryElement.appendChild(header);
             categoryElement.appendChild(formList);
