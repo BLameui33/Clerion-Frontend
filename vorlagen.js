@@ -69,40 +69,13 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function initialize() {
     try {
-        // 1. Neue API nutzen: flache Liste aller öffentlichen Vorlagen
-        const response = await fetch(`${API_BASE_URL}/api/superadmin/public-templates`, {
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("behoerdenhilfe_token") || ''}`
-            }
-        });
+        const response = await fetch(`${API_BASE_URL}/vorlagen/vorlagen.json`);
         if (!response.ok) throw new Error('Vorlagen konnten nicht geladen werden.');
-        const flatTemplates = await response.json();
+        allTemplates = await response.json();
+        console.log('allTemplates aus vorlagen.json:', allTemplates);
 
-        // 2. Aus der flachen Liste wieder Kategorien-Struktur bauen,
-        //    damit renderTemplates() nichts geändert werden muss
-        const grouped = {};
-        flatTemplates.forEach(t => {
-            const catName = t.category || 'Sonstige / Allgemeine Verwaltung';
-            if (!grouped[catName]) {
-                grouped[catName] = {
-                    kategorie: catName,
-                    formulare: []
-                };
-            }
-            grouped[catName].formulare.push({
-                titel: t.titel,
-                beschreibung: t.beschreibung,
-                datei: t.filename
-            });
-        });
-
-        allTemplates = Object.values(grouped);
-
-        // 3. Dropdown füllen, falls vorhanden
         const categorySelect = document.getElementById('categorySelect');
         if (categorySelect) {
-            // optional: Grundoption
-            // categorySelect.innerHTML = '<option value="">Kategorie wählen</option>';
             allTemplates.forEach(cat => {
                 const opt = document.createElement('option');
                 opt.value = cat.kategorie;
@@ -110,16 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 categorySelect.appendChild(opt);
             });
         }
-            
-        renderTemplates(); // Zeigt initial alle Vorlagen an
 
-        // 4. Event-Listener für die Live-Suche
+        renderTemplates();
+
         searchInput.addEventListener('input', (e) => {
             renderTemplates(e.target.value);
         });
 
     } catch (error) {
-        console.error(error);
         templatesContainer.innerHTML = `<p class="error">${error.message}</p>`;
     }
 }
