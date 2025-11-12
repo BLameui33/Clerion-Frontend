@@ -368,7 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
    
     if (pageCount <= 10) {
-        priceId = 'price_1SRdPc2KOTi9fZsRNMOJOrZC'; 
+        priceId = 'price_1SQtHP2KOTi9fZsRHGPHOIKd'; 
         priceText = '3,99 €';
     } 
     
