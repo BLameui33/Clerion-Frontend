@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch(`${API_BASE_URL}/vorlagen/vorlagen.json`);
         if (!response.ok) throw new Error('Vorlagen konnten nicht geladen werden.');
         allTemplates = await response.json();
-        console.log('allTemplates aus vorlagen.json:', allTemplates);
+        
 
         const categorySelect = document.getElementById('categorySelect');
         if (categorySelect) {
