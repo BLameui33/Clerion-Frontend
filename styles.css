@@ -1717,6 +1717,7 @@ body.app-view-active {
 #login-username,
 #login-password,
 #register-username,
+#register-confirm-password,
 #register-password {
     width: 100%;
     padding: var(--space-md) var(--space-lg);
@@ -1730,6 +1731,7 @@ body.app-view-active {
 #login-username:focus,
 #login-password:focus,
 #register-username:focus,
+#register-confirm-password:focus,
 #register-password:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
