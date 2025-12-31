@@ -45,6 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // === Dokument analysieren ===
     analyzeButton?.addEventListener('click', async () => {
         const file = uploadInput.files[0];
+
+        const docTypeInput = document.querySelector('input[name="docType"]:checked');
+        const docType = docTypeInput ? docTypeInput.value : 'vertrag';
+    
         if (!file) {
             showNotification('Bitte wählen Sie eine Datei aus.', 'error');
             return;
@@ -80,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formData = new FormData();
         formData.append('document', file);
+        formData.append('docType', docType);
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/vertrag/analyse`, {
