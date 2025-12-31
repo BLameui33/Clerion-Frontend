@@ -463,6 +463,7 @@ function updateUI() {
         authContainer.classList.add('hidden');
         appContainer.classList.remove('hidden');
         resetMainContentView();
+        loadGlobalTodos();
         
         let displayName = currentUser.username.includes('@') ? currentUser.username.split('@')[0] : currentUser.username;
         welcomeMessage.textContent = `Willkommen, ${displayName}!`;
@@ -601,64 +602,87 @@ function updateUI() {
         const li = document.createElement('li');
         li.dataset.caseId = caseItem.id;
         
-        // NEU: Priorisiert den benutzerdefinierten Titel
         const titleText = caseItem.customTitle || (caseItem.originalText ? caseItem.originalText : 'Leerer Fall');
         const displayTitle = titleText.length > 40 ? titleText.substring(0, 40) + '...' : titleText;
 
-        // NEU: HTML-Struktur mit Edit-Button und besseren Klassen
+        // Status aus DB oder Standard 'Neu'
+        const currentStatus = caseItem.processingStatus || 'Neu';
+        
+        // CSS Klasse für Farbe berechnen (z.B. status-neu, status-erledigt)
+        const statusClass = `status-${currentStatus.toLowerCase().replace(/\s/g, '-')}`;
+
         li.innerHTML = `
             <div class="case-title-wrapper">
                 <span class="case-title">${displayTitle}</span>
                 <span class="case-date">${new Date(caseItem.createdAt).toLocaleDateString('de-DE')}</span>
             </div>
+            
+            <select class="status-select ${statusClass}" title="Status ändern">
+                <option value="Neu" ${currentStatus === 'Neu' ? 'selected' : ''}>Neu</option>
+                <option value="Beantwortet" ${currentStatus === 'Beantwortet' ? 'selected' : ''}>Beantwortet</option>
+                <option value="Erledigt" ${currentStatus === 'Erledigt' ? 'selected' : ''}>Erledigt</option>
+                <option value="Warten" ${currentStatus === 'Warten' ? 'selected' : ''}>Warten auf Rückmeldung</option>
+            </select>
+
             <div class="case-actions">
-                <button class="edit-title-button" title="Titel bearbeiten">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-3"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                </button>
+                <button class="edit-title-button" title="Titel bearbeiten">✎</button>
                 <button class="delete-button" title="Fall löschen/entfernen">&times;</button>
             </div>
         `;
-
-
         
-        // Klick-Listener für die ganze Zeile (öffnet Details)
+        // Event Listener für Status-Änderung
+        const statusSelect = li.querySelector('.status-select');
+        statusSelect.addEventListener('change', async (e) => {
+             e.stopPropagation(); // Verhindert, dass sich die Details öffnen
+             const newStatus = e.target.value;
+             
+             try {
+                 const res = await fetch(`${API_BASE_URL}/api/cases/${caseItem.id}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                    body: JSON.stringify({ status: newStatus })
+                 });
+                 if(res.ok) {
+                     // Farbe sofort aktualisieren
+                     statusSelect.className = 'status-select';
+                     statusSelect.classList.add(`status-${newStatus.toLowerCase().replace(/\s/g, '-')}`);
+                 }
+             } catch(err) { showNotification('Status konnte nicht gespeichert werden', 'error'); }
+        });
+
+        // Klick auf die Zeile öffnet Details (Ignoriert Klicks auf Select/Button)
         li.addEventListener('click', (e) => {
-            if (e.target.closest('button')) return; // Verhindert Klick, wenn auf Button geklickt wird
+            if (e.target.tagName === 'SELECT' || e.target.closest('button')) return; 
             document.querySelectorAll('#history-list li').forEach(item => item.classList.remove('selected'));
             li.classList.add('selected');
             showCaseDetails(caseItem.id);
         });
 
-        // NEU: Klick-Listener für den Bearbeiten-Button
+        // Edit Button (unverändert)
         const editButton = li.querySelector('.edit-title-button');
         editButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            const newTitle = prompt('Geben Sie den neuen Titel für den Fall ein:', titleText);
+            const newTitle = prompt('Neuer Titel:', titleText);
             if (newTitle && newTitle.trim() !== '') {
                 renameCase(caseItem.id, newTitle.trim(), li.querySelector('.case-title'));
             }
         });
 
-        // Dein bestehender Klick-Listener für den Löschen-Button
+        // Delete Button (unverändert)
         const deleteButton = li.querySelector('.delete-button');
         deleteButton.addEventListener('click', async (e) => {
             e.stopPropagation();
-            // Dein bestehender Bestätigungs- und Lösch-Code hier...
-            if (confirm('Sind Sie sicher, dass Sie diesen Fall unwiderruflich löschen möchten?')) {
+            if (confirm('Fall unwiderruflich löschen?')) {
                 try {
                     const response = await fetch(`${API_BASE_URL}/api/cases/${caseItem.id}`, {
                         method: 'DELETE',
                         headers: { 'Authorization': `Bearer ${authToken}` }
                     });
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || 'Fall konnte nicht gelöscht werden.');
+                    if (response.ok) {
+                        fetchHistory();
+                        resetMainContentView();
                     }
-                    resetMainContentView();
-                    fetchHistory();
-                } catch (error) {
-                    showNotification(error.message, 'error');
-                }
+                } catch (error) { showNotification(error.message, 'error'); }
             }
         });
 
@@ -718,6 +742,8 @@ async function renameCase(caseId, newTitle, titleElement) {
         detailExplanation.textContent = summary;
         detailNotes.value = caseDetails.notes || '';
         saveNotesButton.dataset.caseId = caseId;
+
+        loadCaseChecklist(caseId);
 
    
         // Zeige die Zuweisungs-UI nur an, wenn der Nutzer ein B2B-Nutzer ist
@@ -959,6 +985,114 @@ function showResetPasswordView() {
         deleteButton.classList.add('hidden');
     }
 }
+
+async function loadGlobalTodos() {
+    const list = document.getElementById('global-todo-list');
+    if(!list) return;
+    list.innerHTML = '';
+    
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/user/todos`, { headers: { 'Authorization': `Bearer ${authToken}` }});
+        const todos = await res.json();
+        
+        todos.forEach(todo => {
+            const li = document.createElement('li');
+            li.className = `todo-item ${todo.isDone ? 'completed' : ''}`;
+            li.innerHTML = `
+                <input type="checkbox" ${todo.isDone ? 'checked' : ''}>
+                <span>${todo.text}</span>
+                <button class="todo-delete-btn">&times;</button>
+            `;
+            
+            // Toggle Event
+            li.querySelector('input').addEventListener('change', async (e) => {
+                await fetch(`${API_BASE_URL}/api/user/todos/${todo.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                    body: JSON.stringify({ isDone: e.target.checked ? 1 : 0 })
+                });
+                li.classList.toggle('completed');
+            });
+
+            // Delete Event
+            li.querySelector('button').addEventListener('click', async () => {
+                await fetch(`${API_BASE_URL}/api/user/todos/${todo.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${authToken}` }});
+                li.remove();
+            });
+            
+            list.appendChild(li);
+        });
+    } catch(e) { console.error(e); }
+}
+
+// Event Listener für Hinzufügen Button
+document.getElementById('add-global-todo-btn')?.addEventListener('click', async () => {
+    const input = document.getElementById('global-todo-input');
+    if(!input.value) return;
+    await fetch(`${API_BASE_URL}/api/user/todos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+        body: JSON.stringify({ text: input.value })
+    });
+    input.value = '';
+    loadGlobalTodos();
+});
+
+async function loadCaseChecklist(caseId) {
+    const list = document.getElementById('case-checklist-list');
+    const addBtn = document.getElementById('add-checklist-item-btn');
+    if(!list) return;
+    list.innerHTML = 'Lade...';
+    
+    // Speichere CaseID im Button für den Click-Handler
+    addBtn.dataset.currentCaseId = caseId;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/cases/${caseId}/checklist`, { headers: { 'Authorization': `Bearer ${authToken}` }});
+        const items = await res.json();
+        list.innerHTML = '';
+
+        items.forEach(item => {
+            const li = document.createElement('li');
+            li.className = `todo-item ${item.isDone ? 'completed' : ''}`;
+            li.innerHTML = `
+                <input type="checkbox" ${item.isDone ? 'checked' : ''}>
+                <span>${item.text}</span>
+                <button class="todo-delete-btn no-print">&times;</button>
+            `;
+            
+            li.querySelector('input').addEventListener('change', async (e) => {
+                await fetch(`${API_BASE_URL}/api/cases/checklist/${item.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                    body: JSON.stringify({ isDone: e.target.checked ? 1 : 0 })
+                });
+                li.classList.toggle('completed');
+            });
+
+            li.querySelector('button').addEventListener('click', async () => {
+                await fetch(`${API_BASE_URL}/api/cases/checklist/${item.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${authToken}` }});
+                li.remove();
+            });
+            list.appendChild(li);
+        });
+    } catch(e) { console.error(e); }
+}
+
+// Event Listener für Checkliste Hinzufügen (Nur einmal global registrieren!)
+document.getElementById('add-checklist-item-btn')?.addEventListener('click', async (e) => {
+    const caseId = e.target.dataset.currentCaseId;
+    const input = document.getElementById('case-checklist-input');
+    if(!input.value || !caseId) return;
+
+    await fetch(`${API_BASE_URL}/api/cases/${caseId}/checklist`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+        body: JSON.stringify({ text: input.value })
+    });
+    input.value = '';
+    loadCaseChecklist(caseId);
+});
 
     // =======================================================================
     // BLOCK 4: EVENT-LISTENER
@@ -1692,6 +1826,11 @@ if (registerForm) {
             e.preventDefault();
             const username = document.getElementById('register-username').value;
             const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+    if (password !== confirmPassword) {
+        showNotification('Die Passwörter stimmen nicht überein.', 'error');
+        return;
+    }
             
             const requestBody = {
                 username,

@@ -51,6 +51,10 @@
                 <input type="password" id="register-password" placeholder="Passwort" required>
                 <span class="password-toggle">👁️</span>
             </div>
+            <div class="password-wrapper" style="margin-top: 0.5rem;">
+        <input type="password" id="register-confirm-password" placeholder="Passwort bestätigen" required>
+        <span class="password-toggle">👁️</span>
+    </div>
             
             <div class="account-type-selector">
                 <label><input type="radio" name="accountType" value="b2c" checked> Privat</label>
@@ -114,6 +118,15 @@
                         </form>
                         <ul id="client-list"></ul>
                     </div>
+
+                    <div id="global-todo-container" class="card">
+        <h4>Meine To-Do Liste</h4>
+        <div class="todo-input-group">
+            <input type="text" id="global-todo-input" placeholder="Neue Aufgabe..." style="flex:1;">
+            <button id="add-global-todo-btn" style="padding: 0 10px;">+</button>
+        </div>
+        <ul id="global-todo-list" class="todo-list-ul"></ul>
+    </div>
 
                                         <div id="deadlines-container" class="card">
                         <h4>Anstehende Termine & Fristen</h4>
@@ -305,6 +318,20 @@
                         <textarea id="detail-notes" rows="5" placeholder="Hier können Sie Ihre privaten Notizen zum Fall eintragen..."></textarea>
                         <button id="back-to-analyze-button">Neue Analyse / Zurück</button>
                         <button id="save-notes-button">Notizen speichern</button>
+
+                        <div id="checklist-print-area">
+        <hr>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4>Fall-Checkliste</h4>
+            <button onclick="window.print()" class="btn btn-sm btn-secondary no-print" style="font-size: 0.8rem;">🖨️ Drucken</button>
+        </div>
+        <div class="todo-input-group no-print">
+            <input type="text" id="case-checklist-input" placeholder="Neuer Punkt..." style="flex:1;">
+            <button id="add-checklist-item-btn" style="padding: 0 10px;">+</button>
+        </div>
+        <ul id="case-checklist-list" class="todo-list-ul"></ul>
+    </div>
+    <hr class="no-print">
 
                         <div id="case-documents-container">
                             <hr>

@@ -7696,3 +7696,28 @@ cursor: move;
   padding-bottom: 0.5rem;
 }
 
+/* Status Dropdown Design */
+    .status-select {
+        font-size: 0.75rem; padding: 2px 5px; margin-top: 5px;
+        border-radius: 4px; border: 1px solid #ccc; width: 100%; cursor: pointer;
+    }
+    .status-neu { border-left: 3px solid #3498db; background: #eef6fb; }
+    .status-beantwortet { border-left: 3px solid #f1c40f; background: #fef9e7; }
+    .status-erledigt { border-left: 3px solid #2ecc71; background: #eafaf1; }
+    .status-warten { border-left: 3px solid #e74c3c; background: #fdedec; }
+
+    /* Checklisten & ToDos */
+    .todo-list-ul { list-style: none; padding: 0; margin-top: 10px; }
+    .todo-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #eee; }
+    .todo-item.completed span { text-decoration: line-through; color: #999; }
+    .todo-input-group { display: flex; gap: 5px; margin-bottom: 10px; }
+    .todo-delete-btn { margin-left: auto; color: red; cursor: pointer; background: none; border: none; }
+
+    /* Druck-Ansicht nur für Checkliste */
+    @media print {
+        body * { visibility: hidden; }
+        #checklist-print-area, #checklist-print-area * { visibility: visible; }
+        #checklist-print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
+        .no-print { display: none !important; }
+    }
+
