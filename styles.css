@@ -1805,6 +1805,40 @@ body.app-view-active {
     animation-delay: 0.2s;
 }
 
+
+
+.auth-switch {
+    display: none;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.auth-switch button {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    background: #eee;
+    font-weight: bold;
+}
+
+.auth-switch button.active {
+    background: #007bff;
+    color: white;
+}
+
+/* Nur auf Mobile aktivieren */
+@media (max-width: 768px) {
+    .auth-switch {
+        display: flex;
+    }
+
+    #register-form {
+        display: none;
+    }
+}
+
+
 /* ==========================================================================
    FIXED SIDE-BY-SIDE AUTH LAYOUT (NO HTML CHANGES)
    ========================================================================== */

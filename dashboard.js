@@ -2343,6 +2343,25 @@ const passwordToggles = document.querySelectorAll('.password-toggle');
         });
     });
 
+
+    document.getElementById('show-login').onclick = () => {
+    loginForm.style.display = 'block';
+    registerForm.style.display = 'none';
+    showLogin.classList.add('active');
+    showRegister.classList.remove('active');
+};
+
+document.getElementById('show-register').onclick = () => {
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'block';
+    showRegister.classList.add('active');
+    showLogin.classList.remove('active');
+};
+
+
+const showLogin = document.getElementById('show-login');
+const showRegister = document.getElementById('show-register');
+
     // =======================================================================
 // BLOCK 5: INITIALER AUFRUF (NEUE, ASYNCHRONE VERSION)
 // =======================================================================
