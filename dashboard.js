@@ -612,23 +612,32 @@ function updateUI() {
         const statusClass = `status-${currentStatus.toLowerCase().replace(/\s/g, '-')}`;
 
         li.innerHTML = `
-            <div class="case-title-wrapper">
-                <span class="case-title">${displayTitle}</span>
-                <span class="case-date">${new Date(caseItem.createdAt).toLocaleDateString('de-DE')}</span>
-            </div>
-            
-            <select class="status-select ${statusClass}" title="Status ändern">
+    <div class="case-item-inner" style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong class="case-title" style="font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">
+                ${caseItem.customTitle || caseItem.originalText || 'Unbenannter Fall'}
+            </strong>
+            <span class="case-date" style="font-size: 0.75rem; color: #666;">
+                ${new Date(caseItem.createdAt).toLocaleDateString('de-DE')}
+            </span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
+            <select class="status-select ${statusClass}" style="flex: 1; padding: 2px; font-size: 0.75rem; height: 24px; cursor: pointer;">
                 <option value="Neu" ${currentStatus === 'Neu' ? 'selected' : ''}>Neu</option>
                 <option value="Beantwortet" ${currentStatus === 'Beantwortet' ? 'selected' : ''}>Beantwortet</option>
                 <option value="Erledigt" ${currentStatus === 'Erledigt' ? 'selected' : ''}>Erledigt</option>
-                <option value="Warten" ${currentStatus === 'Warten' ? 'selected' : ''}>Warten auf Rückmeldung</option>
+                <option value="Warten" ${currentStatus === 'Warten' ? 'selected' : ''}>Warten</option>
             </select>
-
-            <div class="case-actions">
-                <button class="edit-title-button" title="Titel bearbeiten">✎</button>
-                <button class="delete-button" title="Fall löschen/entfernen">&times;</button>
+            
+            <div class="case-actions" style="display: flex; gap: 5px;">
+                <button class="edit-title-button" style="background:none; border:none; padding: 0 4px; cursor:pointer;">✎</button>
+                <button class="delete-button" style="background:none; border:none; padding: 0 4px; cursor:pointer; color: #e74c3c;">&times;</button>
             </div>
-        `;
+        </div>
+    </div>
+`;
+
         
         // Event Listener für Status-Änderung
         const statusSelect = li.querySelector('.status-select');
