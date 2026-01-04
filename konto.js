@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    const subContainer = document.getElementById('subscription-container');
+    const subStatusDisplay = document.getElementById('subscription-status-display');
+    const subManageButton = document.getElementById('manage-subscription-button');
+
     // =======================================================
     // HILFSFUNKTIONEN
     // =======================================================
@@ -32,11 +36,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 deleteSection.style.display = 'none'; // Versteckt den Block für ALLE B2B-Nutzer.
             }
 
+       // 2. Logik: Abo-Status anzeigen (NUR für B2C)
+            if (currentUser.type === 'b2c' && subContainer) {
+                const status = currentUser.subscriptionStatus;
+                
+                // Prüfen, ob ein relevantes Abo vorliegt
+                if (status === 'active' || status === 'premium_plus') {
+                    // Container sichtbar machen
+                    subContainer.classList.remove('hidden');
+
+                    // Text setzen
+                    if (status === 'premium_plus') {
+                        subStatusDisplay.textContent = '✨ Premium Plus';
+                    } else {
+                        subStatusDisplay.textContent = '⭐ Premium';
+                    }
+
+                    // Button Event Listener aktivieren
+                    setupSubscriptionButton();
+                } else {
+                    // Kein Abo -> Box bleibt versteckt
+                    subContainer.classList.add('hidden');
+                }
+            }
+
         } catch (error) {
             console.error("Fehler beim Initialisieren der Ansicht:", error);
         }
     }
     
+    // Funktion zum Öffnen des Stripe Portals
+    function setupSubscriptionButton() {
+        if (!subManageButton) return;
+        
+        subManageButton.addEventListener('click', async () => {
+            // Button kurz deaktivieren / Ladezustand anzeigen
+            const originalText = subManageButton.textContent;
+            subManageButton.textContent = 'Wird geladen...';
+            subManageButton.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/stripe/create-portal-session-b2c`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    window.open(data.url, '_blank');
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                showNotification(error.message, 'error');
+            } finally {
+                // Button zurücksetzen
+                subManageButton.textContent = originalText;
+                subManageButton.disabled = false;
+            }
+        });
+    }
+
     function showNotification(message, type = 'success') {
         const container = document.getElementById('notification-container');
         if (!container) return;
