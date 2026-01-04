@@ -20,84 +20,247 @@ const gentleHints = [
     "Es ist in Ordnung, sich Hilfe zu holen, wenn es zu viel wird."
 ];
 
-// Die Wissensbasis: Texte basierend auf der Lebenslage (B2C) oder Arbeitsweise (B2B)
 const knowledgeBase = {
     // --- B2C LEBENSLAGEN ---
+
     'pflege': {
         title: "Pflege & Gesundheit",
+        // Änderung: Wärmere Ansprache, klare Trennung von "Was tun" und "Worauf achten"
         content: `
-            <strong>Typische Behörden:</strong> Kranken-/Pflegekasse, Medizinischer Dienst (MD), Sozialamt (Hilfe zur Pflege), Versorgungsamt (Schwerbehindertenausweis).<br><br>
-            <strong>Häufige Anträge:</strong> Antrag auf Pflegegrad, Verschlimmerungsantrag, Antrag auf Hilfsmittel, Verhinderungspflege.<br><br>
-            <strong>Wichtige Frist:</strong> Widerspruch gegen Pflegebescheid: <strong>1 Monat</strong> nach Erhalt.<br><br>
-            <strong>Stolperfalle:</strong> Beim MD-Besuch werden oft Dinge beschönigt. Seien Sie ehrlich, was <em>nicht</em> geht. Führen Sie vorher ein Pflegetagebuch.
+            <p>Pflegebedürftigkeit kommt oft plötzlich. Hier ist der Überblick, um Ruhe zu bewahren:</p>
+            
+            <strong>🏛️ Zuständige Stellen</strong>
+            <ul>
+                <li><strong>Pflegekasse:</strong> Ihr erster Ansprechpartner für Pflegegrade.</li>
+                <li><strong>Medizinischer Dienst (MD):</strong> Kommt zur Begutachtung nach Hause.</li>
+                <li><strong>Sozialamt:</strong> "Hilfe zur Pflege", wenn die Rente nicht reicht.</li>
+            </ul>
+
+            <strong>📝 Wichtige Anträge</strong>
+            <ul>
+                <li>Erstantrag auf Pflegegrad (formlos möglich!)</li>
+                <li>Verhinderungspflege (für Auszeiten der Pflegeperson)</li>
+                <li>Wohnumfeldverbessernde Maßnahmen (z.B. Treppenlift)</li>
+            </ul>
+
+            <strong>💡 Pro-Tipp für den MD-Besuch</strong>
+            <p>Der Medizinische Dienst prüft streng. <em>Beschönigen Sie nichts.</em> Führen Sie 14 Tage vorher ein <strong>Pflegetagebuch</strong> und notieren Sie jede Hilfeleistung minutengenau. Das ist oft entscheidend für den Pflegegrad.</p>
+            
+            <p style="color: #d9534f;"><strong>⚠️ Frist beachten:</strong> Widerspruch gegen den Bescheid muss binnen <strong>1 Monat</strong> erfolgen.</p>
+
+            <div class="info-link-container">
+                <a href="https://kassen-lotse.de" class="info-link" target="_blank">
+                    Sie möchten mehr wissen? Zu unseren kostenlosen Info-Seiten
+                </a>
+            </div>
+        </div>
         `
     },
+
     'krankheit': {
         title: "Krankheit & Behinderung",
         content: `
-            <strong>Typische Behörden:</strong> Versorgungsamt, Krankenkasse, Rentenversicherung.<br><br>
-            <strong>Häufige Anträge:</strong> Feststellung GdB (Grad der Behinderung), Erwerbsminderungsrente, Krankengeld.<br><br>
-            <strong>Tipp:</strong> Sammeln Sie alle Arztberichte der letzten 2 Jahre, bevor Sie Anträge stellen.
+            <p>Wenn die Gesundheit dauerhaft eingeschränkt ist, stehen Ihnen Nachteilsausgleiche zu.</p>
+
+            <strong>🏛️ Zuständige Stellen</strong>
+            <ul>
+                <li><strong>Versorgungsamt:</strong> Feststellung des GdB (Grad der Behinderung).</li>
+                <li><strong>Rentenversicherung:</strong> Reha-Maßnahmen & Erwerbsminderungsrente.</li>
+                <li><strong>Krankenkasse:</strong> Krankengeld (nach 6 Wochen Lohnfortzahlung).</li>
+            </ul>
+
+            <strong>📂 Vorbereitung ist alles</strong>
+            <p>Sammeln Sie <strong>alle Arztberichte</strong> der letzten 2 Jahre <em>bevor</em> Sie Anträge stellen. Behörden ermitteln zwar selbst, aber eigene Unterlagen beschleunigen das Verfahren massiv.</p>
+
+            <strong>💡 Gut zu wissen</strong>
+            <p>Ein GdB ab 50 gilt als "Schwerbehinderung" (besonderer Kündigungsschutz, Zusatzurlaub). Darunter (GdB 30-40) ist eine "Gleichstellung" über die Agentur für Arbeit möglich.</p>
+
+            <div class="info-link-container">
+                <a href="https://kassen-lotse.de" class="info-link" target="_blank">
+                    Sie möchten mehr wissen? Zu unseren kostenlosen Info-Seiten
+                </a>
+            </div>
+        </div>
         `
     },
+
     'finanzen': {
-        title: "Finanzen & Schulden",
+        title: "Finanzen & Existenzsicherung",
         content: `
-            <strong>Typische Behörden:</strong> Jobcenter (Bürgergeld), Sozialamt (Grundsicherung), Wohngeldstelle.<br><br>
-            <strong>Wichtige Frist:</strong> Anträge wirken auf den 1. des Monats zurück. Stellen Sie Anträge immer so früh wie möglich (auch formlos).<br><br>
-            <strong>Stolperfalle:</strong> "Mitwirkungspflicht". Wenn Unterlagen fehlen, kann das Geld gestoppt werden. Reichen Sie alles nachweisbar ein.
+            <p>Finanzielle Engpässe erzeugen Druck. Wichtig ist jetzt schnelles Handeln, um Ansprüche zu sichern.</p>
+
+            <strong>🏛️ Wer hilft wann?</strong>
+            <ul>
+                <li><strong>Jobcenter:</strong> Bürgergeld (bei Erwerbsfähigkeit).</li>
+                <li><strong>Sozialamt:</strong> Grundsicherung (bei Alter oder Erwerbsminderung).</li>
+                <li><strong>Wohngeldstelle:</strong> Zuschuss zur Miete (für Geringverdiener).</li>
+            </ul>
+
+            <strong>⚠️ Die wichtigste Regel: Der Erste des Monats</strong>
+            <p>Anträge wirken immer auf den 1. des Monats zurück. <strong>Beispiel:</strong> Wenn Sie am 31. Mai den Antrag stellen, bekommen Sie Geld für den ganzen Mai. Stellen Sie ihn am 1. Juni, ist das Geld für Mai verloren.
+            <br><em>Tipp: Stellen Sie Anträge zur Fristwahrung zunächst "formlos" (per Fax/Mail).</em></p>
+
+            <strong>🚫 Stolperfalle "Mitwirkung"</strong>
+            <p>Reagieren Sie sofort auf Post. Fehlende Unterlagen sind der häufigste Grund für Zahlungstops. Reichen Sie alles <strong>nachweisbar</strong> ein.</p>
+
+            <div class="info-link-container">
+                <a href="https://sozialrecht-lotse.de" class="info-link" target="_blank">
+                    Sie möchten mehr wissen? Zu unseren kostenlosen Info-Seiten
+                </a>
+            </div>
+        </div>
         `
     },
+
     'rente': {
-        title: "Rente & Sozialleistungen",
+        title: "Rente & Altersvorsorge",
         content: `
-            <strong>Typische Behörden:</strong> Deutsche Rentenversicherung, Sozialamt.<br><br>
-            <strong>Häufige Anträge:</strong> Altersrente, Witwenrente, Grundsicherung im Alter.<br><br>
-            <strong>Hinweis:</strong> Rentenbescheide sind komplex. Prüfen Sie die Versicherungszeiten ("Kontenklärung") frühzeitig.
+            <p>Rentenfragen sind komplex. Klären Sie Lücken im Versicherungsverlauf so früh wie möglich.</p>
+
+            <strong>🏛️ Die Themen</strong>
+            <ul>
+                <li><strong>Altersrente:</strong> Der Klassiker zum Ruhestand.</li>
+                <li><strong>Erwerbsminderungsrente:</strong> Wenn Sie aus Gesundheitsgründen nicht mehr arbeiten können.</li>
+                <li><strong>Hinterbliebenenrente:</strong> Witwen- oder Waisenrente.</li>
+            </ul>
+
+            <strong>💡 Der wichtigste Schritt: Kontenklärung</strong>
+            <p>Prüfen Sie Ihren Versicherungsverlauf bei der Deutschen Rentenversicherung. Sind alle Ausbildungszeiten, Kindererziehungszeiten und Pflegezeiten erfasst? Lücken kosten bares Geld.</p>
+            
+            <p><em>Hinweis: Rentenbescheide sind oft fehlerhaft. Eine Prüfung durch Rentenberater oder Sozialverbände (z.B. VdK, SoVD) lohnt sich oft.</em></p>
+
+            <div class="info-link-container">
+                <a href="https://kassen-lotse.de" class="info-link" target="_blank">
+                    Sie möchten mehr wissen? Zu unseren kostenlosen Info-Seiten
+                </a>
+            </div>
+        </div>
         `
     },
+
     'wohnen': {
         title: "Wohnen & Miete",
         content: `
-            <strong>Typische Behörden:</strong> Wohngeldstelle, Amtsgericht (bei Räumungsklage), Wohnungsamt.<br><br>
-            <strong>Häufige Anträge:</strong> Wohngeld, Wohnberechtigungsschein (WBS).<br><br>
-            <strong>Wichtig:</strong> Wohngeld schließt Bürgergeld aus (und umgekehrt). Rechnen Sie durch, was günstiger ist.
+            <p>Das Zuhause zu sichern hat oberste Priorität. Hier gibt es staatliche Unterstützung.</p>
+
+            <strong>🏛️ Wichtige Anträge</strong>
+            <ul>
+                <li><strong>Wohngeld:</strong> Mietzuschuss für Menschen mit eigenem Einkommen, das aber knapp ist.</li>
+                <li><strong>WBS (Wohnberechtigungsschein):</strong> Berechtigt zum Bezug günstiger Sozialwohnungen.</li>
+            </ul>
+
+            <strong>⚖️ Wohngeld oder Bürgergeld?</strong>
+            <p>Das ist ein Entweder-oder-Prinzip.
+            <br><strong>Wohngeld</strong> hat Vorrang, wenn Sie damit (plus ggf. Kinderzuschlag) Ihren Bedarf decken können. Rechnen Sie durch, was für Sie günstiger ist.</p>
+
+            <strong>🚨 Bei Räumungsklage</strong>
+            <p>Gehen Sie sofort zum Amtsgericht oder zur "Fachstelle für Wohnungsnotfälle" Ihrer Stadt. Drohende Obdachlosigkeit kann oft durch Darlehensübernahme der Mietschulden (durch Jobcenter/Sozialamt) abgewendet werden.</p>
+
+            <div class="info-link-container">
+                <a href="https://mieter-lotse.de" class="info-link" target="_blank">
+                    Sie möchten mehr wissen? Zu unseren kostenlosen Info-Seiten
+                </a>
+            </div>
+        </div>
         `
     },
 
     // --- B2B ARBEITSTHEMEN ---
+
     'briefe': {
         title: "Briefe & Kommunikation",
         content: `
-            <strong>Workflow:</strong> 1. Eingangsstempel -> 2. Frist notieren -> 3. Klient informieren.<br>
-            <strong>Typische Dokumente:</strong> Anhörung (§ 24 SGB X), Aufforderung zur Mitwirkung, Bescheid.<br>
-            <strong>Risiko:</strong> Behördendeutsch führt oft zu Missverständnissen bei Klienten. Nutzen Sie Clerion zur Übersetzung in einfache Sprache.
+            <p>Effizientes Postmanagement ist der Schlüssel zur Fristwahrung.</p>
+
+            <strong>🔄 Prozesskette Posteingang</strong>
+            <ol>
+                <li><strong>Eingangsstempel:</strong> Sofort bei Erhalt datieren (Beweissicherung).</li>
+                <li><strong>Fristen notieren:</strong> Sofort im Kalender/Tool vermerken (vor Ablauf!).</li>
+                <li><strong>Klient informieren:</strong> Zeitnahe Weiterleitung zur Beruhigung.</li>
+            </ol>
+
+            <strong>📄 Dokumenten-Check</strong>
+            <ul>
+                <li><strong>Anhörung (§ 24 SGB X):</strong> Hier muss zwingend Stellung genommen werden.</li>
+                <li><strong>Mitwirkungspflicht (§ 60 SGB I):</strong> Fehlende Unterlagen führen zum Versagungsbescheid.</li>
+            </ul>
+
+            <strong>💡 Tool-Tipp: "Verstehen statt Raten"</strong>
+            <p>Behördendeutsch erzeugt Rückfragen. Nutzen Sie die <strong>Clerion-Übersetzung</strong>, um Inhalte mit einem Klick in "Einfache Sprache" umzuwandeln und an den Klienten zu senden.</p>
         `
     },
+
     'antraege_b2b': {
         title: "Antragsmanagement",
         content: `
-            <strong>Übersicht Vorgänge:</strong> Erstantrag, Weiterbewilligungsantrag (WBA), Überprüfungsantrag (§ 44 SGB X).<br>
-            <strong>Checkliste:</strong> Vollmacht beigefügt? Bankverbindung aktuell? Nachweise vollständig?<br>
-            <strong>Tipp:</strong> Nutzen Sie den integrierten Antragshelfer für komplexe Formulare.
+            <p>Vollständigkeit vor Schnelligkeit: Vermeiden Sie unnötige Nachforderungsschleifen.</p>
+
+            <strong>🗂️ Vorgangsarten</strong>
+            <ul>
+                <li><strong>Erstantrag:</strong> Basis für alle Leistungen.</li>
+                <li><strong>WBA (Weiterbewilligung):</strong> Rechtzeitig 6 Wochen vor Ablauf stellen.</li>
+                <li><strong>Überprüfungsantrag (§ 44 SGB X):</strong> Um alte, falsche Bescheide (bis zu 1 Jahr rückwirkend) zu korrigieren.</li>
+            </ul>
+
+            <strong>✅ Qualitätssicherung (QS)</strong>
+            <p>Prüfen Sie vor Versand:
+            <br>• Aktuelle Vollmacht liegt bei?
+            <br>• Bankverbindung (IBAN) noch korrekt?
+            <br>• Alle Nachweise lückenlos nummeriert?</p>
+
+            <strong>🚀 Workflow-Optimierung</strong>
+            <p>Nutzen Sie den <em>integrierten Antragshelfer</em>. Er führt durch komplexe Formularfelder und verhindert Flüchtigkeitsfehler.</p>
         `
     },
+
     'widerspruch': {
         title: "Widerspruch & Rechtsbehelfe",
         content: `
-            <strong>Wann sinnvoll?</strong> Bei offensichtlichen Berechnungsfehlern, fehlender Ermessensausübung oder nicht berücksichtigten Unterlagen.<br>
-            <strong>Frist:</strong> 1 Monat nach Bekanntgabe. (3 Monate bei fehlender Rechtsbehelfsbelehrung).<br>
-            <strong>Wann extern abgeben?</strong> Wenn es ins Klageverfahren geht oder komplexe Rechtsfragen (z.B. Erbrecht bei SGB II) berührt werden.
+            <p>Nicht jeder Bescheid ist korrekt. Hier ist juristische Präzision gefragt.</p>
+
+            <strong>⚖️ Prüfungsschema: Wann widersprechen?</strong>
+            <ul>
+                <li><strong>Rechenfehler:</strong> Einkommen falsch angerechnet?</li>
+                <li><strong>Ermessensfehler:</strong> Wurden individuelle Umstände ignoriert?</li>
+                <li><strong>Unterlagen:</strong> Wurden eingereichte Belege übersehen?</li>
+            </ul>
+
+            <strong>📅 Fristenmanagement (Ausschlussfristen)</strong>
+            <p><strong>Standard:</strong> 1 Monat nach Bekanntgabe des Bescheids.
+            <br><strong>Sonderfall:</strong> 1 Jahr (!) bei fehlender oder falscher Rechtsbehelfsbelehrung (§ 66 SGG).</p>
+
+            <strong>⚠️ Eskalation & Abgabe</strong>
+            <p>Kennen Sie Ihre Grenzen: Geht es ins Klageverfahren oder werden komplexe Rechtsgebiete (z.B. Erbrecht, Unterhaltsrecht) berührt? -> <em>Abgabe an Fachanwälte empfohlen.</em></p>
         `
     },
+
     'orga': {
         title: "Zuständigkeiten & Orga",
         content: `
-            <strong>Wer ist zuständig?</strong><br>
-            - Erwerbsfähig + Hilfebedürftig -> Jobcenter (SGB II)<br>
-            - Nicht erwerbsfähig / Altersrente -> Sozialamt (SGB XII)<br>
-            - Akute Pflege -> Pflegekasse + Sozialamt (Hilfe zur Pflege)<br><br>
-            <strong>Tipp:</strong> Nutzen Sie die Status-Logik in Clerion (Offen / Warten auf Rückmeldung / Erledigt).
+            <p>Die korrekte Zuordnung spart Zeit und verhindert "Unzuständigkeits"-Bescheide.</p>
+
+            <strong>🧭 Triage: Wer ist zuständig?</strong>
+            <table style="width:100%; font-size: 0.9em; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 4px; border-bottom: 1px solid #eee;">Erwerbsfähig + Hilfebedürftig</td>
+                    <td style="padding: 4px; border-bottom: 1px solid #eee;"><strong>Jobcenter (SGB II)</strong></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px; border-bottom: 1px solid #eee;">Nicht erwerbsfähig / Altersrente</td>
+                    <td style="padding: 4px; border-bottom: 1px solid #eee;"><strong>Sozialamt (SGB XII)</strong></td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px;">Pflegebedarf</td>
+                    <td style="padding: 4px;"><strong>Pflegekasse + Sozialamt</strong></td>
+                </tr>
+            </table>
+
+            <br>
+            <strong>📊 Status-Tracking in Clerion</strong>
+            <p>Halten Sie die Akten sauber:
+            <br>🔴 <strong>Offen:</strong> Handlungsbedarf sofort.
+            <br>🟡 <strong>Warten:</strong> Rückmeldung Behörde/Klient steht aus.
+            <br>🟢 <strong>Erledigt:</strong> Vorgang archivieren.</p>
         `
     }
 };
@@ -481,21 +644,29 @@ function renderDocs(docs) {
         return;
     }
     
-    docs.forEach(doc => {
+        docs.forEach(doc => {
         const div = document.createElement('div');
         div.className = 'doc-item';
         // Icon je nach Dateityp raten
         const icon = doc.fileName.endsWith('.pdf') ? '📄' : '🖼️';
         
         div.innerHTML = `
-            <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
-                <span>${icon}</span>
-                <a href="${API_BASE_URL}/${doc.filePath.replace(/\\/g, '/')}" target="_blank" style="text-decoration:none; color:#333; text-overflow:ellipsis; white-space:nowrap; overflow:hidden;">
+            <!-- LINKER BEREICH: Icon + Name (Hier passiert der Umbruch-Fix) -->
+            <div style="display:flex; align-items:center; gap:8px; flex: 1; min-width: 0;">
+                <span style="flex-shrink: 0;">${icon}</span>
+                <a href="${API_BASE_URL}/${doc.filePath.replace(/\\/g, '/')}" 
+                   target="_blank" 
+                   title="${doc.fileName}" 
+                   style="text-decoration:none; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                     ${doc.fileName}
                 </a>
             </div>
-            <div style="display:flex; align-items:center; gap:5px;">
-                <span style="font-size:0.7rem; color:#aaa; background:#eee; padding:2px 5px; border-radius:4px;">${doc.category || 'Allgemein'}</span>
+
+            <!-- RECHTER BEREICH: Kategorie + Löschen (Darf nicht schrumpfen) -->
+            <div style="display:flex; align-items:center; gap:5px; flex-shrink: 0; margin-left: 8px;">
+                <span style="font-size:0.7rem; color:#aaa; background:#eee; padding:2px 5px; border-radius:4px;">
+                    ${doc.category || 'Allgemein'}
+                </span>
                 <button class="doc-delete" style="border:none; background:none; color:#999; cursor:pointer;">🗑</button>
             </div>
         `;
@@ -505,6 +676,7 @@ function renderDocs(docs) {
         
         list.appendChild(div);
     });
+
 }
 
 async function uploadDocument() {
