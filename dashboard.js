@@ -179,7 +179,7 @@ const resetPasswordContainer = document.getElementById('reset-password-container
 const requestResetForm = document.getElementById('request-reset-form');
 const doResetForm = document.getElementById('do-reset-form');
 const backToLoginLink = document.getElementById('back-to-login-link');
-const manageSubscriptionButton = document.getElementById('manage-subscription-button');
+//const manageSubscriptionButton = document.getElementById('manage-subscription-button');
 const adminDashboardLink = document.getElementById('admin-dashboard-link');
 const clientDetailModalOverlay = document.getElementById('client-detail-modal-overlay');
     const closeClientDetailModalButton = document.getElementById('close-client-detail-modal-button');
@@ -523,7 +523,7 @@ function updateUI() {
     }
 
     if (subscribeContainer) subscribeContainer.classList.toggle('hidden', hasActiveSubscription);
-    if (manageSubscriptionButton) manageSubscriptionButton.classList.toggle('hidden', !hasActiveSubscription);
+    //if (manageSubscriptionButton) manageSubscriptionButton.classList.toggle('hidden', !hasActiveSubscription);
     if (pdfCounterInfo) pdfCounterInfo.classList.toggle('hidden', hasActiveSubscription);
 
     // --- KORRIGIERTE FEATURE-FREISCHALTUNG ---
@@ -1601,7 +1601,7 @@ if (linkClientButton) {
 }
 
     // Listener für Button Aboverwaltung
-if (manageSubscriptionButton) {
+/*if (manageSubscriptionButton) {
     manageSubscriptionButton.addEventListener('click', async () => {
         try {
             // Diese Route ist für B2C nicht vorhanden, wir müssen sie in stripe.js erstellen
@@ -1618,7 +1618,7 @@ if (manageSubscriptionButton) {
             showNotification(error.message, 'error');
         }
     });
-}
+}*/
 
     // Listener für Premium Button
 if (subscribeButton) {
