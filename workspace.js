@@ -132,6 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadNotes();
     loadChecklist();
     loadDocuments();
+    initDiary()
 
     // 5. Event Listener registrieren
     setupEventListeners();
@@ -170,9 +171,17 @@ function setupEventListeners() {
     }
 
     // Datei Upload
-    const uploadInput = document.getElementById('doc-upload-input');
-    if (uploadInput) {
-        uploadInput.addEventListener('change', uploadDocument);
+    const triggerBtn = document.getElementById('trigger-upload-btn');
+    const fileInput = document.getElementById('doc-upload-input');
+
+    if (triggerBtn && fileInput) {
+        // 1. Wenn man auf den schönen Button klickt -> Klick an das versteckte Feld weiterleiten
+        triggerBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // 2. Wenn eine Datei ausgewählt wurde -> Hochladen starten
+        fileInput.addEventListener('change', uploadDocument);
     }
 
     // Onboarding Auswahl-Buttons (Visuelles Feedback)
@@ -541,4 +550,113 @@ async function deleteDoc(id) {
         });
         loadDocuments();
     } catch(e) { console.error(e); }
+}
+
+// =================================================================
+// 8. FUNKTIONEN: TAGEBUCH (JOURNAL)
+// =================================================================
+
+// Wird beim Laden der Seite aufgerufen (in DOMContentLoaded einfügen!)
+function initDiary() {
+    // 1. Datum setzen (Deutsch formatiert: "Sonntag, 4. Januar 2026")
+    const dateEl = document.getElementById('diary-display-date');
+    if (dateEl) {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateEl.textContent = new Date().toLocaleDateString('de-DE', options);
+    }
+
+    // 2. Platzhalter anpassen je nach B2B / B2C
+    const inputEl = document.getElementById('diary-input');
+    if (inputEl) {
+        if (currentUser.type === 'b2b') {
+            inputEl.placeholder = "Notizen zum Arbeitstag: Offene Vorgänge, Ideen oder wichtige Erinnerungen...";
+        } else {
+            inputEl.placeholder = "Liebes Tagebuch, heute habe ich...";
+        }
+    }
+
+    // 3. Verlauf laden (aber noch zugeklappt lassen)
+    loadDiaryHistory();
+    
+    // 4. History Button Listener
+    const historyBtn = document.getElementById('toggle-history-btn');
+    const historyContainer = document.getElementById('diary-history-container');
+    if (historyBtn && historyContainer) {
+        historyBtn.addEventListener('click', () => {
+            historyContainer.classList.toggle('open');
+            historyBtn.textContent = historyContainer.classList.contains('open') ? '🔼 Zuklappen' : '📜 Alte Einträge';
+        });
+    }
+}
+
+async function saveDiaryEntry() {
+    const input = document.getElementById('diary-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    // Button Feedback
+    const btn = document.querySelector('.diary-footer .btn-primary');
+    const originalText = btn.textContent;
+    btn.textContent = "Speichere...";
+    btn.disabled = true;
+
+    try {
+        await fetch(`${API_BASE_URL}/api/workspace/journal`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ 
+                text: text, 
+                mood: 'neutral' // Könnte man später noch auswählbar machen
+            })
+        });
+
+        // Erfolg
+        input.value = ''; // Feld leeren für den nächsten Tag (oder Text lassen? Geschmackssache. Leeren wirkt wie "abgeschlossen")
+        loadDiaryHistory(); // Liste aktualisieren
+        
+        // Button zurücksetzen
+        btn.textContent = "Gespeichert! ✅";
+        setTimeout(() => { 
+            btn.textContent = originalText; 
+            btn.disabled = false; 
+        }, 2000);
+
+    } catch (e) {
+        console.error(e);
+        btn.textContent = "Fehler ❌";
+    }
+}
+
+async function loadDiaryHistory() {
+    const container = document.getElementById('diary-history-container');
+    if (!container) return;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/workspace/journal`, { 
+            headers: { 'Authorization': `Bearer ${token}` } 
+        });
+        const entries = await res.json();
+
+        container.innerHTML = '';
+        
+        if (entries.length === 0) {
+            container.innerHTML = '<p style="padding:15px; text-align:center; color:#aaa; font-style:italic;">Noch keine Einträge. Schreiben Sie den ersten!</p>';
+            return;
+        }
+
+        entries.forEach(entry => {
+            const dateStr = new Date(entry.createdAt).toLocaleDateString('de-DE', { 
+                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' 
+            });
+            
+            const div = document.createElement('div');
+            div.className = 'diary-entry-item';
+            div.innerHTML = `
+                <span class="diary-entry-date">${dateStr} Uhr</span>
+                <div style="white-space: pre-wrap;">${entry.text}</div>
+            `;
+            container.appendChild(div);
+        });
+
+    } catch (e) { console.error(e); }
 }

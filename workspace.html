@@ -208,15 +208,20 @@
             cursor: pointer;
         }
         .btn-upload {
-            background-color: var(--ws-accent);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
+    background-color: var(--ws-accent);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.2s;
+}
+.btn-upload:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
 
         /* ONBOARDING MODAL */
         .onboarding-overlay {
@@ -255,6 +260,115 @@
         .hidden { display: none !important; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideDown { from { opacity: 0; max-height: 0; } to { opacity: 1; max-height: 500px; } }
+
+        /* === TAGEBUCH DESIGN === */
+.diary-card {
+    background: #fff;
+    border: 1px solid #d1d1d1;
+    border-radius: 8px; /* Buch-Ecken */
+    box-shadow: 
+        5px 5px 15px rgba(0,0,0,0.1), 
+        inset 20px 0 30px rgba(0,0,0,0.05); /* Buchfalz links */
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+/* Der "Leder"-Kopfbereich */
+.diary-header-strip {
+    background-color: var(--ws-accent); /* Nimmt die Farbe vom B2C/B2B Theme */
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid rgba(0,0,0,0.1);
+}
+
+.diary-date {
+    font-family: 'Georgia', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    opacity: 0.9;
+}
+
+/* Das linierte Papier */
+.diary-paper {
+    background-color: #fffef0; /* Leichtes Gelb */
+    background-image: linear-gradient(#e1e1e1 1px, transparent 1px);
+    background-size: 100% 2rem; /* Abstand der Linien */
+    background-attachment: local;
+    padding: 0;
+    position: relative;
+}
+
+/* Rote Randlinie links (typisch Schulheft) */
+.diary-paper::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 3rem;
+    width: 2px;
+    background-color: rgba(255, 0, 0, 0.2);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Das Eingabefeld */
+#diary-input {
+    width: 100%;
+    height: 250px;
+    border: none;
+    background: transparent;
+    padding: 0.5rem 1rem 0.5rem 4rem; /* Platz für die rote Linie lassen */
+    font-family: 'Courier New', Courier, monospace; /* Schreibmaschinen-Look */
+    font-size: 1.1rem;
+    line-height: 2rem; /* WICHTIG: Muss exakt background-size entsprechen! */
+    color: #333;
+    outline: none;
+    resize: none;
+}
+
+#diary-input::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+/* Footer mit Buttons */
+.diary-footer {
+    background: #fcfcfc;
+    padding: 10px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Liste der alten Einträge */
+.diary-history {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+    background: #f9f9f9;
+}
+.diary-history.open {
+    max-height: 300px; /* Oder auto */
+    overflow-y: auto;
+    border-top: 1px solid #ddd;
+}
+.diary-entry-item {
+    padding: 10px 20px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+    color: #666;
+    background: white;
+}
+.diary-entry-date {
+    font-weight: bold;
+    color: var(--ws-accent);
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 4px;
+}
 
     </style>
 </head>
@@ -362,10 +476,15 @@
                         <div class="ws-title" id="docs-title">🎒 Mein Notfall-Koffer</div>
                         
                         <!-- Upload Button -->
-                        <div class="upload-wrapper">
-                            <span class="btn-upload">+ Hochladen</span>
-                            <input type="file" id="doc-upload-input">
-                        </div>
+                        <div style="display: flex; align-items: center;">
+    <!-- Der sichtbare Button -->
+    <button id="trigger-upload-btn" class="btn-upload" style="cursor: pointer; border:none;">
+        + Hochladen
+    </button>
+    
+    <!-- Das versteckte technische Feld -->
+    <input type="file" id="doc-upload-input" style="display: none;">
+</div>
                     </div>
                     
                     <p style="font-size:0.9rem; color:#666; margin-bottom:1rem;">
@@ -391,7 +510,37 @@
             <!-- RECHTE SPALTE: Organisation & Notizen -->
             <div class="side-column">
                 
-                <!-- CARD 3: NOTIZEN -->
+                <!-- CARD 3: DAS TAGEBUCH (Ersetzt die einfachen Notizen) -->
+<div class="diary-card">
+    <!-- Kopfzeile mit Datum -->
+    <div class="diary-header-strip">
+        <div style="font-weight:bold; letter-spacing:1px;">📖 JOURNAL</div>
+        <div id="diary-display-date" class="diary-date">01.01.2026</div>
+    </div>
+
+    <!-- Das linierte Papier -->
+    <div class="diary-paper">
+        <textarea id="diary-input" placeholder="Wofür sind Sie heute dankbar? Oder was liegt Ihnen auf dem Herzen?"></textarea>
+    </div>
+
+    <!-- Fußzeile -->
+    <div class="diary-footer">
+        <button id="toggle-history-btn" class="button-secondary" style="font-size:0.8rem;">
+            📜 Alte Einträge
+        </button>
+        <button onclick="saveDiaryEntry()" class="btn-primary" style="padding: 6px 15px;">
+            Eintrag speichern
+        </button>
+    </div>
+
+    <!-- Verlauf (Ausklappbar) -->
+    <div id="diary-history-container" class="diary-history">
+        <!-- Wird per JS gefüllt -->
+        <p style="padding:20px; text-align:center; color:#999;">Lade Verlauf...</p>
+    </div>
+</div>
+
+<!-- CARD 3: NOTIZEN -->
                 <div class="ws-card">
                     <div class="ws-card-header" style="margin-bottom:0.5rem;">
                         <div class="ws-title">📝 Notizen</div>
@@ -401,7 +550,7 @@
                     </div>
                     <textarea id="personal-notes" placeholder="Platz für Gedanken, Telefonnummern oder Fragen, die Sie später klären wollen..."></textarea>
                 </div>
-
+                
                 <!-- CARD 4: CHECKLISTEN -->
                 <div class="ws-card">
                     <div class="ws-card-header">
