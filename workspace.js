@@ -751,18 +751,17 @@ function renderDocs(docs) {
     const icon = doc.fileName.endsWith('.pdf') ? '📄' : '🖼️';
     
     div.innerHTML = `
-    <div class="doc-name-truncate" style="display:flex; align-items:center; gap:8px;">
+    <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px; flex: 1; min-width: 0;">
         <span style="flex-shrink: 0;">${icon}</span>
-        
         <a href="${API_BASE_URL}/${doc.filePath.replace(/\\/g, '/')}" 
            target="_blank" 
            title="${doc.fileName}" 
-           style="text-decoration:none; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display: block; flex: 1; min-width: 0;">
+           style="text-decoration:none; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display: block; width: 100%;">
             ${doc.fileName}
         </a>
     </div>
 
-    <div style="display:flex; align-items:center; gap:8px; flex-shrink: 0;">
+    <div style="display:flex; align-items:center; gap:8px; flex-shrink: 0; margin-left: auto;">
         <span style="font-size:0.7rem; color:#aaa; background:#eee; padding:2px 5px; border-radius:4px; white-space: nowrap;">
             ${doc.category || 'Allgemein'}
         </span>

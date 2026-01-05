@@ -182,7 +182,19 @@
     text-overflow: ellipsis; 
     min-width: 0;          
 }
-        .doc-item:hover { border-color: #ddd; background: #fff; }
+ .doc-item:hover { border-color: #ddd; background: #fff; }
+
+ #documents-list {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden; /* Verhindert horizontales Scrollen der Liste */
+}
+
+.ws-card {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden; /* Wichtig: Alles was rausragt, wird hier gestoppt */
+}
 
         /* Persönliche Notizen */
         #personal-notes {
