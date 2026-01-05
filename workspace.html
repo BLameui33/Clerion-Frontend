@@ -147,10 +147,11 @@
 
         /* Dokumenten Koffer */
         .doc-filter-btns {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 8px;
+    margin-bottom: 15px;
+}
         .filter-btn {
             background: #eee; border: none; padding: 4px 10px; border-radius: 12px;
             font-size: 0.8rem; cursor: pointer; color: #555; transition: 0.2s;
@@ -170,6 +171,8 @@
             font-size: 0.95rem;
             border: 1px solid transparent;
             gap: 10px; 
+            width: 100%;       
+    box-sizing: border-box; 
     overflow: hidden; 
         }
         .doc-name-truncate {
@@ -440,7 +443,82 @@
     display: block;
     margin-bottom: 4px;
 }
+/* === B2B BUTTON VERSCHÖNERUNG (CSS ONLY) === */
 
+/* 1. Der "Speichern"-Button bei neuen Textbausteinen */
+#b2b-snippets-card button[onclick*="addSnippet"] {
+    background-color: var(--ws-accent) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 8px 20px !important;
+    font-weight: 600 !important;
+    width: 100%; /* Macht den Button über die ganze Breite, sieht besser aus */
+    margin-top: 5px;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+#b2b-snippets-card button[onclick*="addSnippet"]:hover {
+    filter: brightness(1.1);
+}
+
+/* 2. Die Buttons in der Sandbox (Leeren & Kopieren) */
+#b2b-sandbox-card button {
+    border-radius: 6px !important;
+    padding: 8px 15px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease;
+}
+
+/* Speziell der "Kopieren"-Button (rechter Button) */
+#b2b-sandbox-card button[onclick*="copySandbox"] {
+    background-color: var(--ws-accent) !important;
+    color: white !important;
+    border: none !important;
+}
+#b2b-sandbox-card button[onclick*="copySandbox"]:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+/* Speziell der "Leeren"-Button (linker Button) */
+#b2b-sandbox-card button[onclick*="value=''"] {
+    background-color: transparent !important;
+    border: 1px solid #ffcccc !important;
+    color: #e74c3c !important;
+}
+#b2b-sandbox-card button[onclick*="value=''"]:hover {
+    background-color: #fff5f5 !important;
+    border-color: #e74c3c !important;
+}
+
+/* 3. Die kleinen Icons in der Snippet-Liste (Kopieren & Löschen) */
+#snippet-list button {
+    border-radius: 4px !important;
+    width: 30px !important; /* Quadratisch machen */
+    height: 30px !important;
+    padding: 0 !important; /* Reset padding aus dem JS */
+    display: inline-flex !important;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid transparent !important;
+    background-color: #f4f6f8 !important;
+    transition: all 0.2s;
+}
+
+/* Hover für Kopieren-Icon */
+#snippet-list button[onclick*="copyToClipboard"]:hover {
+    background-color: #e0f2f1 !important;
+    color: #00695c !important;
+    border-color: #b2dfdb !important;
+}
+
+/* Hover für Löschen-Icon */
+#snippet-list button[onclick*="deleteSnippet"]:hover {
+    background-color: #ffebee !important;
+    color: #c62828 !important;
+    border-color: #ffcdd2 !important;
+}
     </style>
 </head>
 <body>

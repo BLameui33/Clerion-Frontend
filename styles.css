@@ -7781,3 +7781,15 @@ cursor: move;
     background-color: #2c3e50; /* Ruhiges Dunkelblau */
     }
 
+    #manage-subscription-button {
+    background-color: #007bff; /* Dein Blau-Ton */
+    color: #ffffff !important;  /* Erzwingt Weiß */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    appearance: none;           /* Verhindert spezielles Styling auf Mobilgeräten */
+    -webkit-appearance: none;    /* Für Safari auf dem iPhone */
+}
+

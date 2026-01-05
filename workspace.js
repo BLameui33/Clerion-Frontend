@@ -743,37 +743,36 @@ function renderDocs(docs) {
     }
     
         docs.forEach(doc => {
-        const div = document.createElement('div');
-        div.className = 'doc-item';
-        // Icon je nach Dateityp raten
-        const icon = doc.fileName.endsWith('.pdf') ? '📄' : '🖼️';
-        
-        div.innerHTML = `
-            <!-- LINKER BEREICH: Icon + Name (Hier passiert der Umbruch-Fix) -->
-            <div style="display:flex; align-items:center; gap:8px; flex: 1; min-width: 0;">
-                <span style="flex-shrink: 0;">${icon}</span>
-                <a href="${API_BASE_URL}/${doc.filePath.replace(/\\/g, '/')}" 
-                   target="_blank" 
-                   title="${doc.fileName}" 
-                   style="text-decoration:none; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                    ${doc.fileName}
-                </a>
-            </div>
+    const div = document.createElement('div');
+    div.className = 'doc-item';
+    // WICHTIG: Das doc-item selbst braucht display:flex und eine Breitenbegrenzung
+    div.style.cssText = "display:flex; align-items:center; justify-content:space-between; width:100%; overflow:hidden; margin-bottom:8px; gap:10px;";
 
-            <!-- RECHTER BEREICH: Kategorie + Löschen (Darf nicht schrumpfen) -->
-            <div style="display:flex; align-items:center; gap:5px; flex-shrink: 0; margin-left: 8px;">
-                <span style="font-size:0.7rem; color:#aaa; background:#eee; padding:2px 5px; border-radius:4px;">
-                    ${doc.category || 'Allgemein'}
-                </span>
-                <button class="doc-delete" style="border:none; background:none; color:#999; cursor:pointer;">🗑</button>
-            </div>
-        `;
+    const icon = doc.fileName.endsWith('.pdf') ? '📄' : '🖼️';
+    
+    div.innerHTML = `
+    <div class="doc-name-truncate" style="display:flex; align-items:center; gap:8px;">
+        <span style="flex-shrink: 0;">${icon}</span>
         
-        // Delete Event
-        div.querySelector('.doc-delete').addEventListener('click', () => deleteDoc(doc.id));
-        
-        list.appendChild(div);
-    });
+        <a href="${API_BASE_URL}/${doc.filePath.replace(/\\/g, '/')}" 
+           target="_blank" 
+           title="${doc.fileName}" 
+           style="text-decoration:none; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display: block; flex: 1; min-width: 0;">
+            ${doc.fileName}
+        </a>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:8px; flex-shrink: 0;">
+        <span style="font-size:0.7rem; color:#aaa; background:#eee; padding:2px 5px; border-radius:4px; white-space: nowrap;">
+            ${doc.category || 'Allgemein'}
+        </span>
+        <button class="doc-delete" style="border:none; background:none; color:#999; cursor:pointer; padding:5px;">🗑</button>
+    </div>
+`;
+    
+    div.querySelector('.doc-delete').addEventListener('click', () => deleteDoc(doc.id));
+    list.appendChild(div);
+});
 
 }
 
