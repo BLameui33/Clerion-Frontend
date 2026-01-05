@@ -17,7 +17,79 @@ const gentleHints = [
     "Viele Menschen brauchen mehrere Anläufe für Anträge. Das ist normal.",
     "Atmen Sie durch. Behördenfristen betragen oft 2 bis 4 Wochen.",
     "Ein Schritt nach dem anderen reicht völlig aus.",
-    "Es ist in Ordnung, sich Hilfe zu holen, wenn es zu viel wird."
+    "Es ist in Ordnung, sich Hilfe zu holen, wenn es zu viel wird.",
+  "Sie müssen das nicht heute lösen.",
+  "Es ist okay, wenn gerade nur ein kleiner Schritt geht.",
+  "Sie dürfen sich Zeit lassen.",
+  "Atmen Sie kurz durch – dann geht’s weiter.",
+  "Sie müssen nicht stark sein, um weiterzumachen.",
+  "Pause ist erlaubt.",
+  "Heute reicht auch „ein bisschen“.",
+  "Sie sind nicht allein damit.",
+  "Es ist normal, wenn das gerade viel ist.",
+  "Sie dürfen jederzeit speichern und später weitermachen.",
+  "Es muss nicht perfekt sein, nur machbar.",
+  "Ein Schritt nach dem anderen.",
+  "Wenn es zu viel wird: kurz stoppen ist auch Fortschritt.",
+  "Sie müssen nicht alles im Kopf behalten – Stück für Stück.",
+  "Es ist okay, Hilfe anzunehmen.",
+  "Sie machen das in Ihrem Tempo.",
+  "Auch kleine Erledigungen zählen.",
+  "Es ist verständlich, wenn Sie gerade müde sind.",
+  "Sie dürfen freundlich mit sich sein.",
+  "Das hier darf sich leicht anfühlen – soweit es geht.",
+  "Wenn heute nur Ordnung entsteht, ist das schon viel.",
+  "Sie müssen jetzt nicht alles verstehen.",
+  "Es ist okay, erstmal nur anzufangen.",
+  "Sie dürfen Dinge später ergänzen.",
+  "Wenn etwas fehlt: das lässt sich oft klären.",
+  "Sie müssen nicht alles alleine tragen.",
+  "Langsam ist nicht falsch. Langsam ist nachhaltig.",
+  "Es ist in Ordnung, wenn Sie kurz den Überblick verlieren.",
+  "Es ist okay, wenn Sie heute nur bis hierhin kommen.",
+  "Sie sind gerade weiter, als es sich anfühlt."
+];
+
+const b2bMotivations = [
+    "Jeder kleine Schritt zählt. Sie schaffen das!",
+    "Fokussieren Sie sich auf das Machbare. Kleine Erfolge motivieren.",
+    "Erinnern Sie sich an Ihre Erfolge: Was haben Sie diese Woche bereits gemeistert?",
+    "Eine kurze Pause kann Wunder wirken. Stehen Sie kurz auf und dehnen Sie sich.",
+    "Sie meistern komplexe Aufgaben – das ist eine Leistung!",
+    "Jeder kleine Schritt zählt. Sie schaffen das!",
+  "Fokussieren Sie sich auf das Machbare. Kleine Erfolge motivieren.",
+  "Erinnern Sie sich an Ihre Erfolge: Was haben Sie diese Woche bereits gemeistert?",
+  "Eine kurze Pause kann Wunder wirken. Stehen Sie kurz auf und dehnen Sie sich.",
+  "Sie meistern komplexe Aufgaben – das ist eine Leistung!",
+
+  "Sie müssen nicht alles heute abschließen – Priorisieren reicht.",
+  "Professionell arbeiten heißt auch: Grenzen setzen.",
+  "Kurz innehalten: Was ist der nächste sinnvolle Schritt?",
+  "Ein sauberer nächster Schritt ist besser als zehn halbe.",
+  "Dokumentation kostet Zeit – sie schützt später Nerven.",
+  "Wenn es gerade zu viel ist: erst stabilisieren, dann entscheiden.",
+  "Nicht alles ist dringlich. Wählen Sie bewusst, was jetzt dran ist.",
+  "Es ist okay, Dinge zu vertagen, wenn die Lage es erfordert.",
+  "Sie dürfen Aufgaben abgeben – das ist gutes Fallmanagement.",
+  "Teamarbeit ist kein Luxus, sondern Qualitätssicherung.",
+  "Eine Rückfrage ist keine Schwäche, sondern Sorgfalt.",
+  "Auch kleine Entlastungen für Klient:innen sind große Wirkung.",
+  "Sie können nur das steuern, was heute in Ihrem Einfluss liegt.",
+  "Kurz prüfen: Was bringt heute am meisten Wirkung pro Minute?",
+  "Wenn es emotional wird: einmal atmen, dann erst antworten.",
+  "Sie tragen viel Verantwortung – und Sie müssen sie nicht alleine tragen.",
+  "Ein klares Nein schützt Ihr Ja an anderer Stelle.",
+  "Es ist in Ordnung, nicht jede Lücke sofort zu schließen.",
+  "Routine entlastet: Standard-Schrittfolgen sind erlaubt.",
+  "Wenn die To-do-Liste wächst: ein Punkt weniger ist auch Fortschritt.",
+  "Sie arbeiten mit Menschen – nicht mit perfekten Bedingungen.",
+  "Ihr Blick fürs Wesentliche ist Teil Ihrer Expertise.",
+  "Ein kurzer Realitätscheck: Was ist heute realistisch leistbar?",
+  "Sie dürfen freundlich mit sich sein – auch im Professionellen.",
+  "Manches braucht mehrere Kontakte. Das ist Prozess, nicht Scheitern.",
+  "Sie schaffen Orientierung in komplexen Systemen – das zählt.",
+  "Wenn Sie müde sind: eine Minute Pause ist besser als durchbeißen.",
+  "Heute reicht „gut und sicher“ – nicht „maximal“."
 ];
 
 const knowledgeBase = {
@@ -305,20 +377,46 @@ function setupUserInterface() {
     if (currentUser.type === 'b2b') {
         document.body.classList.add('b2b-mode');
         document.getElementById('ws-greeting').textContent = 'Ihr Cockpit';
-        document.getElementById('ws-subtext').textContent = 'Effizienz & Struktur für Ihre Klientenarbeit.';
+        
+        // Titel anpassen
         document.getElementById('docs-title').textContent = '📂 Vorlagen & Dokumente';
         document.getElementById('checklist-title').textContent = '📌 Aufgaben & Workflows';
-        // B2B braucht keinen "Sanften Hinweis"
+        
+        // B2C Hinweis-Container ausblenden
         document.getElementById('gentle-hint-container').classList.add('hidden');
+
+        // --- MOTIVATIONSSPRUCH LOGIK ---
+        const subtextEl = document.getElementById('ws-subtext');
+        
+        if (subtextEl) {
+            if (typeof b2bMotivations !== 'undefined' && b2bMotivations.length > 0) {
+                // Wenn Sprüche da sind -> Zufälligen Spruch nehmen
+                const randomMotiv = b2bMotivations[Math.floor(Math.random() * b2bMotivations.length)];
+                subtextEl.textContent = randomMotiv;
+                subtextEl.style.fontStyle = 'italic';
+                subtextEl.style.opacity = '0.9';
+                subtextEl.style.color = 'var(--ws-accent)'; // Passt gut zum B2B Look
+            } else {
+                // Fallback, falls Array leer ist -> Standardtext
+                subtextEl.textContent = 'Effizienz & Struktur für Ihre Klientenarbeit.';
+            }
+        }
+
+        // B2B Features (Snippets & Sandbox) initialisieren
+        initB2BFeatures(); 
+
     } else {
-        // B2C Logik
-        document.getElementById('ws-greeting').textContent = `Hallo ${currentUser.username.split('@')[0] || ''}.`;
+        // --- B2C Logik ---
+        const displayName = currentUser.username.includes('@') ? currentUser.username.split('@')[0] : currentUser.username;
+        document.getElementById('ws-greeting').textContent = `Hallo ${displayName}.`;
         
         // Zufälligen sanften Hinweis anzeigen
         const hintElement = document.getElementById('gentle-hint-container');
-        const randomHint = gentleHints[Math.floor(Math.random() * gentleHints.length)];
-        hintElement.textContent = `„${randomHint}“`;
-        hintElement.classList.remove('hidden');
+        if (hintElement && typeof gentleHints !== 'undefined' && gentleHints.length > 0) {
+            const randomHint = gentleHints[Math.floor(Math.random() * gentleHints.length)];
+            hintElement.textContent = `„${randomHint}“`;
+            hintElement.classList.remove('hidden');
+        }
     }
 }
 
@@ -831,4 +929,111 @@ async function loadDiaryHistory() {
         });
 
     } catch (e) { console.error(e); }
+}
+
+// =================================================================
+// 9. B2B FEATURES (Snippets & Sandbox)
+// =================================================================
+
+
+function initB2BFeatures() {
+    // Karten sichtbar machen
+    document.getElementById('b2b-snippets-card').classList.remove('hidden');
+    document.getElementById('b2b-sandbox-card').classList.remove('hidden');
+    
+    // Daten laden
+    loadSnippets();
+}
+
+// --- SNIPPETS LOGIK ---
+
+async function loadSnippets() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/workspace/snippets`, { 
+            headers: { 'Authorization': `Bearer ${token}` } 
+        });
+        const snippets = await res.json();
+        const list = document.getElementById('snippet-list');
+        list.innerHTML = '';
+
+        if (snippets.length === 0) {
+            list.innerHTML = '<p style="font-style:italic; color:#999; font-size:0.9rem;">Keine Bausteine vorhanden.</p>';
+            return;
+        }
+
+        snippets.forEach(snip => {
+            const div = document.createElement('div');
+            div.style.cssText = 'background:white; border:1px solid #eee; padding:10px; margin-bottom:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;';
+            
+            div.innerHTML = `
+                <div style="overflow:hidden; margin-right:10px;">
+                    <strong style="font-size:0.9rem; display:block;">${snip.title}</strong>
+                    <div style="font-size:0.8rem; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;">${snip.content}</div>
+                </div>
+                <div style="display:flex; gap:5px;">
+                    <button onclick="copyToClipboard('${snip.content.replace(/'/g, "\\'")}')" class="button-secondary" title="Kopieren" style="padding:4px 8px;">📋</button>
+                    <button onclick="deleteSnippet(${snip.id})" class="button-secondary" title="Löschen" style="padding:4px 8px; color:#e74c3c;">&times;</button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+
+    } catch(e) { console.error(e); }
+}
+
+async function addSnippet() {
+    const titleIn = document.getElementById('snippet-title');
+    const contentIn = document.getElementById('snippet-content');
+    
+    if (!titleIn.value || !contentIn.value) return alert("Bitte Titel und Inhalt ausfüllen.");
+
+    try {
+        await fetch(`${API_BASE_URL}/api/workspace/snippets`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ 
+                title: titleIn.value, 
+                content: contentIn.value, 
+                category: 'general' 
+            })
+        });
+        
+        titleIn.value = '';
+        contentIn.value = '';
+        loadSnippets();
+
+    } catch(e) { console.error(e); }
+}
+
+async function deleteSnippet(id) {
+    if(!confirm("Baustein löschen?")) return;
+    try {
+        await fetch(`${API_BASE_URL}/api/workspace/snippets/${id}`, { 
+            method: 'DELETE', 
+            headers: { 'Authorization': `Bearer ${token}` } 
+        });
+        loadSnippets();
+    } catch(e) { console.error(e); }
+}
+
+// --- SANDBOX LOGIK ---
+
+function copySandbox() {
+    const text = document.getElementById('sandbox-input').value;
+    if(!text) return;
+    copyToClipboard(text);
+    alert("Text in die Zwischenablage kopiert! Sie können ihn jetzt sicher weiterverwenden.");
+}
+
+// Hilfsfunktion fürs Kopieren
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        // Optional: Kleines Feedback (Toast) anzeigen
+        const btn = document.activeElement;
+        if(btn && btn.tagName === 'BUTTON') {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✅';
+            setTimeout(() => btn.innerHTML = originalText, 1000);
+        }
+    });
 }

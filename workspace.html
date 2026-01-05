@@ -541,6 +541,31 @@
                     </div>
                 </div>
 
+                <!-- B2B FEATURE: TEXTBAUSTEINE (Standardmäßig versteckt) -->
+<div id="b2b-snippets-card" class="ws-card hidden">
+    <div class="ws-card-header">
+        <div class="ws-title">📋 Textbausteine</div>
+    </div>
+    <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">
+        Häufig genutzte Formulierungen speichern und mit einem Klick kopieren.
+    </p>
+
+    <!-- Liste der Bausteine -->
+    <div id="snippet-list" style="margin-bottom: 20px;">
+        <!-- Wird per JS gefüllt -->
+    </div>
+
+    <!-- Neuer Baustein Formular (Aufklappbar oder immer sichtbar) -->
+    <div style="background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #eee;">
+        <strong style="display:block; margin-bottom:10px; font-size:0.9rem;">+ Neuen Baustein anlegen</strong>
+        <input type="text" id="snippet-title" placeholder="Titel (z.B. Standard-Absage)" 
+               style="width:100%; padding:8px; margin-bottom:8px; border:1px solid #ddd; border-radius:4px;">
+        <textarea id="snippet-content" placeholder="Der Text, der kopiert werden soll..." 
+                  style="width:100%; height:80px; padding:8px; margin-bottom:8px; border:1px solid #ddd; border-radius:4px; resize:vertical;"></textarea>
+        <button onclick="addSnippet()" class="button-secondary" style="font-size:0.8rem;">Speichern</button>
+    </div>
+</div>
+
                 <!-- CARD 2: NOTFALL-KOFFER / DOKUMENTE -->
                 <div class="ws-card">
                     <div class="ws-card-header">
@@ -628,6 +653,25 @@
                 Zur Ruhe-Oase &rarr;
             </a>
         </div>
+    </div>
+</div>
+
+<!-- B2B FEATURE: SANDBOX (Standardmäßig versteckt) -->
+<div id="b2b-sandbox-card" class="ws-card hidden" style="border-left: 4px solid var(--ws-accent);">
+    <div class="ws-card-header">
+        <div class="ws-title">🛡️ Datenschutz-Sandbox</div>
+    </div>
+    <p style="font-size:0.85rem; color:#666; margin-bottom:10px;">
+        Text hier einfügen, sensible Daten (Namen) manuell entfernen und sicher kopieren. 
+        <br><em>Dieser Text wird nicht gespeichert.</em>
+    </p>
+    
+    <textarea id="sandbox-input" placeholder="Text zum Anonymisieren hier einfügen..." 
+              style="width:100%; height:150px; padding:10px; border:1px solid #ddd; border-radius:4px; font-family:monospace; font-size:0.9rem;"></textarea>
+    
+    <div style="display:flex; justify-content:space-between; margin-top:10px;">
+        <button onclick="document.getElementById('sandbox-input').value=''" class="button-secondary" style="font-size:0.8rem; color:#e74c3c;">Leeren</button>
+        <button onclick="copySandbox()" class="btn-primary" style="font-size:0.8rem; padding: 5px 10px;">In Zwischenablage kopieren</button>
     </div>
 </div>
 
