@@ -9,170 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.css">
     <link rel="icon" href="/clerion-logo.png">
     
-    <style>
-        /* Spezifische Styles für den Split-Screen */
-        .split-container {
-            display: flex;
-            height: calc(100vh - 80px); /* Header abziehen */
-            gap: 1rem;
-            padding: 1rem;
-            overflow: hidden;
-        }
-
-        .pdf-panel {
-            flex: 1;
-            background: #525659;
-            border-radius: 8px;
-            overflow: auto;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1rem;
-        }
-
-        .coach-panel {
-            flex: 0 0 450px; /* Feste Breite für den Coach */
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            overflow-y: auto;
-        }
-
-        .step-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .step-header {
-            border-bottom: 2px solid #eee;
-            padding-bottom: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .checklist-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 10px;
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        
-        .checklist-item input {
-            margin-top: 4px;
-        }
-
-        .chat-container {
-            flex-grow: 1;
-            background: white;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            max-height: 400px;
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-            background: #f4f6f8;
-        }
-
-        .chat-input-area {
-            padding: 1rem;
-            border-top: 1px solid #eee;
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .message {
-            margin-bottom: 0.8rem;
-            padding: 0.8rem;
-            border-radius: 8px;
-            max-width: 85%;
-            font-size: 0.9rem;
-        }
-        .msg-user { background: #007bff; color: white; align-self: flex-end; margin-left: auto; }
-        .msg-ai { background: white; border: 1px solid #ddd; align-self: flex-start; }
-
-        .loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9); z-index: 1000;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-        }
-
-        /* PDF Canvas Styling */
-        #pdf-canvas {
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            max-width: 100%;
-        }
-
-        /* --- NEU: Styles für das Modal & Utility Klassen, falls in styles.css fehlend --- */
-        
-        /* Verstecken-Klasse */
-        .hidden { display: none !important; }
-
-        /* Buttons */
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-        .btn-primary { background-color: #007bff; color: white; }
-        .btn-primary:hover { background-color: #0056b3; }
-        .btn-secondary { background-color: #6c757d; color: white; }
-        .btn-sm { padding: 5px 10px; font-size: 0.8rem; }
-        
-        /* Das Modal (Hintergrund) */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        /* Das Modal (Fenster) */
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .modal-close-button {
-            position: absolute;
-            top: 10px; right: 15px;
-            background: none; border: none;
-            font-size: 1.5rem; cursor: pointer;
-        }
-
-        /* Formular Styling */
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
-        .form-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* Wichtig damit Padding nicht die Breite sprengt */
-        }
-    </style>
+  <link rel="stylesheet" href="style-antragscoach.css">
 </head>
 <body>
 
@@ -293,6 +130,23 @@
         <p>Das kann bis zu 30 Sekunden dauern.</p>
     </div>
 
+    <footer class="main-footer" style="margin-top: 2rem; border-top: 1px solid #eee;">
+    <div class="footer-container">
+      <p>&copy; 2026 Clerion</p>
+      <div class="footer-links">
+        <a href="anleitung.html">Hilfe & Anleitung</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="impressum.html">Impressum</a>
+        <a href="AGB.html">AGB</a>
+        <a href="widerruf.html">Widerruf</a>
+      </div>
+    </div>
+    <p class="footer-disclaimer">
+      ⚖️ Hinweis: Dieses Tool ersetzt keine Rechtsberatung. Alle generierten Inhalte sind unverbindlich
+      und sollten vor Verwendung eigenständig geprüft werden.
+    </p>
+  </footer>
+  
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="manual_helper.js"></script>
