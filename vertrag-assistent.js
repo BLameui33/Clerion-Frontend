@@ -36,82 +36,120 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'index.html';
     });
 
-    // === Dateiname anzeigen ===
     uploadInput?.addEventListener('change', () => {
-        const file = uploadInput.files[0];
-        fileNameLabel.textContent = file ? file.name : 'Keine Datei ausgewählt';
-    });
+    const files = uploadInput.files;
+    const fileList = document.getElementById('file-list');
+    
+    if (files.length === 0) {
+        fileNameLabel.textContent = 'Keine Dateien ausgewählt';
+        fileList.innerHTML = '';
+        return;
+    }
+    
+    if (files.length > 5) {
+        showNotification('Maximal 5 Dateien erlaubt.', 'error');
+        uploadInput.value = '';
+        fileNameLabel.textContent = 'Keine Dateien ausgewählt';
+        fileList.innerHTML = '';
+        return;
+    }
+    
+    fileNameLabel.textContent = `${files.length} Datei(en) ausgewählt`;
+    
+    // Liste aller Dateien anzeigen
+    let listHTML = '<ul style="margin: 0; padding-left: 1.2rem;">';
+    for (let i = 0; i < files.length; i++) {
+        listHTML += `<li>${files[i].name}</li>`;
+    }
+    listHTML += '</ul>';
+    fileList.innerHTML = listHTML;
+});
+
 
     // === Dokument analysieren ===
     analyzeButton?.addEventListener('click', async () => {
-        const file = uploadInput.files[0];
+    const files = uploadInput.files;
 
-        const docTypeInput = document.querySelector('input[name="docType"]:checked');
-        const docType = docTypeInput ? docTypeInput.value : 'vertrag';
-    
-        if (!file) {
-            showNotification('Bitte wählen Sie eine Datei aus.', 'error');
-            return;
-        }
+    const docTypeInput = document.querySelector('input[name="docType"]:checked');
+    const docType = docTypeInput ? docTypeInput.value : 'vertrag';
 
-        // Nur PDF oder Bildformate erlauben
+    if (files.length === 0) {
+        showNotification('Bitte wählen Sie mindestens eine Datei aus.', 'error');
+        return;
+    }
+
+    if (files.length > 5) {
+        showNotification('Maximal 5 Dateien erlaubt.', 'error');
+        return;
+    }
+
+    // Dateiformate prüfen
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         if (!file.type.includes('pdf') && !file.type.startsWith('image/')) {
-            showNotification('Nur PDF- oder Bilddateien sind erlaubt.', 'error');
+            showNotification(`Datei "${file.name}" hat ein ungültiges Format. Nur PDF oder Bilder erlaubt.`, 'error');
             return;
         }
+    }
 
-        // PDF-Seitenbegrenzung prüfen (max. 5 Seiten)
-        if (file.type.includes('pdf')) {
-            const pdfjsLib = window.pdfjsLib;
-            if (!pdfjsLib) {
-                showNotification('PDF.js konnte nicht geladen werden.', 'error');
-                return;
-            }
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            if (pdf.numPages > 5) {
-                showNotification(`Das Dokument hat ${pdf.numPages} Seiten. Maximal 5 Seiten erlaubt.`, 'error');
-                return;
+    // PDF-Seitenbegrenzung prüfen (für alle PDFs)
+    const pdfjsLib = window.pdfjsLib;
+    if (pdfjsLib) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (file.type.includes('pdf')) {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                if (pdf.numPages > 5) {
+                    showNotification(`PDF "${file.name}" hat ${pdf.numPages} Seiten. Maximal 5 Seiten pro PDF erlaubt.`, 'error');
+                    return;
+                }
             }
         }
+    }
 
-        // Upload & Analyse
-        analyzeButton.disabled = true;
-        analyzeButton.textContent = 'Dokument wird geprüft...';
-        loadingSpinner.style.display = 'inline-block';
-        analysisOutput.value = '';
+    // Upload & Analyse
+    analyzeButton.disabled = true;
+    analyzeButton.textContent = 'Dokumente werden geprüft...';
+    loadingSpinner.style.display = 'inline-block';
+    analysisOutput.value = '';
 
-        const formData = new FormData();
-        formData.append('document', file);
-        formData.append('docType', docType);
+    const formData = new FormData();
+    
+    // Alle Dateien hinzufügen
+    for (let i = 0; i < files.length; i++) {
+        formData.append('documents', files[i]);
+    }
+    formData.append('docType', docType);
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/vertrag/analyse`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${authToken}` },
-                body: formData
-            });
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/vertrag/analyse`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}` },
+            body: formData
+        });
 
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Analyse fehlgeschlagen.');
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Analyse fehlgeschlagen.');
 
-            documentAnalysis = data.analysis;
-            analysisOutput.value = data.analysis;
-            analysisSection.classList.remove('hidden');
-            chatSection.classList.remove('hidden');
-            showNotification('Analyse erfolgreich abgeschlossen.', 'success');
+        documentAnalysis = data.analysis;
+        analysisOutput.value = data.analysis;
+        analysisSection.classList.remove('hidden');
+        chatSection.classList.remove('hidden');
+        showNotification('Analyse erfolgreich abgeschlossen.', 'success');
 
-        } catch (error) {
-            console.error('Fehler bei der Analyse:', error);
-            showNotification(`Fehler: ${error.message}`, 'error');
-            analysisOutput.value = `Fehler: ${error.message}`;
-        } finally {
-            analyzeButton.disabled = false;
-            analyzeButton.textContent = 'Dokument prüfen';
-            loadingSpinner.style.display = 'none';
-        }
-    });
+    } catch (error) {
+        console.error('Fehler bei der Analyse:', error);
+        showNotification(`Fehler: ${error.message}`, 'error');
+        analysisOutput.value = `Fehler: ${error.message}`;
+    } finally {
+        analyzeButton.disabled = false;
+        analyzeButton.textContent = 'Dokumente prüfen';
+        loadingSpinner.style.display = 'none';
+    }
+});
 
     // === Chat mit KI ===
     chatSendButton?.addEventListener('click', async () => {
@@ -174,16 +212,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === Reset ===
     resetButton?.addEventListener('click', () => {
-        uploadInput.value = '';
-        fileNameLabel.textContent = 'Keine Datei ausgewählt';
-        analysisOutput.value = '';
-        chatInput.value = '';
-        chatResponseContainer.innerHTML = '';
-        documentAnalysis = '';
-        analysisSection.classList.add('hidden');
-        chatSection.classList.add('hidden');
-        showNotification('Assistent wurde zurückgesetzt.', 'success');
-    });
+    uploadInput.value = '';
+    fileNameLabel.textContent = 'Keine Dateien ausgewählt';
+    document.getElementById('file-list').innerHTML = ''; // NEUE ZEILE
+    analysisOutput.value = '';
+    chatInput.value = '';
+    chatResponseContainer.innerHTML = '';
+    documentAnalysis = '';
+    analysisSection.classList.add('hidden');
+    chatSection.classList.add('hidden');
+    showNotification('Assistent wurde zurückgesetzt.', 'success');
+});
 
     // === Hilfsfunktion ===
     function showNotification(message, type = 'success') {

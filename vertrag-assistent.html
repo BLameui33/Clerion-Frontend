@@ -130,16 +130,24 @@
           </p>
         </div>
 
-        <div class="file-upload-section" style="margin-top: 1rem;">
-          <label class="form-label"><strong>Schritt 2: Dokument hochladen:</strong></label>
-          <div class="file-upload-wrapper">
-            <label for="document-upload" class="btn btn-secondary" style="cursor: pointer;">📄 Dokument wählen</label>
-            <input type="file" id="document-upload" style="display: none;" accept=".pdf, image/*" />
-            <span id="file-name-label">Keine Datei ausgewählt</span>
-          </div>
-          <button id="analyze-button" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Dokument prüfen</button>
-          <div id="loading-spinner" class="spinner" style="display:none;"></div>
-        </div>
+        <!-- Schritt 2 ändern: -->
+<div class="file-upload-section" style="margin-top: 1rem;">
+  <label class="form-label"><strong>Schritt 2: Dokumente hochladen (max. 5):</strong></label>
+  <div class="file-upload-wrapper">
+    <label for="document-upload" class="btn btn-secondary" style="cursor: pointer;">📄 Dokumente wählen</label>
+    <input type="file" id="document-upload" style="display: none;" accept=".pdf, image/*" multiple />
+    <span id="file-name-label">Keine Dateien ausgewählt</span>
+  </div>
+  <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">
+    ✅ PDF (max. 5 Seiten pro Datei) oder Bilder (JPG, PNG) - maximal 5 Dateien gleichzeitig
+  </p>
+  
+  <!-- Dateiliste anzeigen -->
+  <div id="file-list" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+  
+  <button id="analyze-button" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Dokumente prüfen</button>
+  <div id="loading-spinner" class="spinner" style="display:none;"></div>
+</div>
 
         <div class="analysis-result-section hidden" style="margin-top: 2rem;">
           <h4>KI-Analyse Ergebnis</h4>
