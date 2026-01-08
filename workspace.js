@@ -860,13 +860,23 @@ function initDiary() {
 async function saveDiaryEntry() {
     const input = document.getElementById('diary-input');
     const text = input.value.trim();
+    
+    // Abbruch, wenn kein Text eingegeben wurde
     if (!text) return;
 
-    // Button Feedback
-    const btn = document.querySelector('.diary-footer .btn-primary');
-    const originalText = btn.textContent;
-    btn.textContent = "Speichere...";
-    btn.disabled = true;
+    // --- FEHLERBEHEBUNG ---
+    // Wir suchen den Button jetzt über die korrekte Klasse aus Ihrer HTML-Datei: "diary-btn-save"
+    const btn = document.querySelector('.diary-footer .diary-btn-save');
+    
+    let originalContent = '<span>Eintrag speichern</span> <span class="icon">✨</span>'; // Fallback
+
+    if (btn) {
+        // Wir speichern den alten Inhalt (damit das Icon später wieder da ist)
+        originalContent = btn.innerHTML;
+        // Button Status ändern
+        btn.innerHTML = 'Speichere... ⏳'; // innerHTML nutzen, damit wir Icons nutzen können
+        btn.disabled = true;
+    }
 
     try {
         await fetch(`${API_BASE_URL}/api/workspace/journal`, {
@@ -874,24 +884,32 @@ async function saveDiaryEntry() {
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ 
                 text: text, 
-                mood: 'neutral' // Könnte man später noch auswählbar machen
+                mood: 'neutral' 
             })
         });
 
-        // Erfolg
-        input.value = ''; // Feld leeren für den nächsten Tag (oder Text lassen? Geschmackssache. Leeren wirkt wie "abgeschlossen")
-        loadDiaryHistory(); // Liste aktualisieren
+        // Erfolg: Feld leeren & Liste neu laden
+        input.value = ''; 
+        loadDiaryHistory(); 
         
         // Button zurücksetzen
-        btn.textContent = "Gespeichert! ✅";
-        setTimeout(() => { 
-            btn.textContent = originalText; 
-            btn.disabled = false; 
-        }, 2000);
+        if (btn) {
+            btn.innerHTML = 'Gespeichert! ✅';
+            setTimeout(() => { 
+                btn.innerHTML = originalContent; 
+                btn.disabled = false; 
+            }, 2000);
+        }
 
     } catch (e) {
         console.error(e);
-        btn.textContent = "Fehler ❌";
+        if (btn) {
+            btn.innerHTML = 'Fehler ❌';
+            setTimeout(() => { 
+                btn.innerHTML = originalContent; 
+                btn.disabled = false; 
+            }, 2000);
+        }
     }
 }
 
