@@ -531,6 +531,53 @@
     color: #c62828 !important;
     border-color: #ffcdd2 !important;
 }
+/* Mini-Accordions (Untermenüs innerhalb eines Hauptthemas) */
+.sub-acc-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fff;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.sub-acc-title {
+  padding: 12px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  background: rgba(0,0,0,0.02);
+}
+
+.sub-acc-title:hover {
+  background: rgba(0,0,0,0.04);
+}
+
+.sub-acc-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  background: #f0f0f0;
+  font-weight: 700;
+}
+
+.sub-acc-content {
+  display: none;
+  padding: 12px 14px 14px 14px;
+  background: #fafafa;
+  color: #555;
+  line-height: 1.6;
+}
+
+.sub-acc-content.open {
+  display: block;
+  animation: slideDown 0.25s ease;
+}
+
     </style>
 </head>
 <body>
