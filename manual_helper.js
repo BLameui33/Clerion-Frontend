@@ -61,9 +61,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-prev-step').addEventListener('click', () => changeStep(-1));
 
     // PDF Controls
-    document.getElementById('pdf-zoom-in').addEventListener('click', () => { pdfScale += 0.2; renderPage(pdfPageNum); });
-    document.getElementById('pdf-zoom-out').addEventListener('click', () => { if(pdfScale > 0.5) pdfScale -= 0.2; renderPage(pdfPageNum); });
+    document.getElementById('pdf-zoom-in').addEventListener('click', () => {
+  if (!pdfDoc) return;
+  pdfScale += 0.2;
+  renderPage(pdfPageNum);
+});
 
+document.getElementById('pdf-zoom-out').addEventListener('click', () => {
+  if (!pdfDoc) return;
+  if (pdfScale > 0.5) pdfScale -= 0.2;
+  renderPage(pdfPageNum);
+});
     // Chat
     document.getElementById('chat-send-btn').addEventListener('click', sendChatMessage);
     document.getElementById('chat-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChatMessage(); });
@@ -169,14 +177,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 1. PDF laden
             // WICHTIG: API liefert relativen Pfad. Base URL davor setzen.
-            const pdfUrl = `${API_BASE_URL}${appData.originalFileUrl}`;
-            const loadingTask = pdfjsLib.getDocument(pdfUrl);
-            pdfDoc = await loadingTask.promise;
-            
-            document.getElementById('pdf-page-count').textContent = pdfDoc.numPages;
+            const fileUrl = `${API_BASE_URL}${appData.originalFileUrl}`;
 
-            // 2. Ersten Schritt rendern
-            renderCurrentStep();
+// Simple Erkennung über Endung (Backend liefert aktuell kein mimeType) [file:2]
+const isPdf = fileUrl.toLowerCase().endsWith('.pdf');
+
+if (isPdf) {
+  // PDF wie gehabt laden
+  const loadingTask = pdfjsLib.getDocument(fileUrl);
+  pdfDoc = await loadingTask.promise;
+
+  document.getElementById('pdf-page-count').textContent = pdfDoc.numPages;
+
+  // Canvas sichtbar lassen (wenn du es per CSS/HTML versteckst, hier wieder einblenden)
+  document.getElementById('pdf-canvas').style.display = 'block';
+
+  // Optional: Falls du ein <img> ergänzt, hier ausblenden
+  const img = document.getElementById('image-preview');
+  if (img) img.style.display = 'none';
+} else {
+  // Bild-Fall: KEIN pdfjsLib.getDocument aufrufen
+  pdfDoc = null;
+
+  document.getElementById('pdf-page-count').textContent = '1';
+  document.getElementById('pdf-page-num').textContent = '1';
+
+  // Canvas ausblenden
+  document.getElementById('pdf-canvas').style.display = 'none';
+
+  // Bild anzeigen (du brauchst dafür ein <img id="image-preview"> im HTML)
+  const img = document.getElementById('image-preview');
+  if (img) {
+    img.src = fileUrl;
+    img.style.display = 'block';
+  } else {
+    // Fallback: wenigstens in neuem Tab öffnen, falls HTML noch kein <img> hat
+    window.open(fileUrl, '_blank');
+  }
+}
+
+// Schritt rendern
+renderCurrentStep();
 
         } catch (error) {
             console.error(error);
@@ -223,10 +264,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // PDF zur richtigen Seite blättern
-        if (step.pageNumber && step.pageNumber <= pdfDoc.numPages) {
-            renderPage(step.pageNumber);
-        } else {
-            renderPage(1);
+        if (pdfDoc) {
+  if (step.pageNumber && step.pageNumber <= pdfDoc.numPages) {
+    renderPage(step.pageNumber);
+  } else {
+    renderPage(1);
+  }
         }
     }
 
