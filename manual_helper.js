@@ -87,41 +87,48 @@ document.getElementById('pdf-zoom-out').addEventListener('click', () => {
     }
 
     async function fetchAppList() {
-        appList.innerHTML = '<li>Lade...</li>';
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/manual-applications/list`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            });
-            const data = await res.json();
-            
-            if (data.length === 0) {
-                appList.innerHTML = '<li style="padding:1rem; text-align:center; color:#666;">Noch keine Anträge vorhanden. Starten Sie einen neuen!</li>';
-                return;
-            }
-
-            appList.innerHTML = data.map(app => `
-                <li style="display:flex; justify-content:space-between; align-items:center; padding: 1rem; border-bottom:1px solid #eee;">
-                    <div>
-                        <strong>${app.title || 'Unbenannter Antrag'}</strong><br>
-                        <small class="text-muted">Erstellt am: ${new Date(app.createdAt).toLocaleDateString()}</small>
-                    </div>
-                    <div>
-                        <span class="badge" style="background:${app.status === 'completed' ? '#28a745' : '#007bff'}; color:white; margin-right:1rem;">
-                            ${app.status === 'analyzing' ? 'Wird analysiert...' : 'In Bearbeitung'}
-                        </span>
-                        <button class="btn btn-sm btn-primary open-app-btn" data-id="${app.id}">Öffnen</button>
-                    </div>
-                </li>
-            `).join('');
-
-            document.querySelectorAll('.open-app-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => loadApplication(e.target.dataset.id));
-            });
-
-        } catch (error) {
-            appList.innerHTML = '<li style="color:red;">Fehler beim Laden der Liste.</li>';
+    appList.innerHTML = '<li>Lade...</li>';
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/manual-applications/list`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+        
+        if (data.length === 0) {
+            appList.innerHTML = '<li style="padding:1rem; text-align:center; color:#666;">Noch keine Anträge vorhanden. Starten Sie einen neuen!</li>';
+            return;
         }
+
+        appList.innerHTML = data.map(app => `
+            <li>
+                <div class="app-list-info">
+                    <strong>${app.title || 'Unbenannter Antrag'}</strong>
+                    <small class="text-muted">Erstellt am: ${new Date(app.createdAt).toLocaleDateString()}</small>
+                </div>
+                <div class="app-list-actions">
+                    <span class="badge" style="background:${app.status === 'completed' ? '#28a745' : '#007bff'}; color:white;">
+                        ${app.status === 'analyzing' ? 'Wird analysiert...' : 'In Bearbeitung'}
+                    </span>
+                    <button class="btn btn-sm btn-primary open-app-btn" data-id="${app.id}">Öffnen</button>
+                    <button class="btn btn-sm btn-danger delete-app-btn" data-id="${app.id}">Löschen</button>
+                </div>
+            </li>
+        `).join('');
+
+        document.querySelectorAll('.open-app-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => loadApplication(e.target.dataset.id));
+        });
+        document.querySelectorAll('.delete-app-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.dataset.id;
+                deleteApplication(id);
+            });
+        });
+
+    } catch (error) {
+        appList.innerHTML = '<li style="color:red;">Fehler beim Laden der Liste.</li>';
     }
+}
 
     async function handleUpload(e) {
         e.preventDefault();
@@ -289,6 +296,36 @@ renderCurrentStep();
         };
         await page.render(renderContext).promise;
     }
+
+    async function deleteApplication(id) {
+  const ok = confirm('Antrag wirklich löschen? Das kann nicht rückgängig gemacht werden.');
+  if (!ok) return;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/manual-applications/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data.message || 'Löschen fehlgeschlagen');
+    }
+
+    // Falls gerade geöffnet, zurück zur Liste
+    if (String(currentAppId) === String(id)) {
+      showDashboard();
+    } else {
+      // Nur Liste refreshen
+      fetchAppList();
+    }
+
+  } catch (err) {
+    alert('Fehler: ' + err.message);
+  }
+}
+
 
     async function changeStep(delta) {
         const steps = appData.structure.steps;
