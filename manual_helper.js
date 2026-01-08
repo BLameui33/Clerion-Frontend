@@ -152,11 +152,19 @@ document.getElementById('pdf-zoom-out').addEventListener('click', () => {
                 body: formData
             });
 
-            if(!res.ok) throw new Error('Upload fehlgeschlagen');
+            if (!res.ok) {
+  if (res.status === 403) {
+    // Optional: Backend liefert { message: "..." }
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.message || 'Nur für Premium-Plus-Mitglieder verfügbar.');
+  }
+  const errData = await res.json().catch(() => ({}));
+  throw new Error(errData.message || 'Upload fehlgeschlagen');
+}
 
-            const data = await res.json();
-            // Direkt in den Workspace wechseln
-            loadApplication(data.applicationId);
+const data = await res.json();
+loadApplication(data.applicationId);
+
 
         } catch (error) {
             alert('Fehler: ' + error.message);
@@ -173,9 +181,17 @@ document.getElementById('pdf-zoom-out').addEventListener('click', () => {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             
-            if(!res.ok) throw new Error('Konnte Antrag nicht laden');
-            
-            appData = await res.json();
+            if (!res.ok) {
+  if (res.status === 403) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.message || 'Nur für Premium-Plus-Mitglieder verfügbar.');
+  }
+  const errData = await res.json().catch(() => ({}));
+  throw new Error(errData.message || 'Konnte Antrag nicht laden');
+}
+
+appData = await res.json();
+
             currentStepIndex = appData.currentStepIndex || 0;
 
             // Views umschalten
