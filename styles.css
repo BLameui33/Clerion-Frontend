@@ -7836,7 +7836,7 @@ cursor: move;
     height: 130px;
     
     /* Der Verlauf: Blau (Sicherheit) zu Weiß (Klarheit) */
-    background: linear-gradient(180deg, #1e3a8a 0%, #4b7bec 60%, #ffffff 100%);
+     background: linear-gradient(135deg, #3b6ccf 0%, #1e3a8a 100%);
     
     border-radius: 50%;
     position: relative;
@@ -7872,9 +7872,7 @@ cursor: move;
     border: 9px solid white; 
     box-sizing: border-box;
     opacity: 0; 
-    
-    /* Schatten hilft bei der Erkennbarkeit auf dem weißen Verlauf */
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+   
 }
 
 .bracket-upper {
