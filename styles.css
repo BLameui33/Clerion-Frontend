@@ -108,6 +108,18 @@ body {
     padding: 0;
     overflow-x: hidden;
 }
+/* --- SOFT PAGE TRANSITIONS --- */
+
+/* Der Body ist standardmäßig unsichtbar, damit er nicht "aufblitzt" */
+body {
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out; /* Die Dauer des Überblendens */
+}
+
+/* Diese Klasse fügen wir per JS hinzu, sobald die Seite geladen ist */
+body.loaded {
+    opacity: 1;
+}
 
 /* ==========================================================================
    TYPOGRAPHY

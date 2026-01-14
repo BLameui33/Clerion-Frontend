@@ -1,5 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+     // 1. Seite sanft einblenden (FADE IN)
+    // Kleiner Timeout, damit der Browser den Übergang rendert
+    setTimeout(() => {
+        document.body.classList.add('loaded');
+    }, 50);
+
+    // 2. Links abfangen für sanftes Ausblenden (FADE OUT)
+    // Wir suchen alle Links, die auf andere HTML-Seiten führen
+    const allLinks = document.querySelectorAll('a');
+    
+    allLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const targetUrl = link.href;
+            
+            // Ignoriere Links, die nur "#" sind oder neues Fenster öffnen
+            if (targetUrl.includes('#') || link.target === '_blank' || targetUrl === window.location.href) {
+                return;
+            }
+
+            e.preventDefault(); // Stop den sofortigen Sprung
+            document.body.classList.remove('loaded'); // Starte Fade-Out (opacity geht auf 0)
+
+            // Warte kurz (passend zur CSS transition Zeit) und wechsle dann
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 400); // 400ms = 0.4s aus dem CSS
+        });
+    });
+
     const b2bSteps = [
         { id: 'welcome_b2b', attachTo: { element: '#welcome-message', on: 'bottom' }, title: 'Willkommen im B2B-Dashboard!', text: 'Diese Tour erklärt Ihnen die speziellen Funktionen für Geschäftskunden. Los geht\'s!' },
         { id: 'clients', attachTo: { element: '#b2b-dashboard', on: 'right' }, title: '1. Klienten anlegen', text: 'Legen Sie hier neue Klienten an, um deren Fälle und Dokumente getrennt zu verwalten. Die angelegten Klienten werden automatisch in die Klientenliste des Antragshelfers und der Dokumentenanalyse übertragen.' },
