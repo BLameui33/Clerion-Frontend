@@ -7793,3 +7793,118 @@ cursor: move;
     -webkit-appearance: none;    /* Für Safari auf dem iPhone */
 }
 
+
+/* --- LOGIN ANIMATION STYLES --- */
+
+#login-animation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f4f7f6; /* Oder deine Hintergrundfarbe der App */
+    z-index: 9999; /* Muss über allem liegen */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+/* Klasse zum Anzeigen des Overlays */
+#login-animation-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.animation-wrapper {
+    text-align: center;
+}
+
+/* Der blaue Kreis im Hintergrund */
+.logo-circle {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #2b58b4 0%, #1e3a8a 100%); /* Clerion Blau Verlauf */
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(30, 58, 138, 0.3);
+    margin: 0 auto 20px auto;
+    overflow: hidden; /* Wichtig, damit die Klammern nicht überstehen */
+}
+
+/* Grundform der Klammern */
+.bracket {
+    position: absolute;
+    width: 50px;
+    height: 80px;
+    border: 10px solid white;
+    top: 50%;
+    margin-top: -40px; /* Hälfte der Höhe zum Zentrieren */
+    box-sizing: border-box;
+}
+
+/* Linke Klammer (C) */
+.left-bracket {
+    left: 50%;
+    border-radius: 50px 0 0 50px; /* Halbkreis links */
+    border-right: none;
+    transform: translateX(-150%); /* Startposition: weit links draußen */
+    opacity: 0;
+}
+
+/* Rechte Klammer (gespiegeltes C) */
+.right-bracket {
+    right: 50%;
+    border-radius: 0 50px 50px 0; /* Halbkreis rechts */
+    border-left: none;
+    transform: translateX(150%); /* Startposition: weit rechts draußen */
+    opacity: 0;
+}
+
+/* Animationen definieren */
+#login-animation-overlay.active .left-bracket {
+    animation: slideInLeft 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+#login-animation-overlay.active .right-bracket {
+    animation: slideInRight 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Keyframes für die Bewegung */
+@keyframes slideInLeft {
+    0% {
+        transform: translateX(-150%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(-10px); /* Endposition: Leicht links von der Mitte */
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    0% {
+        transform: translateX(150%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(10px); /* Endposition: Leicht rechts von der Mitte */
+        opacity: 1;
+    }
+}
+
+.loading-text {
+    font-family: sans-serif;
+    color: #1e3a8a;
+    font-weight: 500;
+    margin-top: 1rem;
+    opacity: 0;
+    animation: fadeIn 0.5s ease 0.5s forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+

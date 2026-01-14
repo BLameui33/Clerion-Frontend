@@ -1798,33 +1798,63 @@ if (templateSelect && freitextInputForTemplate) {
    
    
     // Listener für das Login-Formular
+// Listener für das Login-Formular
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+
         try {
-            // KORRIGIERTE URL: /auth/login
+            // Button deaktivieren, um Doppelklicks zu vermeiden
+            if(submitBtn) submitBtn.disabled = true;
+            if(submitBtn) submitBtn.textContent = 'Prüfe...';
+
             const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             });
             const data = await response.json();
+
             if (response.ok) {
-    localStorage.setItem('behoerdenhilfe_token', data.token);
-    localStorage.setItem('currentUser', JSON.stringify(data.user));
-    // WEICHE FÜR DIE WEITERLEITUNG
-    if (data.user.role === 'owner') {
-        window.location.href = 'admin.html';
-    } else {
-        window.location.reload();
-    }
-} else {
+                // 1. Token speichern
+                localStorage.setItem('behoerdenhilfe_token', data.token);
+                localStorage.setItem('currentUser', JSON.stringify(data.user));
+
+                // 2. ANIMATION STARTEN
+                const overlay = document.getElementById('login-animation-overlay');
+                if (overlay) {
+                    overlay.classList.remove('hidden'); // hidden entfernen falls vorhanden
+                    // Kleiner Timeout damit der Browser das Entfernen von hidden registriert
+                    setTimeout(() => {
+                        overlay.classList.add('active'); // Startet die CSS Animation
+                    }, 10);
+
+                    // 3. Nach der Animation (z.B. 2000ms) weiterleiten
+                    setTimeout(() => {
+                        if (data.user.role === 'owner') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            // Dashboard neu laden um eingeloggt zu sein
+                            window.location.reload(); 
+                        }
+                    }, 2000); 
+                } else {
+                    // Fallback falls Overlay fehlt: Sofort weiter
+                    window.location.reload();
+                }
+
+            } else {
                 showNotification(data.message || 'Falscher Benutzername oder Passwort.', 'error');
+                if(submitBtn) submitBtn.disabled = false;
+                if(submitBtn) submitBtn.textContent = 'Login';
             }
         } catch (error) {
             showNotification('Verbindung zum Server fehlgeschlagen.', 'error');
+            if(submitBtn) submitBtn.disabled = false;
+            if(submitBtn) submitBtn.textContent = 'Login';
         }
     });
 }
