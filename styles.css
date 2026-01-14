@@ -108,17 +108,19 @@ body {
     padding: 0;
     overflow-x: hidden;
 }
-/* --- SOFT PAGE TRANSITIONS --- */
+/* --- SOFT PAGE TRANSITIONS (SICHERE VARIANTE) --- */
 
-/* Der Body ist standardmäßig unsichtbar, damit er nicht "aufblitzt" */
-body {
-    opacity: 0;
-    transition: opacity 0.4s ease-in-out; /* Die Dauer des Überblendens */
+@keyframes fadeInPage {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-/* Diese Klasse fügen wir per JS hinzu, sobald die Seite geladen ist */
-body.loaded {
-    opacity: 1;
+body {
+    /* Die Seite wird sofort animiert eingeblendet */
+    animation: fadeInPage 0.6s ease-in-out;
+    
+    /* Sicherheitsnetz: Falls Animationen nicht gehen, ist die Seite trotzdem sichtbar */
+    opacity: 1; 
 }
 
 /* ==========================================================================
