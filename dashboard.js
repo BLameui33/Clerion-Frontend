@@ -1830,7 +1830,7 @@ if (loginForm) {
                     // Kleiner Timeout damit der Browser das Entfernen von hidden registriert
                     setTimeout(() => {
                         overlay.classList.add('active'); // Startet die CSS Animation
-                    }, 10);
+                    }, 50);
 
                     // 3. Nach der Animation (z.B. 2000ms) weiterleiten
                     setTimeout(() => {
@@ -1840,7 +1840,7 @@ if (loginForm) {
                             // Dashboard neu laden um eingeloggt zu sein
                             window.location.reload(); 
                         }
-                    }, 2000); 
+                    }, 2800); 
                 } else {
                     // Fallback falls Overlay fehlt: Sofort weiter
                     window.location.reload();
