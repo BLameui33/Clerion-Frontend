@@ -439,11 +439,9 @@ function setupFlipCardScroll() {
     
     if (tracks.length === 0) return;
 
-    // Wir unterscheiden: Desktop (Sticky) vs. Mobile
     const isDesktop = window.matchMedia("(min-width: 901px)").matches;
 
     if (isDesktop) {
-        // === DESKTOP LOGIK ===
         let isTicking = false;
 
         function updateAllTracks() {
@@ -496,32 +494,35 @@ function setupFlipCardScroll() {
             }
         });
         
-        // Initial
         updateAllTracks();
 
     } else {
-        // === MOBILE LOGIK (Intersection Observer) ===
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.transform = 'rotateY(180deg)';
-                    entry.target.style.transition = 'transform 0.8s ease';
-                }
-            });
-        }, { threshold: 0.5 });
-
-        // Observer auf ALLE Karten in ALLEN Tracks anwenden
+          
         tracks.forEach(track => {
             const cards = track.querySelectorAll('.flip-card-inner');
+            
             cards.forEach(card => {
                 card.style.transform = 'rotateY(0deg)';
-                observer.observe(card);
+                card.style.transition = 'transform 0.6s ease'; // Weiche Animation
+
+                // Klick-Event hinzufügen
+                card.addEventListener('click', function() {
+                    // Prüfen der aktuellen Rotation
+                    const currentTransform = this.style.transform;
+                    
+                    if (currentTransform === 'rotateY(180deg)') {
+                        this.style.transform = 'rotateY(0deg)'; // Zuklappen
+                    } else {
+                        this.style.transform = 'rotateY(180deg)'; // Aufklappen
+                    }
+                });
             });
         });
     }
 }
 
 document.addEventListener('DOMContentLoaded', setupFlipCardScroll);
+
 
 // =======================================================
 // LOGIK FÜR DIE INTERAKTIVE ANTRAGSHELFER-DEMO

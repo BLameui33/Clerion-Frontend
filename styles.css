@@ -8071,7 +8071,6 @@ cursor: move;
     transform: translateZ(0); 
 }
 
-/* Die Rückseite */
 .flip-card-back {
     
     transform: rotateY(180deg) translateZ(0); 
