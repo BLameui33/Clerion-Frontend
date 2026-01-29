@@ -446,35 +446,38 @@ function setupFlipCardScroll() {
         const trackHeight = rect.height;
         const viewportHeight = window.innerHeight;
 
-        // Fortschritt 0 bis 1
-        // Wir ziehen viewportHeight ab, damit 1.0 erreicht ist, wenn die Section endet
+        // Fortschritt berechnen (0 bis 1)
         let progress = -rect.top / (trackHeight - viewportHeight);
 
         // Begrenzen
         if (progress < 0) progress = 0;
         if (progress > 1) progress = 1;
 
-        // Wir wollen die Drehung über den mittleren Bereich des Scrolls verteilen
-        // z.B. von 10% bis 90%, damit es nicht zu hektisch ist
-        const startP = 0.1;
-        const endP = 0.9;
+        // EINSTELLUNGEN
+        const startP = 0.1; // Startet früh
+        const endP = 0.9;   // Endet spät
         
-        let rotation = 0;
+        // WICHTIG: Wir berechnen "mehr" als 180 Grad (z.B. 240), 
+        // damit auch die letzte Karte trotz Verzögerung sicher die 180 erreicht.
+        const maxTheoreticalRotation = 240; 
+        
+        let baseRotation = 0;
 
         if (progress > startP && progress < endP) {
             const innerProgress = (progress - startP) / (endP - startP);
-            rotation = innerProgress * 180;
+            baseRotation = innerProgress * maxTheoreticalRotation;
         } else if (progress >= endP) {
-            rotation = 180;
+            baseRotation = maxTheoreticalRotation;
         } else {
-            rotation = 0;
+            baseRotation = 0;
         }
 
         cards.forEach((card, index) => {
-            // Domino-Effekt: Index * 15 Grad Verzögerung
-            let individualRotation = rotation - (index * 15);
+            // Domino: Jede Karte 15 Grad später
+            let individualRotation = baseRotation - (index * 15);
             
-            // Hard Limit 0 und 180
+            // HARTES LIMIT: Nicht unter 0, nicht über 180
+            // Das sorgt dafür, dass sie am Ende alle gerade sind.
             if (individualRotation < 0) individualRotation = 0;
             if (individualRotation > 180) individualRotation = 180;
 
@@ -483,7 +486,7 @@ function setupFlipCardScroll() {
 
         isTicking = false;
     }
-
+    
     // Scroll Event Listener mit requestAnimationFrame
     document.addEventListener('scroll', function() {
         if (!isTicking) {
