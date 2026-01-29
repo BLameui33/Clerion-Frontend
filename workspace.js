@@ -7,6 +7,73 @@ const API_BASE_URL = 'https://api.clerion.de'; // Pfad ggf. anpassen
 const token = localStorage.getItem('behoerdenhilfe_token');
 const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
+
+function setupMenu() {
+    const menu = document.getElementById('main-menu');
+    menu.innerHTML = ''; // Sicherstellen, dass es leer ist
+
+    const isB2B = currentUser.type === 'b2b';
+
+    // Hier definieren wir, welche Kacheln es gibt
+    const tiles = [
+        // Für BEIDE
+        { id: 'knowledge', title: 'Wissen & Orientierung', icon: '🧭', desc: 'Wegweiser durch den Dschungel.' },
+        
+        // Nur B2C (Tagebuch)
+        { id: 'diary', title: 'Tagebuch', icon: '📖', desc: 'Gedanken ordnen.', show: !isB2B },
+        
+        // Dokumente (heißt bei B2B anders, technisch aber gleich)
+        { id: 'docs', title: isB2B ? 'Vorlagen & Docs' : 'Notfall-Koffer', icon: isB2B ? '📂' : '🎒', desc: 'Alles Wichtige an einem Ort.' },
+
+        // Nur B2B
+        { id: 'snippets', title: 'Textbausteine', icon: '📋', desc: 'Effizient antworten.', show: isB2B },
+        
+        // Hier können wir später die NEUEN Sachen (Tracker etc.) einfach hinzufügen
+    ];
+
+    tiles.forEach(tile => {
+        // Wenn "show" definiert ist und false ist, überspringen wir es
+        if (tile.show === false) return;
+
+        const el = document.createElement('div');
+        el.className = 'menu-tile';
+        el.innerHTML = `
+            <div class="tile-icon">${tile.icon}</div>
+            <div class="tile-title">${tile.title}</div>
+            <div class="tile-desc">${tile.desc}</div>
+        `;
+        // Beim Klick öffnen wir das Modul
+        el.onclick = () => openModule(tile.id);
+        menu.appendChild(el);
+    });
+}
+
+function openModule(moduleId) {
+    // 1. Menü ausblenden
+    document.getElementById('main-menu').classList.add('hidden');
+
+    // 2. Alle Module sicherheitshalber verstecken (active wegnehmen)
+    document.querySelectorAll('.module-view').forEach(el => el.classList.remove('active'));
+
+    // 3. Das gewählte Modul suchen und anzeigen
+    const target = document.getElementById('mod-' + moduleId);
+    if (target) {
+        target.classList.remove('hidden'); // Falls hidden Klasse drauf war
+        target.classList.add('active');
+    } else {
+        console.warn("Modul nicht gefunden: " + moduleId);
+    }
+}
+
+// Wird vom "Zurück" Button aufgerufen
+window.showMenu = function() {
+    // 1. Alle Module verstecken
+    document.querySelectorAll('.module-view').forEach(el => el.classList.remove('active'));
+    
+    // 2. Menü wieder anzeigen
+    document.getElementById('main-menu').classList.remove('hidden');
+}
+
 // =================================================================
 // 1. STATISCHE INHALTE (Wissensdatenbank & Tipps)
 // =================================================================
@@ -1237,6 +1304,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
   
+     setupMenu();
 
     // 2. UI Anpassung je nach User-Typ (B2B / B2C)
     setupUserInterface();

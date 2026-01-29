@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mein Bereich - Clerion</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Deine globalen Styles -->
+    <link rel="stylesheet" href="styles.css"> 
     <link rel="icon" href="/clerion-logo.png">
     
     <style>
@@ -578,6 +578,79 @@
   animation: slideDown 0.25s ease;
 }
 
+/* === NEUES DASHBOARD DESIGN === */
+
+/* 1. Das Kachel-Menü (Grid) */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsive Kacheln */
+    gap: 1.5rem;
+    padding: 1rem 0;
+    animation: fadeIn 0.5s ease;
+}
+
+/* 2. Die einzelne Kachel */
+.menu-tile {
+    background: var(--ws-card-bg);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.menu-tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border-color: var(--ws-accent);
+}
+
+.tile-icon { font-size: 3rem; margin-bottom: 1rem; }
+.tile-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--ws-accent); }
+.tile-desc { font-size: 0.9rem; color: #777; line-height: 1.4; }
+
+/* 3. Die Module (Ansichten), die standardmäßig versteckt sind */
+.module-view {
+    display: none; /* Erstmal weg damit */
+    animation: fadeIn 0.3s ease;
+    max-width: 900px; /* Bessere Lesbarkeit für einzelne Tools */
+    margin: 0 auto;
+}
+
+.module-view.active {
+    display: block; /* Nur anzeigen, wenn aktiv */
+}
+
+/* Header innerhalb eines Moduls (mit Zurück-Button) */
+.module-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding-bottom: 1rem;
+}
+
+.btn-back {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #777;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+.btn-back:hover { background: rgba(0,0,0,0.05); color: var(--ws-text); }
+
+/* Hilfsklasse */
+.hidden { display: none !important; }
+
     </style>
 </head>
 <body>
@@ -655,195 +728,206 @@
         </div>
 
         <!-- GRID LAYOUT -->
-        <div class="ws-grid">
-            
-            <!-- LINKE SPALTE: Wissen & Dokumente -->
-            <div class="main-column">
-                
-                <!-- CARD 1: ORIENTIERUNG & WISSEN -->
-                <div class="ws-card">
-                    <div class="ws-card-header">
-                        <div class="ws-title">
-                            <span>🧭</span> Orientierung & Wissen
-                        </div>
-                        <span style="font-size:0.8rem; color:#888; background:#f0f0f0; padding:2px 10px; border-radius:12px;">
-                            Personalisiert
-                        </span>
-                    </div>
-                    
-                    <div id="knowledge-container">
-                        <p style="text-align:center; color:#999; padding:20px;">
-                            <span class="inline-spinner"></span> Lade Inhalte...
-                        </p>
-                    </div>
+       <!-- ========================= -->
+    <!-- 1. NEUES HAUPTMENÜ        -->
+    <!-- ========================= -->
+    <!-- Hier generiert das Javascript gleich die Kacheln rein -->
+    <div id="main-menu" class="menu-grid">
+        <!-- Wird per JS befüllt -->
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- 2. MODULE (VERSTECKT)     -->
+    <!-- ========================= -->
+
+    <!-- MODUL: WISSEN & ORIENTIERUNG -->
+    <div id="mod-knowledge" class="module-view">
+        <div class="module-header">
+            <button class="btn-back" onclick="showMenu()">←</button>
+            <h2>Orientierung & Wissen</h2>
+        </div>
+        
+        <!-- Ihre Original Karte -->
+        <div class="ws-card">
+            <div class="ws-card-header">
+                <div class="ws-title">
+                    <span>🧭</span> Orientierung & Wissen
                 </div>
-
-                <!-- B2B FEATURE: TEXTBAUSTEINE (Standardmäßig versteckt) -->
-<div id="b2b-snippets-card" class="ws-card hidden">
-    <div class="ws-card-header">
-        <div class="ws-title">📋 Textbausteine</div>
-    </div>
-    <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">
-        Häufig genutzte Formulierungen speichern und mit einem Klick kopieren.
-    </p>
-
-    <!-- Liste der Bausteine -->
-    <div id="snippet-list" style="margin-bottom: 20px;">
-        <!-- Wird per JS gefüllt -->
-    </div>
-
-    <!-- Neuer Baustein Formular (Aufklappbar oder immer sichtbar) -->
-    <div style="background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #eee;">
-        <strong style="display:block; margin-bottom:10px; font-size:0.9rem;">+ Neuen Baustein anlegen</strong>
-        <input type="text" id="snippet-title" placeholder="Titel (z.B. Standard-Absage)" 
-               style="width:100%; padding:8px; margin-bottom:8px; border:1px solid #ddd; border-radius:4px;">
-        <textarea id="snippet-content" placeholder="Der Text, der kopiert werden soll..." 
-                  style="width:100%; height:80px; padding:8px; margin-bottom:8px; border:1px solid #ddd; border-radius:4px; resize:vertical;"></textarea>
-        <button onclick="addSnippet()" class="button-secondary" style="font-size:0.8rem;">Speichern</button>
-    </div>
-</div>
-
-                <!-- CARD 2: NOTFALL-KOFFER / DOKUMENTE -->
-                <div class="ws-card">
-                    <div class="ws-card-header">
-                        <div class="ws-title" id="docs-title">🎒 Mein Notfall-Koffer</div>
-                        
-                        <!-- Upload Button -->
-                        <div style="display: flex; align-items: center;">
-    <!-- Der sichtbare Button -->
-    <button id="trigger-upload-btn" class="btn-upload" style="cursor: pointer; border:none;">
-        + Hochladen
-    </button>
-    
-    <!-- Das versteckte technische Feld -->
-    <input type="file" id="doc-upload-input" style="display: none;">
-</div>
-                    </div>
-                    
-                    <p style="font-size:0.9rem; color:#666; margin-bottom:1rem;">
-                        Ein sicherer Ort für Ihre wichtigsten Unterlagen. (Keine KI-Analyse)
-                    </p>
-                    
-                    <!-- Filter Buttons (Container ID für JS) -->
-                    <div id="docs-filter-container" class="doc-filter-btns">
-                        <button class="filter-btn active-filter" onclick="filterDocs('all')" data-filter="all">Alle</button>
-                        <button class="filter-btn" onclick="filterDocs('vorsorge')" data-filter="vorsorge">Vorsorge</button>
-                        <button class="filter-btn" onclick="filterDocs('finanzen')" data-filter="finanzen">Finanzen</button>
-                        <button class="filter-btn" onclick="filterDocs('medizin')" data-filter="medizin">Medizin</button>
-                    </div>
-
-                    <!-- Dokumentenliste -->
-                    <div id="documents-list">
-                        <!-- Wird per JS befüllt -->
-                    </div>
-                </div>
-
+                <span style="font-size:0.8rem; color:#888; background:#f0f0f0; padding:2px 10px; border-radius:12px;">
+                    Personalisiert
+                </span>
             </div>
-
-            <!-- RECHTE SPALTE: Organisation & Notizen -->
-            <div class="side-column">
-                
-                <!-- CARD 3: DAS TAGEBUCH (Ersetzt die einfachen Notizen) -->
-<div class="diary-card">
-    <!-- Kopfzeile mit Datum -->
-    <div class="diary-header-strip">
-        <div style="font-weight:bold; letter-spacing:1px;">📖 JOURNAL</div>
-        <div id="diary-display-date" class="diary-date">01.01.2026</div>
-    </div>
-
-    <!-- Das linierte Papier -->
-    <div class="diary-paper">
-        <textarea id="diary-input" placeholder="Wofür sind Sie heute dankbar? Oder was liegt Ihnen auf dem Herzen?"></textarea>
-    </div>
-
-    <!-- Fußzeile -->
-    <div class="diary-footer">
-    <!-- Linker Button (Dezent, Text-basiert) -->
-    <button id="toggle-history-btn" class="diary-btn-text">
-        <span class="icon">📜</span> <span>Alte Einträge</span>
-    </button>
-    
-    <!-- Rechter Button (Auffällig, aber weich) -->
-    <button onclick="saveDiaryEntry()" class="diary-btn-save">
-        <span>Eintrag speichern</span> <span class="icon">✨</span>
-    </button>
-</div>
-
-    <!-- Verlauf (Ausklappbar) -->
-    <div id="diary-history-container" class="diary-history">
-        <!-- Wird per JS gefüllt -->
-        <p style="padding:20px; text-align:center; color:#999;">Lade Verlauf...</p>
-    </div>
-</div>
-
-
-<!-- CARD 3.1: Button Selfcare -->
-<div class="ws-card" style="background: linear-gradient(135deg, #e0f7fa 0%, #e8f5e9 100%); border:none;">
-    <div style="display:flex; align-items:center; gap:15px;">
-        <div style="font-size:2.5rem;">☕</div>
-        <div>
-            <h3 style="margin:0; color:#00695c; font-size:1.1rem;">Kleine Auszeit gefällig?</h3>
-            <p style="margin:5px 0 10px 0; font-size:0.9rem; color:#444;">
-                Tanken Sie Kraft mit kurzen Übungen für Körper & Geist.
-            </p>
-            <a href="selfcare.html" class="button-secondary" style="background:white; border:1px solid #b2dfdb; color:#00695c; text-decoration:none; display:inline-block; font-size:0.9rem;">
-                Zur Ruhe-Oase &rarr;
-            </a>
+            <div id="knowledge-container">
+                <p style="text-align:center; color:#999; padding:20px;">
+                    <span class="inline-spinner"></span> Lade Inhalte...
+                </p>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- B2B FEATURE: SANDBOX (Standardmäßig versteckt) -->
-<div id="b2b-sandbox-card" class="ws-card hidden" style="border-left: 4px solid var(--ws-accent);">
-    <div class="ws-card-header">
-        <div class="ws-title">🛡️ Datenschutz-Sandbox</div>
-    </div>
-    <p style="font-size:0.85rem; color:#666; margin-bottom:10px;">
-        Text hier einfügen, sensible Daten (Namen) manuell entfernen und sicher kopieren. 
-        <br><em>Dieser Text wird nicht gespeichert.</em>
-    </p>
-    
-    <textarea id="sandbox-input" placeholder="Text zum Anonymisieren hier einfügen..." 
-              style="width:100%; height:150px; padding:10px; border:1px solid #ddd; border-radius:4px; font-family:monospace; font-size:0.9rem;"></textarea>
-    
-    <div style="display:flex; justify-content:space-between; margin-top:10px;">
-        <button onclick="document.getElementById('sandbox-input').value=''" class="button-secondary" style="font-size:0.8rem; color:#e74c3c;">Leeren</button>
-        <button onclick="copySandbox()" class="btn-primary" style="font-size:0.8rem; padding: 5px 10px;">In Zwischenablage kopieren</button>
-    </div>
-</div>
 
-<!-- CARD 3.1.2: NOTIZEN -->
-                <div class="ws-card">
-                    <div class="ws-card-header" style="margin-bottom:0.5rem;">
-                        <div class="ws-title">📝 Notizen</div>
-                        <span id="note-save-status" style="font-size:0.75rem; color:green; opacity:0; transition:opacity 1s;">
-                            Gespeichert ✓
-                        </span>
-                    </div>
-                    <textarea id="personal-notes" placeholder="Platz für Gedanken, Telefonnummern oder Fragen, die Sie später klären wollen..."></textarea>
+    <!-- MODUL: TEXTBAUSTEINE (B2B) -->
+    <div id="mod-snippets" class="module-view">
+        <div class="module-header">
+            <button class="btn-back" onclick="showMenu()">←</button>
+            <h2>Textbausteine</h2>
+        </div>
+
+        <!-- Ihre Original Karte (ID b2b-snippets-card wichtig lassen für JS!) -->
+        <div id="b2b-snippets-card" class="ws-card hidden">
+            <div class="ws-card-header">
+                <div class="ws-title">📋 Textbausteine</div>
+            </div>
+            <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">
+                Häufig genutzte Formulierungen speichern und mit einem Klick kopieren.
+            </p>
+            <div id="snippet-list" style="margin-bottom: 20px;"></div>
+            <div style="background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #eee;">
+                <strong style="display:block; margin-bottom:10px; font-size:0.9rem;">+ Neuen Baustein anlegen</strong>
+                <input type="text" id="snippet-title" placeholder="Titel (z.B. Standard-Absage)" 
+                       style="width:100%; padding:8px; margin-bottom:8px; border:1px solid #ddd; border-radius:4px;">
+                <textarea id="snippet-content" placeholder="Der Text, der kopiert werden soll..." 
+                          style="width:100%; height:80px; padding:8px; margin-bottom:8px; border:1px solid #ddd; border-radius:4px; resize:vertical;"></textarea>
+                <button onclick="addSnippet()" class="button-secondary" style="font-size:0.8rem;">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODUL: DOKUMENTE -->
+    <div id="mod-docs" class="module-view">
+        <div class="module-header">
+            <button class="btn-back" onclick="showMenu()">←</button>
+            <h2 id="docs-module-title">Dokumente</h2> <!-- Titel wird dynamisch angepasst -->
+        </div>
+
+        <!-- Ihre Original Karte -->
+        <div class="ws-card">
+            <div class="ws-card-header">
+                <div class="ws-title" id="docs-title">🎒 Mein Notfall-Koffer</div>
+                <div style="display: flex; align-items: center;">
+                    <button id="trigger-upload-btn" class="btn-upload" style="cursor: pointer; border:none;">
+                        + Hochladen
+                    </button>
+                    <input type="file" id="doc-upload-input" style="display: none;">
                 </div>
-                
-                <!-- CARD 4: CHECKLISTEN -->
-                <div class="ws-card">
-                    <div class="ws-card-header">
-                        <div class="ws-title" id="checklist-title">✅ Nächste Schritte</div>
-                    </div>
-                    
-                    <div style="display:flex; gap:8px; margin-bottom:15px;">
-                        <input type="text" id="checklist-input" placeholder="Neuer Punkt..." 
-                               style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; outline:none;">
-                        <button onclick="addChecklistItem()" class="button-secondary" style="min-width:40px;">+</button>
-                    </div>
-                    
-                    <ul id="checklist-list">
-                        <!-- Wird per JS befüllt -->
-                    </ul>
-                </div>
+            </div>
+            
+            <p style="font-size:0.9rem; color:#666; margin-bottom:1rem;">
+                Ein sicherer Ort für Ihre wichtigsten Unterlagen. (Keine KI-Analyse)
+            </p>
+            
+            <div id="docs-filter-container" class="doc-filter-btns">
+                <button class="filter-btn active-filter" onclick="filterDocs('all')" data-filter="all">Alle</button>
+                <button class="filter-btn" onclick="filterDocs('vorsorge')" data-filter="vorsorge">Vorsorge</button>
+                <button class="filter-btn" onclick="filterDocs('finanzen')" data-filter="finanzen">Finanzen</button>
+                <button class="filter-btn" onclick="filterDocs('medizin')" data-filter="medizin">Medizin</button>
+            </div>
 
-            </div> <!-- Ende Rechte Spalte -->
-
-        </div> <!-- Ende Grid -->
+            <div id="documents-list"></div>
+        </div>
     </div>
+
+
+    <!-- MODUL: TAGEBUCH -->
+    <div id="mod-diary" class="module-view">
+        <div class="module-header">
+            <button class="btn-back" onclick="showMenu()">←</button>
+            <h2>Mein Journal</h2>
+        </div>
+
+        <!-- Ihre Original Diary Card -->
+        <div class="diary-card">
+            <div class="diary-header-strip">
+                <div style="font-weight:bold; letter-spacing:1px;">📖 JOURNAL</div>
+                <div id="diary-display-date" class="diary-date">01.01.2026</div>
+            </div>
+            <div class="diary-paper">
+                <textarea id="diary-input" placeholder="Wofür sind Sie heute dankbar?"></textarea>
+            </div>
+            <div class="diary-footer">
+                <button id="toggle-history-btn" class="diary-btn-text">
+                    <span class="icon">📜</span> <span>Alte Einträge</span>
+                </button>
+                <button onclick="saveDiaryEntry()" class="diary-btn-save">
+                    <span>Eintrag speichern</span> <span class="icon">✨</span>
+                </button>
+            </div>
+            <div id="diary-history-container" class="diary-history">
+                <p style="padding:20px; text-align:center; color:#999;">Lade Verlauf...</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODUL: SANDBOX (B2B) -->
+    <div id="mod-sandbox" class="module-view">
+        <div class="module-header">
+            <button class="btn-back" onclick="showMenu()">←</button>
+            <h2>Datenschutz-Sandbox</h2>
+        </div>
+
+        <!-- Ihre Original Sandbox Card -->
+        <div id="b2b-sandbox-card" class="ws-card hidden" style="border-left: 4px solid var(--ws-accent);">
+            <div class="ws-card-header">
+                <div class="ws-title">🛡️ Datenschutz-Sandbox</div>
+            </div>
+            <p style="font-size:0.85rem; color:#666; margin-bottom:10px;">
+                Text hier einfügen, sensible Daten entfernen und sicher kopieren. 
+                <br><em>Dieser Text wird nicht gespeichert.</em>
+            </p>
+            <textarea id="sandbox-input" placeholder="Text zum Anonymisieren hier einfügen..." 
+                      style="width:100%; height:150px; padding:10px; border:1px solid #ddd; border-radius:4px; font-family:monospace; font-size:0.9rem;"></textarea>
+            <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                <button onclick="document.getElementById('sandbox-input').value=''" class="button-secondary" style="font-size:0.8rem; color:#e74c3c;">Leeren</button>
+                <button onclick="copySandbox()" class="btn-primary" style="font-size:0.8rem; padding: 5px 10px;">In Zwischenablage kopieren</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODUL: NOTIZEN -->
+    <div id="mod-notes" class="module-view">
+        <div class="module-header">
+            <button class="btn-back" onclick="showMenu()">←</button>
+            <h2>Persönliche Notizen</h2>
+        </div>
+
+        <!-- Ihre Original Notizen Card -->
+        <div class="ws-card">
+            <div class="ws-card-header" style="margin-bottom:0.5rem;">
+                <div class="ws-title">📝 Notizen</div>
+                <span id="note-save-status" style="font-size:0.75rem; color:green; opacity:0; transition:opacity 1s;">
+                    Gespeichert ✓
+                </span>
+            </div>
+            <textarea id="personal-notes" placeholder="Platz für Gedanken..."></textarea>
+        </div>
+    </div>
+
+
+    <!-- MODUL: CHECKLISTEN -->
+    <div id="mod-checklist" class="module-view">
+        <div class="module-header">
+            <button class="btn-back" onclick="showMenu()">←</button>
+            <h2>Nächste Schritte</h2>
+        </div>
+
+        <!-- Ihre Original Checklisten Card -->
+        <div class="ws-card">
+            <div class="ws-card-header">
+                <div class="ws-title" id="checklist-title">✅ Nächste Schritte</div>
+            </div>
+            <div style="display:flex; gap:8px; margin-bottom:15px;">
+                <input type="text" id="checklist-input" placeholder="Neuer Punkt..." 
+                       style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; outline:none;">
+                <button onclick="addChecklistItem()" class="button-secondary" style="min-width:40px;">+</button>
+            </div>
+            <ul id="checklist-list"></ul>
+        </div>
+    </div>
+    
 
 
     <footer class="main-footer" style="margin-top: 2rem; border-top: 1px solid #eee;">
