@@ -1068,6 +1068,31 @@
     transform: translateX(-3px); /* Kleiner Bewegungseffekt nach links */
     box-shadow: 0 4px 8px rgba(0,0,0,0.08);
 }
+
+/* === NOTFALL BUTTON IM HEADER === */
+.btn-crisis {
+    background-color: transparent;
+    color: #e74c3c; /* Signalrot */
+    border: 1px solid #e74c3c;
+    padding: 8px 18px;
+    border-radius: 20px; /* Pillen-Form */
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-crisis:hover {
+    background-color: #e74c3c;
+    color: white;
+    box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);
+    transform: translateY(-1px);
+}
     </style>
 </head>
 <body>
@@ -1132,29 +1157,32 @@
         
         <!-- HEADER -->
      
+        <!-- HEADER BEREICH -->
         <div class="ws-header">
+            <!-- Linke Seite: Begrüßung -->
             <div>
                 <h1 id="ws-greeting">Guten Tag.</h1>
                 <p id="ws-subtext" style="color:#777;">Was steht heute an?</p>
             </div>
             
-            <!-- Button Gruppe Rechts -->
+            <!-- Rechte Seite: Buttons -->
             <div style="display:flex; gap:10px; align-items:center;">
-                <!-- 1. Der neue Zurück Button -->
+                <!-- 1. Zurück Button -->
                 <a href="dashboard.html" class="btn-header-back">
                     <span>&larr;</span> <span>Tools</span>
                 </a>
 
-                <!-- 2. Der Notfall Button -->
+                <!-- 2. Notfall Button -->
                 <button onclick="toggleCrisisMode()" class="btn-crisis">
                     <span>🆘</span> <span>Notfall</span>
                 </button>
             </div>
-            <div id="gentle-hint-container" class="hidden gentle-hint">
-            <!-- Text kommt aus JS -->
-        </div>
         </div>
 
+        <!-- HINWEIS-CONTAINER (Jetzt UNTER dem Header) -->
+        <div id="gentle-hint-container" class="hidden gentle-hint">
+            <!-- Text kommt aus JS -->
+        </div>
         <!-- GRID LAYOUT -->
        <!-- ========================= -->
     <!-- 1. NEUES HAUPTMENÜ        -->
@@ -1587,7 +1615,7 @@
                     <label style="font-size:0.8rem;">Wichtige Infos / Medikamente:</label>
                     <textarea id="crisis-input-meds" class="crisis-input" style="height:80px;"></textarea>
                     
-                    <button onclick="saveCrisisData()" class="btn-primary" style="width:100%;">Speichern</button>
+                    <button onclick="saveCrisisData()" class="btn-soft-gradient" style="width:100%;">Speichern & Schließen</button>
                     <p style="font-size:0.75rem; color:#999; margin-top:12px; line-height:1.4;">
                         🔒 <strong>Datenschutz-Hinweis:</strong> <br>
                         Diese persönlichen Kontakte und Infos werden ausschließlich 
