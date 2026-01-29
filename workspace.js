@@ -10,29 +10,33 @@ const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
 function setupMenu() {
     const menu = document.getElementById('main-menu');
-    menu.innerHTML = ''; // Sicherstellen, dass es leer ist
+    menu.innerHTML = ''; 
 
     const isB2B = currentUser.type === 'b2b';
 
-    // Hier definieren wir, welche Kacheln es gibt
     const tiles = [
-        // Für BEIDE
-        { id: 'knowledge', title: 'Wissen & Orientierung', icon: '🧭', desc: 'Wegweiser durch den Dschungel.' },
+        // 1. Orientierung
+        { id: 'knowledge', title: 'Orientierung', icon: '🧭', desc: 'Wegweiser & Wissen.' },
         
-        // Nur B2C (Tagebuch)
-        { id: 'diary', title: 'Tagebuch', icon: '📖', desc: 'Gedanken ordnen.', show: !isB2B },
-        
-        // Dokumente (heißt bei B2B anders, technisch aber gleich)
-        { id: 'docs', title: isB2B ? 'Vorlagen & Docs' : 'Notfall-Koffer', icon: isB2B ? '📂' : '🎒', desc: 'Alles Wichtige an einem Ort.' },
+        // 2. Organisation (NEU: Notizen & Checklisten)
+        { id: 'org', title: 'Orga & Notizen', icon: '✅', desc: 'Aufgaben und Gedanken sortieren.' },
 
-        // Nur B2B
-        { id: 'snippets', title: 'Textbausteine', icon: '📋', desc: 'Effizient antworten.', show: isB2B },
+        // 3. Tagebuch (Nur B2C)
+        { id: 'diary', title: 'Tagebuch', icon: '📖', desc: 'Gedanken frei von der Leber schreiben.', show: !isB2B },
         
-        // Hier können wir später die NEUEN Sachen (Tracker etc.) einfach hinzufügen
+        // 4. Dokumente / Koffer
+        { id: 'docs', title: isB2B ? 'Vorlagen & Docs' : 'Notfall-Koffer', icon: isB2B ? '📂' : '🎒', desc: 'Wichtige Unterlagen an einem Ort.' },
+
+        // 5. Selfcare (NEU - Als Link)
+        // Wir zeigen das nur B2C Usern an. Wenn B2B das auch sehen sollen, entfernen Sie ", show: !isB2B"
+        { id: 'selfcare', title: 'Ruhe-Oase', icon: '☕', desc: 'Kleine Pause für den Kopf.', link: 'selfcare.html', show: !isB2B },
+
+        // 6. B2B Features
+        { id: 'snippets', title: 'Textbausteine', icon: '📋', desc: 'Effizient antworten.', show: isB2B },
+        { id: 'sandbox', title: 'Datenschutz-Box', icon: '🛡️', desc: 'Texte anonymisieren.', show: isB2B },
     ];
 
     tiles.forEach(tile => {
-        // Wenn "show" definiert ist und false ist, überspringen wir es
         if (tile.show === false) return;
 
         const el = document.createElement('div');
@@ -42,8 +46,17 @@ function setupMenu() {
             <div class="tile-title">${tile.title}</div>
             <div class="tile-desc">${tile.desc}</div>
         `;
-        // Beim Klick öffnen wir das Modul
-        el.onclick = () => openModule(tile.id);
+        
+        el.onclick = () => {
+            if (tile.link) {
+                // Wenn es ein Link ist (wie bei Selfcare), Seite wechseln
+                window.location.href = tile.link;
+            } else {
+                // Sonst Modul öffnen
+                openModule(tile.id);
+            }
+        };
+        
         menu.appendChild(el);
     });
 }
