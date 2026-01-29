@@ -25,6 +25,8 @@ function setupMenu() {
 
         // 3. Tagebuch (Nur B2C)
         { id: 'diary', title: 'Tagebuch', icon: '📖', desc: 'Gedanken frei von der Leber schreiben.', show: !isB2B },
+
+        { id: 'relief', title: 'Entlastungs-Finder', icon: '⚖️', desc: 'Hilfe finden, ohne zu suchen.', show: !isB2B },
         
         // 4. Dokumente / Koffer
         { id: 'docs', title: isB2B ? 'Vorlagen & Docs' : 'Notfall-Koffer', icon: isB2B ? '📂' : '🎒', desc: 'Wichtige Unterlagen an einem Ort.' },
@@ -75,6 +77,10 @@ function openModule(moduleId) {
     if (target) {
         target.classList.remove('hidden'); // Falls hidden Klasse drauf war
         target.classList.add('active');
+
+        if (moduleId === 'tracker') {
+            loadTrackerHistory();
+        }
     } else {
         console.warn("Modul nicht gefunden: " + moduleId);
     }
@@ -2043,7 +2049,8 @@ window.saveTrackerEntry = async function() {
         // Nach 2 Sekunden Reset & Menü
         setTimeout(() => {
             resetTracker();
-            showMenu();
+            loadTrackerHistory();
+           
         }, 2000);
 
     } catch (e) {
@@ -2071,6 +2078,164 @@ function resetTracker() {
     document.getElementById('tracker-feedback').style.opacity = '0';
 }
 
+async function loadTrackerHistory() {
+    const list = document.getElementById('tracker-history-list');
+    if(!list) return;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/workspace/tracker`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const entries = await res.json();
+
+        list.innerHTML = '';
+
+        if (entries.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:#bbb; padding:10px;">Noch keine Einträge vorhanden.</p>';
+            return;
+        }
+
+        // Mapping für Icons
+        const icons = { 'leicht': '☁️', 'mittel': '⚖️', 'schwer': '🏔️' };
+
+        entries.forEach(entry => {
+            // Datum formatieren (z.B. "Do, 29.01. - 14:30")
+            const dateObj = new Date(entry.createdAt);
+            const dateStr = dateObj.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
+            
+            // Tags rendern (drains ist ja jetzt ein echtes Array dank Backend)
+            let tagsHtml = '';
+            if (entry.drains && Array.isArray(entry.drains)) {
+                tagsHtml = entry.drains.map(t => `<span class="mini-tag">${t}</span>`).join('');
+            }
+
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `
+                <div class="history-icon" title="${entry.intensity}">
+                    ${icons[entry.intensity] || '❓'}
+                </div>
+                <div class="history-content">
+                    <div class="history-date">${dateStr}</div>
+                    <div style="font-size:0.9rem; color:#333;">${entry.note || 'Keine Notiz'}</div>
+                    <div class="history-tags">${tagsHtml}</div>
+                </div>
+            `;
+            list.appendChild(item);
+        });
+
+    } catch (e) {
+        console.error("Fehler beim Laden der History", e);
+        list.innerHTML = '<p style="color:red; font-size:0.8rem;">Ladefehler.</p>';
+    }
+}
+
+
+// =================================================================
+// 11. ENTLASTUNGS-FINDER LOGIK
+// =================================================================
+
+const reliefContent = {
+  zeit: {
+    title: "🕰️ Zeit & Schlaf gewinnen",
+    items: [
+      "<strong>Akut frei nehmen (Pflegeunterstützungsgeld):</strong> Wenn plötzlich Pflege organisiert werden muss, dürfen Beschäftigte kurzfristig der Arbeit fernbleiben – und bekommen dafür meist einen Lohnersatz. Das nennt sich <em>Pflegeunterstützungsgeld</em> und gilt für bis zu 10 Arbeitstage pro Kalenderjahr je pflegebedürftiger Person. (In 2026 gibt es dabei auch einen gesetzlichen Tages-Höchstbetrag.)",
+      "<strong>Verhinderungspflege:</strong> Wenn du als Pflegeperson ausfällst (Krankheit, Termine, Erholung), kann eine Ersatzpflege bezahlt werden – z.B. durch Angehörige, Nachbarn oder einen Dienst. Tipp: Plane das wie „Urlaubstage“, nicht erst im Notfall: Wer früh sucht, findet eher verlässliche Vertretung und spart Stress.",
+      "<strong>Kurzzeitpflege:</strong> Für Krisenphasen oder nach Klinikaufenthalten kann vorübergehend stationäre Pflege helfen – oft als „Puffer“, wenn Zuhause (noch) nicht stabil organisiert ist. Praktisch: Kurzzeitpflege kann auch entlasten, wenn du erstmal wieder schlafen musst und Entscheidungen klar treffen willst.",
+      "<strong>Pflegezeit & Familienpflegezeit:</strong> Wenn du länger entlastet werden musst, gibt es gesetzliche Modelle zur Freistellung oder Teilzeit (Pflegezeit bis zu 6 Monate; Familienpflegezeit bis zu 24 Monate). Für beide kann ein <em>zinsloses Darlehen</em> beantragt werden, um Verdienstausfälle abzufedern.",
+      "<strong>Entlastungsbetrag (monatlich):</strong> Der Entlastungsbetrag ist dafür gedacht, dir regelmäßig Zeitfenster freizuschaufeln – z.B. über anerkannte Angebote für Unterstützung im Alltag (Haushalt, Betreuung, Begleitung). Nutze ihn strategisch: 2–3 Stunden pro Woche sind oft der Unterschied zwischen „funktionieren“ und „durchhalten“."
+    ]
+  },
+
+  papier: {
+    title: "📄 Papierkram bewältigen",
+    items: [
+      "<strong>Pflegestützpunkte:</strong> Kostenlose, unabhängige Beratung vor Ort – gut, wenn du Orientierung brauchst: Welche Leistung passt? Was ist kombinierbar? Was muss beantragt werden? Besonders hilfreich ist die Beratung, wenn mehrere Baustellen gleichzeitig laufen (Pflegegrad, Umbau, Hilfsmittel, Dienste).",
+      "<strong>Pflegekasse: schriftlich + mit Checkliste arbeiten:</strong> Mach dir eine einfache „Akte Pflege“: (1) Bescheide, (2) Anträge, (3) Rechnungen/Quittungen, (4) Kontakte, (5) Notizen. Viele Konflikte entstehen nicht aus bösem Willen, sondern aus fehlenden Unterlagen – eine saubere Ablage spart Wochen.",
+      "<strong>Sozialverbände (VdK/SoVD):</strong> Für einen Mitgliedsbeitrag unterstützen diese häufig bei Widersprüchen und sozialrechtlichen Themen. Das ist Gold wert, wenn du merkst, dass dich Schreiben, Fristen oder Gutachten emotional auffressen.",
+      "<strong>Vollmachten & rechtliche Klarheit:</strong> Vorsorgevollmacht, Betreuungsverfügung und Patientenverfügung einmal sauber regeln – das verhindert später „Papierkram im Ausnahmezustand“. Tipp: Lege eine Notfallmappe an (Kopien, Kontaktliste, wichtige Diagnosen/Medikation).",
+      "<strong>Pflegegrad gut vorbereiten:</strong> Notiere 7–14 Tage lang konkret, wobei Hilfe nötig ist (Was? Wie oft? Wie lange? Welche Risiken?). Das ist die beste Grundlage für Gespräche mit Gutachtern und schützt vor dem Gefühl, sich „rechtfertigen“ zu müssen."
+    ]
+  },
+
+  koerper: {
+    title: "💪 Körperliche Entlastung",
+    items: [
+      "<strong>Wohnumfeldverbesserung (Umbau-Zuschuss):</strong> Typische Entlastungs-Hits sind Haltegriffe, rutschfeste Böden, Bett auf Arbeitshöhe, Duschstuhl, Türschwellen entfernen oder eine bodengleiche Dusche. Wichtig: Häufig gilt „erst Antrag/Absprache, dann Umbau“ – sonst gibt es Ärger mit der Erstattung.",
+      "<strong>Rückenschonend pflegen – ohne „Heldentum“:</strong> Wenn du beim Heben, Drehen oder Transfer regelmäßig Schmerzen hast, ist das ein Warnsignal, kein Normalzustand. Fordere Hilfsmittel ein (z.B. Transferhilfen) und lass dir Techniken zeigen – ein kurzer Profi-Termin spart dir Monate Beschwerden.",
+      "<strong>Pflegehilfsmittel zum Verbrauch:</strong> Handschuhe, Flächendesinfektion, Bettschutzeinlagen etc. können die tägliche Belastung senken, weil du weniger improvisieren musst und hygienisch sicherer bist. Der Effekt ist unterschätzt: weniger Stress, weniger Diskussionen, weniger „Feuerwehrmodus“.",
+      "<strong>Pflegedienst gezielt einsetzen:</strong> Du musst nicht alles abgeben – aber du kannst die körperlich schwersten oder konfliktreichsten Aufgaben delegieren (z.B. Duschen, Lagern, Anziehen). Das ist oft die schnellste Art, wieder „Kraft für Beziehung“ statt „Kraft für Körperarbeit“ zu haben.",
+      "<strong>Tagespflege als Entlastungsanker:</strong> Wenn die Situation passt, kann Tagespflege dir feste freie Zeitblöcke geben (z.B. 1–3 Tage/Woche). Für viele Angehörige ist das der Punkt, an dem Schlaf und Alltag erstmals wieder planbar werden."
+    ]
+  },
+
+  psyche: {
+    title: "🧘 Emotionale Stärke",
+    items: [
+      "<strong>Pflegetelefon (anonym & kostenlos):</strong> Wenn du merkst, dass du innerlich „zu“ machst, kann ein Gespräch helfen – ohne Erklärungspflicht. Das Pflegetelefon des Bundesfamilienministeriums ist Mo–Do 9–18 Uhr erreichbar (030 20179131).",
+      "<strong>Schuldgefühle entschärfen:</strong> Viele pflegende Angehörige denken: „Wenn ich Hilfe hole, lasse ich jemanden im Stich.“ Dreh den Satz um: Hilfe holen ist Versorgungssicherheit – für die pflegebedürftige Person und für dich.",
+      "<strong>Selbsthilfegruppen:</strong> Der stärkste Effekt ist oft nicht „Tipps“, sondern Normalisierung: Du merkst, dass deine Überforderung kein persönliches Versagen ist. Das senkt Druck und macht Entscheidungen klarer.",
+      "<strong>Kur/Reha für Pflegende:</strong> Es gibt Maßnahmen speziell für pflegende Angehörige, wenn Erschöpfung, Schlafprobleme, Angst oder depressive Symptome auftreten. Wichtig ist: Warte nicht auf den völligen Zusammenbruch – frühe Anzeichen reichen als Anlass, das Thema ärztlich anzusprechen.",
+      "<strong>Mini-Regeln für den Alltag:</strong> Baue 1–2 kleine Stopps ein (z.B. 10 Minuten Spaziergang, Duschen ohne Zeitdruck, 20 Minuten Powernap). Das klingt banal, ist aber oft der Unterschied zwischen „Daueranspannung“ und „wieder handlungsfähig“."
+    ]
+  },
+
+  finanzen: {
+    title: "💰 Finanzen sichern",
+    items: [
+      "<strong>Pflegegrad prüfen / Höherstufung:</strong> Wenn sich Mobilität, Orientierung, Kontinenz, Verhalten oder Selbstversorgung verschlechtert haben, kann ein neuer Antrag mehr Leistungen bringen. Tipp: Nicht nur Diagnosen nennen, sondern konkrete Auswirkungen im Alltag (Häufigkeit, Dauer, Risiko).",
+      "<strong>Entlastung ist auch „Geld wert“:</strong> Viele Familien verlieren Geld, weil Leistungen verfallen oder nicht kombiniert werden (z.B. Entlastungsbetrag nicht genutzt, Hilfsmittel nicht beantragt, keine Vertretung organisiert). Eine halbe Stunde Beratung kann hier mehr bringen als stundenlanges Googeln.",
+      "<strong>Zinsloses Darlehen bei Freistellung:</strong> Wer Pflegezeit/Familienpflegezeit nutzt, kann zur Abfederung des Einkommensverlustes ein zinsloses Darlehen beantragen (Auszahlung monatlich, Rückzahlung nach Ende der Freistellung).",
+      "<strong>Landespflegegeld / regionale Extras:</strong> Je nach Bundesland oder Kommune gibt es zusätzliche Unterstützungen (z.B. Landespflegegeld in Bayern). Das lohnt sich als Checkpunkt in deiner Beratungsliste – es ist oft „stilles Geld“, das viele nicht kennen.",
+      "<strong>Steuervorteile:</strong> Den Pflege-Pauschbetrag bzw. außergewöhnliche Belastungen (je nach Situation) in der Steuererklärung prüfen. Wenn du unsicher bist: Lohnsteuerhilfeverein oder Steuerberatung spart Zeit und reduziert Fehler."
+    ]
+  }
+};
+
+
+window.showReliefSuggestions = function() {
+    const resultsContainer = document.getElementById('relief-results');
+    const checkboxes = document.querySelectorAll('.relief-grid input:checked');
+    
+    resultsContainer.innerHTML = ''; // Reset
+    resultsContainer.classList.remove('hidden');
+
+    if (checkboxes.length === 0) {
+        resultsContainer.innerHTML = '<p style="text-align:center; color:#888;">Bitte wählen Sie oben mindestens einen Bereich aus.</p>';
+        return;
+    }
+
+    // Intro Satz
+    const intro = document.createElement('p');
+    intro.style.cssText = "margin-bottom:20px; font-weight:500; color:#333;";
+    intro.textContent = "Basierend auf Ihrer Auswahl könnten diese Wege helfen:";
+    resultsContainer.appendChild(intro);
+
+    // Durch alle ausgewählten Boxen gehen
+    checkboxes.forEach(chk => {
+        const key = chk.value;
+        const data = reliefContent[key];
+
+        if (data) {
+            const box = document.createElement('div');
+            box.className = 'suggestion-box';
+            
+            // Liste der Tipps erstellen
+            const listHtml = data.items.map(item => `<li style="margin-bottom:8px;">${item}</li>`).join('');
+
+            box.innerHTML = `
+                <span class="suggestion-title">${data.title}</span>
+                <ul style="padding-left:20px; margin-top:10px; color:#555; line-height:1.6;">
+                    ${listHtml}
+                </ul>
+            `;
+            resultsContainer.appendChild(box);
+        }
+    });
+
+    // Scroll zum Ergebnis
+    resultsContainer.scrollIntoView({ behavior: 'smooth' });
+}
 // =================================================================
 // 9. B2B FEATURES (Snippets & Sandbox)
 // =================================================================

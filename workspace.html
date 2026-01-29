@@ -715,7 +715,160 @@
     color: white;
     border-color: var(--ws-accent);
 }
+.btn-tracker-save {
+    background: linear-gradient(135deg, var(--ws-accent) 0%, #557d1b 100%); /* Verlauf */
+    color: white;
+    border: none;
+    border-radius: 50px; /* Pillen-Form */
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0 5px 15px rgba(107, 142, 35, 0.3); /* Sanfter Schatten */
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
 
+.btn-tracker-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(107, 142, 35, 0.4);
+    filter: brightness(1.05);
+}
+
+.btn-tracker-save:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 2. Der Verlauf (History Liste) */
+.tracker-history-section {
+    margin-top: 3rem;
+    border-top: 1px dashed #eee;
+    padding-top: 1.5rem;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    background: #fdfdfd;
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: 0.2s;
+}
+
+.history-item:hover {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-color: #e0e0e0;
+}
+
+.history-icon {
+    font-size: 1.5rem;
+    margin-right: 15px;
+    width: 40px;
+    text-align: center;
+}
+
+.history-content {
+    flex: 1;
+}
+
+.history-date {
+    font-size: 0.75rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.history-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.mini-tag {
+    font-size: 0.7rem;
+    background: #eee;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #555;
+}
+/* === ENTLASTUNGS-FINDER STYLES === */
+
+.relief-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.relief-option {
+    display: block;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Verstecke die echte Checkbox */
+.relief-option input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Das Design der Kachel */
+.relief-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 10px;
+    background: #fff;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    font-weight: 600;
+    color: #555;
+    transition: all 0.2s;
+    text-align: center;
+    height: 100%;
+}
+
+.relief-option:hover .relief-label {
+    border-color: #ccc;
+    transform: translateY(-2px);
+}
+
+/* Wenn ausgewählt */
+.relief-option input:checked + .relief-label {
+    background-color: #f0fdf4; /* Helles Grün */
+    border-color: var(--ws-accent);
+    color: var(--ws-accent);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Ergebnis Boxen */
+.suggestion-box {
+    background: #fafafa;
+    border-left: 4px solid var(--ws-accent);
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    animation: slideDown 0.5s ease;
+}
+
+.suggestion-title {
+    font-weight: bold;
+    color: var(--ws-accent);
+    margin-bottom: 5px;
+    display: block;
+}
     </style>
 </head>
 <body>
@@ -964,19 +1117,73 @@
                 <button class="tracker-tag" onclick="toggleTrackerTag(this)">Arbeit & Job</button>
             </div>
 
-            <!-- 3. Kurze Notiz (Optional) -->
-            <h3 style="font-size:1.1rem; color:#444; margin-bottom:0.5rem;">Ein Satz dazu (optional):</h3>
-            <textarea id="tracker-note" placeholder="z.B. Heute hat der Anruf bei der Kasse genervt..." 
-                      style="width:100%; height:60px; padding:10px; border:1px solid #ddd; border-radius:8px; resize:none; font-family:inherit; margin-bottom:1.5rem;"></textarea>
+           <!-- 3. Kurze Notiz -->
+<h3 style="font-size:1.1rem; color:#444; margin-bottom:0.5rem;">Ein Satz dazu (optional):</h3>
+<textarea id="tracker-note" placeholder="z.B. Heute hat der Anruf bei der Kasse genervt..." 
+          style="width:100%; height:60px; padding:10px; border:1px solid #ddd; border-radius:8px; resize:none; font-family:inherit; margin-bottom:1.5rem;"></textarea>
 
-            <!-- Save Button -->
-            <button id="btn-save-tracker" onclick="saveTrackerEntry()" class="btn-primary" style="width:100%; padding:12px; font-size:1rem; display:flex; justify-content:center; align-items:center; gap:10px;">
-                Eintrag sichern <span id="tracker-check" style="display:none;">✅</span>
-            </button>
-            
-            <p id="tracker-feedback" style="text-align:center; color:#2e7d32; font-style:italic; margin-top:15px; opacity:0; transition:opacity 0.5s;">
-                Gut, dass Sie kurz innegehalten haben.
+<button id="btn-save-tracker" onclick="saveTrackerEntry()" class="btn-tracker-save">
+    <span>Eintrag sichern</span> 
+    <span id="tracker-check" style="display:none;">✅</span>
+</button>
+
+<p id="tracker-feedback" style="text-align:center; color:#2e7d32; font-style:italic; margin-top:15px; opacity:0; transition:opacity 0.5s;">
+    Gut, dass Sie kurz innegehalten haben.
+</p>
+
+<div class="tracker-history-section">
+    <h4 style="color:#666; margin-bottom:15px; font-weight:600;">Rückblick der letzten Einträge</h4>
+    <div id="tracker-history-list">
+        <p style="text-align:center; color:#bbb; font-style:italic; font-size:0.9rem;">Lade Historie...</p>
+    </div>
+</div>
+
+<!-- MODUL: ENTLASTUNGS-FINDER -->
+    <div id="mod-relief" class="module-view">
+        <div class="module-header">
+            <button class="btn-back" onclick="showMenu()">←</button>
+            <h2>Entlastungs-Finder</h2>
+        </div>
+
+        <div class="ws-card">
+            <h3 style="color:var(--ws-accent); margin-bottom:0.5rem;">Wo drückt der Schuh am meisten?</h3>
+            <p style="margin-bottom:2rem; color:#666; line-height:1.5;">
+                Wählen Sie aus, was Sie gerade belastet. <br>
+                Wir zeigen Ihnen Möglichkeiten – unverbindlich und ohne Druck.
             </p>
+            
+            <!-- Auswahl-Grid -->
+            <div class="relief-grid">
+                <label class="relief-option">
+                    <input type="checkbox" value="zeit"> 
+                    <span class="relief-label">⏳ Keine Zeit / Schlaf</span>
+                </label>
+                <label class="relief-option">
+                    <input type="checkbox" value="papier"> 
+                    <span class="relief-label">📄 Papierkram & Ämter</span>
+                </label>
+                <label class="relief-option">
+                    <input type="checkbox" value="koerper"> 
+                    <span class="relief-label">💪 Körperliche Anstrengung</span>
+                </label>
+                <label class="relief-option">
+                    <input type="checkbox" value="psyche"> 
+                    <span class="relief-label">💭 Sorgen & Emotionen</span>
+                </label>
+                <label class="relief-option">
+                    <input type="checkbox" value="finanzen"> 
+                    <span class="relief-label">💰 Geld & Kosten</span>
+                </label>
+            </div>
+
+            <button onclick="showReliefSuggestions()" class="btn-primary" style="margin-top:2rem; width:100%; padding:15px;">
+                Vorschläge anzeigen
+            </button>
+
+            <!-- Ergebnis-Bereich  -->
+            <div id="relief-results" class="hidden" style="margin-top:2.5rem; padding-top:2rem; border-top:1px dashed #eee;">
+                <!-- Wird per JS befüllt -->
+            </div>
         </div>
     </div>
 
