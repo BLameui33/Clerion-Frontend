@@ -1131,11 +1131,15 @@
     <div class="ws-container">
         
         <!-- HEADER -->
+     
         <div class="ws-header">
             <div>
                 <h1 id="ws-greeting">Guten Tag.</h1>
-                <p id="ws-subtext">Willkommen an Ihrem persönlichen Schreibtisch.</p>
-                <div style="display:flex; gap:10px; align-items:center;">
+                <p id="ws-subtext" style="color:#777;">Was steht heute an?</p>
+            </div>
+            
+            <!-- Button Gruppe Rechts -->
+            <div style="display:flex; gap:10px; align-items:center;">
                 <!-- 1. Der neue Zurück Button -->
                 <a href="dashboard.html" class="btn-header-back">
                     <span>&larr;</span> <span>Tools</span>
@@ -1146,17 +1150,16 @@
                     <span>🆘</span> <span>Notfall</span>
                 </button>
             </div>
-
-        <!-- SANFTER HINWEIS (JS füllt das) -->
-        <div id="gentle-hint-container" class="hidden gentle-hint">
+            <div id="gentle-hint-container" class="hidden gentle-hint">
             <!-- Text kommt aus JS -->
+        </div>
         </div>
 
         <!-- GRID LAYOUT -->
        <!-- ========================= -->
     <!-- 1. NEUES HAUPTMENÜ        -->
     <!-- ========================= -->
-    <!-- Hier generiert das Javascript gleich die Kacheln rein -->
+    
     <div id="main-menu" class="menu-grid">
         <!-- Wird per JS befüllt -->
     </div>
