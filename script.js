@@ -434,56 +434,70 @@ if (lettersSlider) {
 }
 
 function setupFlipCardScroll() {
-        const track = document.querySelector('.feature-scroll-track');
-        const cards = document.querySelectorAll('.flip-card-inner');
+    const track = document.querySelector('.feature-scroll-track');
+    const cards = document.querySelectorAll('.flip-card-inner');
 
-        // Abbruch, wenn Elemente nicht existieren
-        if (!track || cards.length === 0) return;
+    if (!track || cards.length === 0) return;
 
-        // Die eigentliche Scroll-Logik
-        function updateFlipCards() {
-            const rect = track.getBoundingClientRect();
-            const trackHeight = rect.height;
-            const viewportHeight = window.innerHeight;
+    let isTicking = false; // Für Performance-Optimierung
 
-            // Fortschritt berechnen (0 bis 1)
-            let progress = -rect.top / (trackHeight - viewportHeight);
+    function updateFlipCards() {
+        const rect = track.getBoundingClientRect();
+        const trackHeight = rect.height;
+        const viewportHeight = window.innerHeight;
 
-            // Begrenzen
-            if (progress < 0) progress = 0;
-            if (progress > 1) progress = 1;
+        // Fortschritt 0 bis 1
+        // Wir ziehen viewportHeight ab, damit 1.0 erreicht ist, wenn die Section endet
+        let progress = -rect.top / (trackHeight - viewportHeight);
 
-            // Mapping: Drehung nur zwischen 20% und 80% des Scroll-Wegs
-            const startP = 0.2;
-            const endP = 0.8;
-            let rotation = 0;
+        // Begrenzen
+        if (progress < 0) progress = 0;
+        if (progress > 1) progress = 1;
 
-            if (progress > startP && progress < endP) {
-                const innerProgress = (progress - startP) / (endP - startP);
-                rotation = innerProgress * 180;
-            } else if (progress >= endP) {
-                rotation = 180;
-            } else {
-                rotation = 0;
-            }
+        // Wir wollen die Drehung über den mittleren Bereich des Scrolls verteilen
+        // z.B. von 10% bis 90%, damit es nicht zu hektisch ist
+        const startP = 0.1;
+        const endP = 0.9;
+        
+        let rotation = 0;
 
-            // Drehung auf Karten anwenden (mit Domino-Effekt)
-            cards.forEach((card, index) => {
-                let individualRotation = rotation - (index * 10);
-                
-                if (individualRotation < 0) individualRotation = 0;
-                if (individualRotation > 180) individualRotation = 180;
-
-                card.style.transform = `rotateY(${individualRotation}deg)`;
-            });
+        if (progress > startP && progress < endP) {
+            const innerProgress = (progress - startP) / (endP - startP);
+            rotation = innerProgress * 180;
+        } else if (progress >= endP) {
+            rotation = 180;
+        } else {
+            rotation = 0;
         }
 
-        // Event-Listener hinzufügen
-        document.addEventListener('scroll', updateFlipCards);
-        
-        // Einmalig initial aufrufen, um Startposition zu setzen
-        updateFlipCards();
+        cards.forEach((card, index) => {
+            // Domino-Effekt: Index * 15 Grad Verzögerung
+            let individualRotation = rotation - (index * 15);
+            
+            // Hard Limit 0 und 180
+            if (individualRotation < 0) individualRotation = 0;
+            if (individualRotation > 180) individualRotation = 180;
+
+            card.style.transform = `rotateY(${individualRotation}deg)`;
+        });
+
+        isTicking = false;
     }
+
+    // Scroll Event Listener mit requestAnimationFrame
+    document.addEventListener('scroll', function() {
+        if (!isTicking) {
+            window.requestAnimationFrame(updateFlipCards);
+            isTicking = true;
+        }
+    });
+
+    // Initial einmal aufrufen
+    updateFlipCards();
+}
+
+// Aufrufen, wenn DOM geladen ist
+document.addEventListener('DOMContentLoaded', setupFlipCardScroll);
 
 // =======================================================
 // LOGIK FÜR DIE INTERAKTIVE ANTRAGSHELFER-DEMO
