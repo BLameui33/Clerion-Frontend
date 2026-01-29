@@ -434,72 +434,93 @@ if (lettersSlider) {
 }
 
 function setupFlipCardScroll() {
-    const track = document.querySelector('.feature-scroll-track');
-    const cards = document.querySelectorAll('.flip-card-inner');
-
-    if (!track || cards.length === 0) return;
-
-    let isTicking = false; // Für Performance-Optimierung
-
-    function updateFlipCards() {
-        const rect = track.getBoundingClientRect();
-        const trackHeight = rect.height;
-        const viewportHeight = window.innerHeight;
-
-        // Fortschritt berechnen (0 bis 1)
-        let progress = -rect.top / (trackHeight - viewportHeight);
-
-        // Begrenzen
-        if (progress < 0) progress = 0;
-        if (progress > 1) progress = 1;
-
-        // EINSTELLUNGEN
-        const startP = 0.1; // Startet früh
-        const endP = 0.9;   // Endet spät
-        
-        // WICHTIG: Wir berechnen "mehr" als 180 Grad (z.B. 240), 
-        // damit auch die letzte Karte trotz Verzögerung sicher die 180 erreicht.
-        const maxTheoreticalRotation = 240; 
-        
-        let baseRotation = 0;
-
-        if (progress > startP && progress < endP) {
-            const innerProgress = (progress - startP) / (endP - startP);
-            baseRotation = innerProgress * maxTheoreticalRotation;
-        } else if (progress >= endP) {
-            baseRotation = maxTheoreticalRotation;
-        } else {
-            baseRotation = 0;
-        }
-
-        cards.forEach((card, index) => {
-            // Domino: Jede Karte 15 Grad später
-            let individualRotation = baseRotation - (index * 15);
-            
-            // HARTES LIMIT: Nicht unter 0, nicht über 180
-            // Das sorgt dafür, dass sie am Ende alle gerade sind.
-            if (individualRotation < 0) individualRotation = 0;
-            if (individualRotation > 180) individualRotation = 180;
-
-            card.style.transform = `rotateY(${individualRotation}deg)`;
-        });
-
-        isTicking = false;
-    }
+    // Wir suchen ALLE Sektionen mit dieser Klasse
+    const tracks = document.querySelectorAll('.feature-scroll-track');
     
-    // Scroll Event Listener mit requestAnimationFrame
-    document.addEventListener('scroll', function() {
-        if (!isTicking) {
-            window.requestAnimationFrame(updateFlipCards);
-            isTicking = true;
-        }
-    });
+    if (tracks.length === 0) return;
 
-    // Initial einmal aufrufen
-    updateFlipCards();
+    // Wir unterscheiden: Desktop (Sticky) vs. Mobile
+    const isDesktop = window.matchMedia("(min-width: 901px)").matches;
+
+    if (isDesktop) {
+        // === DESKTOP LOGIK ===
+        let isTicking = false;
+
+        function updateAllTracks() {
+            // Wir gehen durch JEDE Sektion einzeln durch
+            tracks.forEach(track => {
+                const cards = track.querySelectorAll('.flip-card-inner');
+                if(cards.length === 0) return;
+
+                const rect = track.getBoundingClientRect();
+                const trackHeight = rect.height;
+                const viewportHeight = window.innerHeight;
+
+                // Berechnung relativ zu DIESEM Track
+                let progress = -rect.top / (trackHeight - viewportHeight);
+
+                // Begrenzen
+                if (progress < 0) progress = 0;
+                if (progress > 1) progress = 1;
+
+                const startP = 0.1;
+                const endP = 0.9;
+                const maxTheoreticalRotation = 240; 
+                
+                let baseRotation = 0;
+
+                if (progress > startP && progress < endP) {
+                    const innerProgress = (progress - startP) / (endP - startP);
+                    baseRotation = innerProgress * maxTheoreticalRotation;
+                } else if (progress >= endP) {
+                    baseRotation = maxTheoreticalRotation;
+                } else {
+                    baseRotation = 0;
+                }
+
+                cards.forEach((card, index) => {
+                    let individualRotation = baseRotation - (index * 15);
+                    if (individualRotation < 0) individualRotation = 0;
+                    if (individualRotation > 180) individualRotation = 180;
+                    card.style.transform = `rotateY(${individualRotation}deg)`;
+                });
+            });
+
+            isTicking = false;
+        }
+
+        document.addEventListener('scroll', function() {
+            if (!isTicking) {
+                window.requestAnimationFrame(updateAllTracks);
+                isTicking = true;
+            }
+        });
+        
+        // Initial
+        updateAllTracks();
+
+    } else {
+        // === MOBILE LOGIK (Intersection Observer) ===
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.transform = 'rotateY(180deg)';
+                    entry.target.style.transition = 'transform 0.8s ease';
+                }
+            });
+        }, { threshold: 0.5 });
+
+        // Observer auf ALLE Karten in ALLEN Tracks anwenden
+        tracks.forEach(track => {
+            const cards = track.querySelectorAll('.flip-card-inner');
+            cards.forEach(card => {
+                card.style.transform = 'rotateY(0deg)';
+                observer.observe(card);
+            });
+        });
+    }
 }
 
-// Aufrufen, wenn DOM geladen ist
 document.addEventListener('DOMContentLoaded', setupFlipCardScroll);
 
 // =======================================================

@@ -8076,3 +8076,30 @@ cursor: move;
     
     transform: rotateY(180deg) translateZ(0); 
 }
+
+@media (max-width: 900px) {
+    .feature-scroll-track {
+        height: auto !important; 
+        margin-bottom: 50px;
+    }
+
+    .sticky-viewport {
+        position: relative; 
+        height: auto !important;
+        top: auto;
+        display: block; 
+        overflow: visible; 
+        padding: 20px;
+    }
+
+    .features-grid.flip-grid {
+        grid-template-columns: 1fr; 
+        gap: 40px;
+    }
+
+    .flip-card {
+        height: 300px; 
+        margin-bottom: 20px;
+    }
+    .section-header h2 { font-size: 1.5rem; }
+}
