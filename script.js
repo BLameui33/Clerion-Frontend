@@ -433,95 +433,6 @@ if (lettersSlider) {
     
 }
 
-function setupFlipCardScroll() {
-    // Wir suchen ALLE Sektionen mit dieser Klasse
-    const tracks = document.querySelectorAll('.feature-scroll-track');
-    
-    if (tracks.length === 0) return;
-
-    const isDesktop = window.matchMedia("(min-width: 901px)").matches;
-
-    if (isDesktop) {
-        let isTicking = false;
-
-        function updateAllTracks() {
-            // Wir gehen durch JEDE Sektion einzeln durch
-            tracks.forEach(track => {
-                const cards = track.querySelectorAll('.flip-card-inner');
-                if(cards.length === 0) return;
-
-                const rect = track.getBoundingClientRect();
-                const trackHeight = rect.height;
-                const viewportHeight = window.innerHeight;
-
-                // Berechnung relativ zu DIESEM Track
-                let progress = -rect.top / (trackHeight - viewportHeight);
-
-                // Begrenzen
-                if (progress < 0) progress = 0;
-                if (progress > 1) progress = 1;
-
-                const startP = 0.1;
-                const endP = 0.9;
-                const maxTheoreticalRotation = 240; 
-                
-                let baseRotation = 0;
-
-                if (progress > startP && progress < endP) {
-                    const innerProgress = (progress - startP) / (endP - startP);
-                    baseRotation = innerProgress * maxTheoreticalRotation;
-                } else if (progress >= endP) {
-                    baseRotation = maxTheoreticalRotation;
-                } else {
-                    baseRotation = 0;
-                }
-
-                cards.forEach((card, index) => {
-                    let individualRotation = baseRotation - (index * 15);
-                    if (individualRotation < 0) individualRotation = 0;
-                    if (individualRotation > 180) individualRotation = 180;
-                    card.style.transform = `rotateY(${individualRotation}deg)`;
-                });
-            });
-
-            isTicking = false;
-        }
-
-        document.addEventListener('scroll', function() {
-            if (!isTicking) {
-                window.requestAnimationFrame(updateAllTracks);
-                isTicking = true;
-            }
-        });
-        
-        updateAllTracks();
-
-    } else {
-          
-        tracks.forEach(track => {
-            const cards = track.querySelectorAll('.flip-card-inner');
-            
-            cards.forEach(card => {
-                card.style.transform = 'rotateY(0deg)';
-                card.style.transition = 'transform 0.6s ease'; // Weiche Animation
-
-                // Klick-Event hinzufügen
-                card.addEventListener('click', function() {
-                    // Prüfen der aktuellen Rotation
-                    const currentTransform = this.style.transform;
-                    
-                    if (currentTransform === 'rotateY(180deg)') {
-                        this.style.transform = 'rotateY(0deg)'; // Zuklappen
-                    } else {
-                        this.style.transform = 'rotateY(180deg)'; // Aufklappen
-                    }
-                });
-            });
-        });
-    }
-}
-
-document.addEventListener('DOMContentLoaded', setupFlipCardScroll);
 
 
 // =======================================================
@@ -643,5 +554,4 @@ setupChatDemo();
 setupChatAnimation();
 setupAntragshelferDemoObserver();
 setupFormlosAntragDemoObserver();
-setupFlipCardScroll();
 });
