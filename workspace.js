@@ -1356,33 +1356,39 @@ function setupUserInterface() {
     if (currentUser.type === 'b2b') {
         document.body.classList.add('b2b-mode');
         document.getElementById('ws-greeting').textContent = 'Ihr Cockpit';
-        
+
         // Titel anpassen
         document.getElementById('docs-title').textContent = '📂 Vorlagen & Dokumente';
         document.getElementById('checklist-title').textContent = '📌 Aufgaben & Workflows';
-        
+
         // B2C Hinweis-Container ausblenden
         document.getElementById('gentle-hint-container').classList.add('hidden');
 
         // --- MOTIVATIONSSPRUCH LOGIK ---
         const subtextEl = document.getElementById('ws-subtext');
-        
         if (subtextEl) {
             if (typeof b2bMotivations !== 'undefined' && b2bMotivations.length > 0) {
-                // Wenn Sprüche da sind -> Zufälligen Spruch nehmen
                 const randomMotiv = b2bMotivations[Math.floor(Math.random() * b2bMotivations.length)];
                 subtextEl.textContent = randomMotiv;
                 subtextEl.style.fontStyle = 'italic';
                 subtextEl.style.opacity = '0.9';
-                subtextEl.style.color = 'var(--ws-accent)'; // Passt gut zum B2B Look
+                subtextEl.style.color = 'var(--ws-accent)';
             } else {
-                // Fallback, falls Array leer ist -> Standardtext
                 subtextEl.textContent = 'Effizienz & Struktur für Ihre Klientenarbeit.';
             }
         }
 
-        // B2B Features (Snippets & Sandbox) initialisieren
-        initB2BFeatures(); 
+        const filterContainer = document.getElementById('docs-filter-container');
+        if (filterContainer) {
+            filterContainer.innerHTML = `
+                <button class="filter-btn active-filter" onclick="filterDocs('all')" data-filter="all">Alle</button>
+                <button class="filter-btn" onclick="filterDocs('vorlagen')" data-filter="vorlagen">Vorlagen</button>
+                <button class="filter-btn" onclick="filterDocs('antraege')" data-filter="antraege">Anträge</button>
+                <button class="filter-btn" onclick="filterDocs('infos')" data-filter="infos">Infos/Allgemein</button>
+            `;
+        }
+
+        initB2BFeatures();
 
     } else {
         // --- B2C Logik ---
@@ -1803,15 +1809,8 @@ async function uploadDocument() {
     const formData = new FormData();
     formData.append('file', file);
     
-    // Einfache Logik: Wenn ein Filter aktiv ist (z.B. "finanzen"), wird das Dokument direkt da rein gespeichert.
-    // Sonst default "allgemein".
     const categoryToSave = (currentDocFilter !== 'all') ? currentDocFilter : 'allgemein';
     formData.append('category', categoryToSave);
-
-    // Optional für B2B: Immer als "vorlage" speichern
-    if (currentUser.type === 'b2b') {
-        formData.set('category', 'vorlage');
-    }
 
     try {
         const res = await fetch(`${API_BASE_URL}/api/workspace/documents`, {
@@ -2338,6 +2337,87 @@ function addChatBubble(text, role) {
     div.innerHTML = text.replace(/\n/g, '<br>');
     container.appendChild(div);
     container.scrollTop = container.scrollHeight; // Auto-Scroll nach unten
+}
+
+// =================================================================
+// 13. KRISEN-MODUS LOGIK
+// =================================================================
+
+function toggleCrisisMode() {
+    const overlay = document.getElementById('crisis-overlay');
+    const isHidden = overlay.classList.contains('hidden');
+    
+    if (isHidden) {
+        overlay.classList.remove('hidden');
+        loadCrisisData(); // Daten laden beim Öffnen
+    } else {
+        overlay.classList.add('hidden');
+    }
+}
+
+function toggleCrisisEdit() {
+    const viewMode = document.getElementById('crisis-view-mode');
+    const editMode = document.getElementById('crisis-edit-mode');
+    const btn = document.getElementById('btn-crisis-edit');
+
+    if (editMode.classList.contains('hidden')) {
+        // Bearbeiten starten
+        viewMode.classList.add('hidden');
+        editMode.classList.remove('hidden');
+        btn.textContent = "Abbrechen";
+        
+        // Inputs füllen
+        document.getElementById('crisis-input-c1').value = localStorage.getItem('crisis_c1') || '';
+        document.getElementById('crisis-input-c2').value = localStorage.getItem('crisis_c2') || '';
+        document.getElementById('crisis-input-meds').value = localStorage.getItem('crisis_meds') || '';
+    } else {
+        // Abbrechen
+        viewMode.classList.remove('hidden');
+        editMode.classList.add('hidden');
+        btn.textContent = "Bearbeiten";
+    }
+}
+
+function saveCrisisData() {
+    const c1 = document.getElementById('crisis-input-c1').value;
+    const c2 = document.getElementById('crisis-input-c2').value;
+    const meds = document.getElementById('crisis-input-meds').value;
+
+    // In LocalStorage speichern (bleibt im Browser, auch offline)
+    localStorage.setItem('crisis_c1', c1);
+    localStorage.setItem('crisis_c2', c2);
+    localStorage.setItem('crisis_meds', meds);
+
+    // UI aktualisieren
+    loadCrisisData();
+    toggleCrisisEdit(); // Modus wechseln
+}
+
+function loadCrisisData() {
+    const c1 = localStorage.getItem('crisis_c1');
+    const c2 = localStorage.getItem('crisis_c2');
+    const meds = localStorage.getItem('crisis_meds');
+
+    const viewC1 = document.getElementById('display-contact-1');
+    const viewC2 = document.getElementById('display-contact-2');
+    const viewMeds = document.getElementById('display-meds');
+
+    // Kontakt 1 mit Link
+    if (c1) {
+        // Versuchen, eine Nummer zu extrahieren für tel: Link
+        const number = c1.replace(/[^0-9+]/g, '');
+        viewC1.innerHTML = `👤 <a href="tel:${number}" style="color:#333; text-decoration:none;">${c1}</a> <span style="font-size:0.8rem; color:green;">(Antippen zum Anrufen)</span>`;
+    } else {
+        viewC1.textContent = "• Kein Kontakt 1 eingetragen";
+    }
+
+    // Kontakt 2
+    viewC2.textContent = c2 ? `👤 ${c2}` : "• Kein Kontakt 2 eingetragen";
+    
+    // Medis
+    viewMeds.textContent = meds || "Keine Informationen hinterlegt.";
+    // Zeilenumbrüche beachten
+    viewMeds.innerHTML = (meds || "Keine Infos.").replace(/\n/g, '<br>');
 }
 
 // =================================================================

@@ -975,6 +975,99 @@
     transition: 0.2s;
 }
 .btn-chat-send:hover { transform: scale(1.05); }
+
+/* === 1. DESIGN-FIX: WEICHER BUTTON (Wie Tracker) === */
+.btn-soft-gradient {
+    background: linear-gradient(135deg, var(--ws-accent) 0%, #557d1b 100%);
+    color: white;
+    border: none;
+    border-radius: 50px; /* Pillen-Form */
+    padding: 15px 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(107, 142, 35, 0.3);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+.btn-soft-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(107, 142, 35, 0.4);
+    filter: brightness(1.05);
+}
+
+/* === 2. KRISEN-MODUS STYLES === */
+.crisis-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #fdfbf7; /* Warmes Papier-Weiß statt hartem Weiß */
+    z-index: 10000; /* Muss über allem liegen */
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    overflow-y: auto; padding: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+.crisis-container {
+    max-width: 600px; width: 100%;
+    text-align: center;
+}
+
+.crisis-card-inner {
+    background: white; border: 1px solid #eee;
+    border-radius: 16px; padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    margin-bottom: 2rem;
+}
+
+.crisis-btn-emergency {
+    display: block; width: 100%; padding: 18px; margin-bottom: 12px;
+    border-radius: 12px; font-size: 1.2rem; font-weight: bold;
+    text-decoration: none; text-align: center;
+    transition: transform 0.2s;
+}
+.crisis-btn-emergency:hover { transform: scale(1.02); }
+
+/* Farben für Notruf-Buttons */
+.bg-red { background: #e74c3c; color: white; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); }
+.bg-dark { background: #2c3e50; color: white; box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3); }
+.bg-green { background: #27ae60; color: white; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); }
+
+/* Eingabefelder im Krisenmodus (Editierbar) */
+.crisis-input {
+    width: 100%; padding: 10px; border: 1px solid #ddd;
+    border-radius: 6px; margin-bottom: 10px; font-family: inherit;
+}
+
+/* Druck-Styles */
+@media print {
+    .crisis-overlay { position: absolute; background: white; }
+    .no-print { display: none !important; }
+    .crisis-container { max-width: 100%; }
+    body > *:not(.crisis-overlay) { display: none; }
+}
+
+/* === HEADER NAVIGATION BUTTON === */
+.btn-header-back {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    color: #666;
+    padding: 8px 18px;
+    border-radius: 20px; /* Pillen-Form passend zum Krisen-Button */
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
+
+.btn-header-back:hover {
+    border-color: var(--ws-accent);
+    color: var(--ws-accent);
+    transform: translateX(-3px); /* Kleiner Bewegungseffekt nach links */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
     </style>
 </head>
 <body>
@@ -1042,9 +1135,17 @@
             <div>
                 <h1 id="ws-greeting">Guten Tag.</h1>
                 <p id="ws-subtext">Willkommen an Ihrem persönlichen Schreibtisch.</p>
+                <div style="display:flex; gap:10px; align-items:center;">
+                <!-- 1. Der neue Zurück Button -->
+                <a href="dashboard.html" class="btn-header-back">
+                    <span>&larr;</span> <span>Tools</span>
+                </a>
+
+                <!-- 2. Der Notfall Button -->
+                <button onclick="toggleCrisisMode()" class="btn-crisis">
+                    <span>🆘</span> <span>Notfall</span>
+                </button>
             </div>
-            <a href="dashboard.html" class="button-secondary" style="text-decoration: none;">&larr; Zurück zu den Tools</a>
-        </div>
 
         <!-- SANFTER HINWEIS (JS füllt das) -->
         <div id="gentle-hint-container" class="hidden gentle-hint">
@@ -1285,9 +1386,9 @@
                 </label>
             </div>
 
-            <button onclick="showReliefSuggestions()" class="btn-primary" style="margin-top:2rem; width:100%; padding:15px;">
-                Vorschläge anzeigen
-            </button>
+            <button onclick="showReliefSuggestions()" class="btn-soft-gradient" style="margin-top:2rem; width:100%;">
+    Vorschläge anzeigen
+</button>
 
             <!-- Ergebnis-Bereich (erst unsichtbar) -->
             <div id="relief-results" class="hidden" style="margin-top:2.5rem; padding-top:2rem; border-top:1px dashed #eee;">
@@ -1428,6 +1529,80 @@
     und sollten vor Verwendung eigenständig geprüft werden.
   </p>
    </footer>
+
+   <!-- ========================= -->
+    <!-- KRISEN-MODUS OVERLAY      -->
+    <!-- ========================= -->
+    <div id="crisis-overlay" class="crisis-overlay hidden">
+        <div class="crisis-container">
+            
+            <!-- Header mit Exit -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;" class="no-print">
+                <h2 style="margin:0; color:#e74c3c;">🆘 Notfall-Plan</h2>
+                <button onclick="toggleCrisisMode()" style="font-size:2rem; background:none; border:none; cursor:pointer;">&times;</button>
+            </div>
+
+            <!-- 1. Beruhigung & Standard-Nummern -->
+            <p style="font-size:1.1rem; color:#555; margin-bottom:2rem; font-style:italic;">
+                „Atmen Sie durch. Sie müssen das hier nicht alleine durchstehen.“
+            </p>
+
+            <a href="tel:112" class="crisis-btn-emergency bg-red">
+                🚑 112 (Rettungsdienst / Feuerwehr)
+            </a>
+            <a href="tel:08001110111" class="crisis-btn-emergency bg-dark">
+                📞 0800 111 0 111 (Telefonseelsorge)
+            </a>
+            <a href="tel:116117" class="crisis-btn-emergency bg-green">
+                👨‍⚕️ 116 117 (Ärztlicher Bereitschaftsdienst)
+            </a>
+
+            <!-- 2. Persönliche Kontakte (Editierbar) -->
+            <div class="crisis-card-inner" style="margin-top:2rem; text-align:left;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                    <h3 style="margin:0; font-size:1.1rem;">Meine Vertrauenspersonen</h3>
+                    <button onclick="toggleCrisisEdit()" id="btn-crisis-edit" class="no-print" style="border:none; background:none; color:#777; cursor:pointer; text-decoration:underline;">Bearbeiten</button>
+                </div>
+
+                <!-- Anzeige-Modus -->
+                <div id="crisis-view-mode">
+                    <div id="display-contact-1" style="margin-bottom:10px; font-weight:bold;">Noch kein Kontakt eingetragen</div>
+                    <div id="display-contact-2" style="margin-bottom:20px; color:#666;"></div>
+                    
+                    <h4 style="font-size:0.9rem; margin-bottom:5px; color:#888;">Wichtige medizinische Info / Medikation:</h4>
+                    <div id="display-meds" style="background:#f9f9f9; padding:10px; border-radius:6px;">Keine Infos hinterlegt.</div>
+                </div>
+
+                <!-- Bearbeiten-Modus (Versteckt) -->
+                <div id="crisis-edit-mode" class="hidden">
+                    <label style="font-size:0.8rem;">Kontakt 1 (Name & Tel):</label>
+                    <input type="text" id="crisis-input-c1" class="crisis-input" placeholder="z.B. Mama: 0171...">
+                    
+                    <label style="font-size:0.8rem;">Kontakt 2:</label>
+                    <input type="text" id="crisis-input-c2" class="crisis-input" placeholder="z.B. Nachbarin: 030...">
+                    
+                    <label style="font-size:0.8rem;">Wichtige Infos / Medikamente:</label>
+                    <textarea id="crisis-input-meds" class="crisis-input" style="height:80px;"></textarea>
+                    
+                    <button onclick="saveCrisisData()" class="btn-primary" style="width:100%;">Speichern</button>
+                    <p style="font-size:0.75rem; color:#999; margin-top:12px; line-height:1.4;">
+                        🔒 <strong>Datenschutz-Hinweis:</strong> <br>
+                        Diese persönlichen Kontakte und Infos werden ausschließlich 
+                        <strong>lokal auf diesem Gerät</strong> (im Browser) gespeichert. 
+                        Sie werden nicht an unsere Server übertragen.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer Tools -->
+            <div class="no-print" style="margin-top:2rem; display:flex; gap:10px; justify-content:center;">
+                <button onclick="window.print()" style="padding:10px 20px; border:1px solid #ddd; background:white; border-radius:8px; cursor:pointer;">🖨️ Ausdrucken</button>
+                <button onclick="toggleCrisisMode()" style="padding:10px 20px; border:none; background:transparent; color:#777; cursor:pointer; text-decoration:underline;">Zurück zum Bereich</button>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Scripte -->
     <script src="workspace.js"></script>
 </body>
