@@ -869,6 +869,112 @@
     margin-bottom: 5px;
     display: block;
 }
+
+/* === COMPANION MODUL === */
+
+/* Auswahl Grid */
+.companion-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+@media (max-width: 600px) { .companion-options-grid { grid-template-columns: 1fr; } }
+
+.companion-option-card {
+    border: 2px solid #eee;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+}
+.companion-option-card:hover {
+    border-color: var(--ws-accent);
+    background: #fdfdfd;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+.comp-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.comp-title { font-weight: bold; font-size: 1.1rem; color: var(--ws-accent); margin-bottom: 8px; }
+.comp-desc { color: #666; font-size: 0.9rem; line-height: 1.5; }
+
+/* Chat Bereich */
+.chat-history-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.chat-bubble {
+    max-width: 80%;
+    padding: 12px 18px;
+    border-radius: 18px;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    position: relative;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Bot Style (Links, Grau) */
+.chat-bubble.bot {
+    background: #e9e9eb;
+    color: #333;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+
+/* User Style (Rechts, Akzentfarbe) */
+.chat-bubble.user {
+    background: var(--ws-accent);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+/* Loading Punkte */
+.chat-loading {
+    align-self: flex-start;
+    color: #999;
+    font-style: italic;
+    font-size: 0.8rem;
+    margin-left: 10px;
+}
+
+.chat-input-wrapper {
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+}
+
+#companion-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    outline: none;
+    font-size: 1rem;
+}
+#companion-input:focus { border-color: var(--ws-accent); }
+
+.btn-chat-send {
+    background: var(--ws-accent);
+    color: white;
+    border: none;
+    width: 45px; height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.2s;
+}
+.btn-chat-send:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -1139,7 +1245,7 @@
 </div>
 
 <!-- MODUL: ENTLASTUNGS-FINDER -->
-    <div id="mod-relief" class="module-view">
+     <div id="mod-relief" class="module-view">
         <div class="module-header">
             <button class="btn-back" onclick="showMenu()">←</button>
             <h2>Entlastungs-Finder</h2>
@@ -1156,23 +1262,23 @@
             <div class="relief-grid">
                 <label class="relief-option">
                     <input type="checkbox" value="zeit"> 
-                    <span class="relief-label">⏳ Keine Zeit / Schlaf</span>
+                    <div class="relief-label">⏳ Keine Zeit / Schlaf</div>
                 </label>
                 <label class="relief-option">
                     <input type="checkbox" value="papier"> 
-                    <span class="relief-label">📄 Papierkram & Ämter</span>
+                    <div class="relief-label">📄 Papierkram & Ämter</div>
                 </label>
                 <label class="relief-option">
                     <input type="checkbox" value="koerper"> 
-                    <span class="relief-label">💪 Körperliche Anstrengung</span>
+                    <div class="relief-label">💪 Körperliche Anstrengung</div>
                 </label>
                 <label class="relief-option">
                     <input type="checkbox" value="psyche"> 
-                    <span class="relief-label">💭 Sorgen & Emotionen</span>
+                    <div class="relief-label">💭 Sorgen & Emotionen</div>
                 </label>
                 <label class="relief-option">
                     <input type="checkbox" value="finanzen"> 
-                    <span class="relief-label">💰 Geld & Kosten</span>
+                    <div class="relief-label">💰 Geld & Kosten</div>
                 </label>
             </div>
 
@@ -1180,13 +1286,64 @@
                 Vorschläge anzeigen
             </button>
 
-            <!-- Ergebnis-Bereich  -->
+            <!-- Ergebnis-Bereich (erst unsichtbar) -->
             <div id="relief-results" class="hidden" style="margin-top:2.5rem; padding-top:2rem; border-top:1px dashed #eee;">
                 <!-- Wird per JS befüllt -->
             </div>
         </div>
     </div>
 
+    <!-- MODUL: ENTSCHEIDUNGS- & GEDANKEN-BEGLEITER -->
+    <div id="mod-companion" class="module-view">
+        <div class="module-header">
+            <button class="btn-back" onclick="showMenu()">←</button>
+            <h2>Gedanken-Sortierer</h2>
+        </div>
+
+        <!-- ANSICHT 1: AUSWAHL -->
+        <div id="companion-selection" class="ws-card">
+            <h3 style="text-align:center; color:#555; margin-bottom:2rem;">Wobei darf ich Ihnen heute helfen?</h3>
+            
+            <div class="companion-options-grid">
+                <!-- Option A: Entscheidung -->
+                <div class="companion-option-card" onclick="startCompanion('decision')">
+                    <div class="comp-icon">⚖️</div>
+                    <div class="comp-title">Entscheidungshilfe</div>
+                    <div class="comp-desc">
+                        Ich stehe vor einer Wahl und habe Angst, einen Fehler zu machen.
+                    </div>
+                </div>
+
+                <!-- Option B: Gedanken sortieren -->
+                <div class="companion-option-card" onclick="startCompanion('thoughts')">
+                    <div class="comp-icon">🧶</div>
+                    <div class="comp-title">Kopf lüften</div>
+                    <div class="comp-desc">
+                        Es ist gerade alles zu viel. Ich muss meine Gedanken ordnen.
+                    </div>
+                </div>
+            </div>
+            
+            <p style="text-align:center; font-size:0.8rem; color:#aaa; margin-top:2rem;">
+                Hinweis: Dies ist eine KI-Unterstützung zur Reflexion.
+            </p>
+        </div>
+
+        <!-- ANSICHT 2: CHAT (Initial versteckt) -->
+        <div id="companion-chat-view" class="ws-card hidden" style="height: 600px; display:flex; flex-direction:column; padding:0; overflow:hidden;">
+            
+            <!-- Chat Verlauf -->
+            <div id="chat-history-container" class="chat-history-area">
+                <!-- Hier landen die Nachrichten -->
+            </div>
+
+            <!-- Eingabe -->
+            <div class="chat-input-wrapper">
+                <input type="text" id="companion-input" placeholder="Schreiben Sie hier..." autocomplete="off">
+                <button onclick="sendCompanionMessage()" id="btn-send-chat" class="btn-chat-send">➤</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODUL: SANDBOX (B2B) -->
     <div id="mod-sandbox" class="module-view">

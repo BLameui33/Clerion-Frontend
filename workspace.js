@@ -20,8 +20,10 @@ function setupMenu() {
 
          { id: 'tracker', title: 'Realitäts-Check', icon: '📊', desc: 'Wie war der Tag? Kurz & knapp.', show: !isB2B },
         
-        // 2. Organisation (NEU: Notizen & Checklisten)
+        // 2. Organisation 
         { id: 'org', title: 'Orga & Notizen', icon: '✅', desc: 'Aufgaben und Gedanken sortieren.' },
+
+        { id: 'companion', title: 'Gedanken-Sortierer', icon: '🤖', desc: 'Entscheidungen treffen & Klarheit finden.' },
 
         // 3. Tagebuch (Nur B2C)
         { id: 'diary', title: 'Tagebuch', icon: '📖', desc: 'Gedanken frei von der Leber schreiben.', show: !isB2B },
@@ -31,8 +33,8 @@ function setupMenu() {
         // 4. Dokumente / Koffer
         { id: 'docs', title: isB2B ? 'Vorlagen & Docs' : 'Notfall-Koffer', icon: isB2B ? '📂' : '🎒', desc: 'Wichtige Unterlagen an einem Ort.' },
 
-        // 5. Selfcare (NEU - Als Link)
-        // Wir zeigen das nur B2C Usern an. Wenn B2B das auch sehen sollen, entfernen Sie ", show: !isB2B"
+        // 5. Selfcare 
+       
         { id: 'selfcare', title: 'Ruhe-Oase', icon: '☕', desc: 'Kleine Pause für den Kopf.', link: 'selfcare.html'},
 
         // 6. B2B Features
@@ -2236,6 +2238,109 @@ window.showReliefSuggestions = function() {
     // Scroll zum Ergebnis
     resultsContainer.scrollIntoView({ behavior: 'smooth' });
 }
+
+// =================================================================
+// 12. KI BEGLEITER (COMPANION)
+// =================================================================
+
+let companionMode = null;     // 'decision' oder 'thoughts'
+let companionHistory = [];    // Array für den Chatverlauf
+
+// Startet den Chat (wird von den Karten aufgerufen)
+window.startCompanion = function(mode) {
+    companionMode = mode;
+    companionHistory = []; // Reset bei Neustart
+
+    // UI umschalten
+    document.getElementById('companion-selection').classList.add('hidden');
+    document.getElementById('companion-chat-view').classList.remove('hidden');
+    document.getElementById('companion-chat-view').style.display = 'flex'; 
+
+    const chatContainer = document.getElementById('chat-history-container');
+    chatContainer.innerHTML = ''; // Leer machen
+
+    // Erste Nachricht vom Bot (Simuliert)
+    let introText = "";
+    if (mode === 'decision') {
+        introText = "Hallo. Ich sehe, du stehst vor einer Entscheidung. Magst du mir kurz erzählen, worum es geht?";
+    } else {
+        introText = "Hallo. Lass uns gemeinsam etwas Ordnung schaffen. Was geht dir gerade durch den Kopf?";
+    }
+
+    addChatBubble(introText, 'bot');
+    
+    // Enter-Taste im Input Feld aktivieren
+    document.getElementById('companion-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') sendCompanionMessage();
+    });
+}
+
+// Nachricht senden
+window.sendCompanionMessage = async function() {
+    const input = document.getElementById('companion-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    // 1. User Bubble anzeigen
+    addChatBubble(text, 'user');
+    input.value = '';
+
+    // 2. Loading Indikator
+    const chatContainer = document.getElementById('chat-history-container');
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'chat-loading';
+    loadingDiv.textContent = 'Begleiter denkt nach...';
+    chatContainer.appendChild(loadingDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    try {
+        // 3. Backend Call
+        const res = await fetch(`${API_BASE_URL}/api/workspace/companion`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({
+                message: text,
+                mode: companionMode,
+                history: companionHistory // Kontext mitsenden
+            })
+        });
+
+        const data = await res.json();
+        
+        // Loading entfernen
+        loadingDiv.remove();
+
+        if (data.reply) {
+            addChatBubble(data.reply, 'bot');
+            
+            // History updaten (User + Bot) für nächsten Request
+            companionHistory.push({ role: "user", content: text });
+            companionHistory.push({ role: "assistant", content: data.reply });
+            
+            // Begrenzen der History (damit Token nicht explodieren), z.B. letzte 10 Nachrichten
+            if(companionHistory.length > 10) companionHistory = companionHistory.slice(-10);
+        }
+
+    } catch (e) {
+        console.error(e);
+        loadingDiv.textContent = 'Verbindungsproblem. Bitte versuche es noch einmal.';
+    }
+}
+
+// Hilfsfunktion: Bubble rendern
+function addChatBubble(text, role) {
+    const container = document.getElementById('chat-history-container');
+    const div = document.createElement('div');
+    div.className = `chat-bubble ${role}`;
+    // Einfache Umwandlung von Newlines in <br> für bessere Lesbarkeit
+    div.innerHTML = text.replace(/\n/g, '<br>');
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight; // Auto-Scroll nach unten
+}
+
 // =================================================================
 // 9. B2B FEATURES (Snippets & Sandbox)
 // =================================================================
