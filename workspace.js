@@ -1432,9 +1432,8 @@ function setupEventListeners() {
     });
 }
 
-// Mini-Accordions innerhalb von knowledge-content (z.B. Pflege-Untermenüs)
-// Mini-Accordions innerhalb von knowledge-content (z.B. Pflege-Untermenüs)
-// -> Klassisches Verhalten: immer nur ein Untermenü offen
+
+
 const knowledgeContainer = document.getElementById("knowledge-container");
 if (knowledgeContainer) {
   knowledgeContainer.addEventListener("click", (e) => {
