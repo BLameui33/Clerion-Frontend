@@ -17,6 +17,8 @@ function setupMenu() {
     const tiles = [
         // 1. Orientierung
         { id: 'knowledge', title: 'Orientierung', icon: '🧭', desc: 'Wegweiser & Wissen.' },
+
+         { id: 'tracker', title: 'Realitäts-Check', icon: '📊', desc: 'Wie war der Tag? Kurz & knapp.', show: !isB2B },
         
         // 2. Organisation (NEU: Notizen & Checklisten)
         { id: 'org', title: 'Orga & Notizen', icon: '✅', desc: 'Aufgaben und Gedanken sortieren.' },
@@ -29,7 +31,7 @@ function setupMenu() {
 
         // 5. Selfcare (NEU - Als Link)
         // Wir zeigen das nur B2C Usern an. Wenn B2B das auch sehen sollen, entfernen Sie ", show: !isB2B"
-        { id: 'selfcare', title: 'Ruhe-Oase', icon: '☕', desc: 'Kleine Pause für den Kopf.', link: 'selfcare.html', show: !isB2B },
+        { id: 'selfcare', title: 'Ruhe-Oase', icon: '☕', desc: 'Kleine Pause für den Kopf.', link: 'selfcare.html'},
 
         // 6. B2B Features
         { id: 'snippets', title: 'Textbausteine', icon: '📋', desc: 'Effizient antworten.', show: isB2B },
@@ -1956,6 +1958,117 @@ async function loadDiaryHistory() {
         });
 
     } catch (e) { console.error(e); }
+}
+
+// =================================================================
+// 10. REALITÄTS-TRACKER LOGIK
+// =================================================================
+
+let currentTrackerData = {
+    intensity: null,
+    drains: [] // "Krafträuber"
+};
+
+// Wählt Leicht/Mittel/Schwer
+window.selectTrackerIntensity = function(btnElement, value) {
+    // 1. Alle Buttons deselektieren
+    document.querySelectorAll('.tracker-btn').forEach(b => b.classList.remove('selected'));
+    
+    // 2. Gewählten Button markieren
+    btnElement.classList.add('selected');
+    
+    // 3. Wert speichern
+    currentTrackerData.intensity = value;
+}
+
+// Wählt Tags an/ab
+window.toggleTrackerTag = function(btnElement) {
+    btnElement.classList.toggle('active');
+    
+    const tagText = btnElement.innerText;
+    
+    if (currentTrackerData.drains.includes(tagText)) {
+        // Entfernen
+        currentTrackerData.drains = currentTrackerData.drains.filter(t => t !== tagText);
+    } else {
+        // Hinzufügen
+        currentTrackerData.drains.push(tagText);
+    }
+}
+
+window.saveTrackerEntry = async function() {
+    // Validierung: Hat der Nutzer eine Intensität gewählt?
+    if (!currentTrackerData.intensity) {
+        alert("Bitte wählen Sie kurz aus, wie sich der Tag anfühlt (Leicht/Mittel/Schwer).");
+        return;
+    }
+
+    const note = document.getElementById('tracker-note').value;
+    const saveBtn = document.getElementById('btn-save-tracker');
+    const feedbackEl = document.getElementById('tracker-feedback');
+    const checkIcon = document.getElementById('tracker-check');
+
+    // Button Feedback: Deaktivieren
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = 'Speichere... ⏳';
+
+    const payload = {
+        date: new Date().toISOString(),
+        intensity: currentTrackerData.intensity,
+        drains: currentTrackerData.drains, // Array
+        note: note
+    };
+
+    try {
+        // ECHTER API CALL
+        const res = await fetch(`${API_BASE_URL}/api/workspace/tracker`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error('Fehler beim Speichern');
+
+        // Erfolg
+        saveBtn.innerHTML = 'Gespeichert';
+        saveBtn.style.background = '#2e7d32'; // Grün
+        if(checkIcon) checkIcon.style.display = 'inline';
+        
+        // Feedback Text einblenden
+        if(feedbackEl) feedbackEl.style.opacity = '1';
+
+        // Nach 2 Sekunden Reset & Menü
+        setTimeout(() => {
+            resetTracker();
+            showMenu();
+        }, 2000);
+
+    } catch (e) {
+        console.error(e);
+        alert("Das hat leider nicht geklappt. Bitte prüfen Sie Ihre Verbindung.");
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = 'Eintrag sichern';
+    }
+}
+
+function resetTracker() {
+    // Reset Data
+    currentTrackerData = { intensity: null, drains: [] };
+    
+    // Reset UI
+    document.querySelectorAll('.tracker-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.tracker-tag').forEach(b => b.classList.remove('active'));
+    document.getElementById('tracker-note').value = '';
+    
+    // Reset Button & Feedback
+    const saveBtn = document.getElementById('btn-save-tracker');
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = 'Eintrag sichern';
+    saveBtn.style.background = ''; // Reset CSS Var
+    document.getElementById('tracker-feedback').style.opacity = '0';
 }
 
 // =================================================================
