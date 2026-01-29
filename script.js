@@ -433,6 +433,58 @@ if (lettersSlider) {
     
 }
 
+function setupFlipCardScroll() {
+        const track = document.querySelector('.feature-scroll-track');
+        const cards = document.querySelectorAll('.flip-card-inner');
+
+        // Abbruch, wenn Elemente nicht existieren
+        if (!track || cards.length === 0) return;
+
+        // Die eigentliche Scroll-Logik
+        function updateFlipCards() {
+            const rect = track.getBoundingClientRect();
+            const trackHeight = rect.height;
+            const viewportHeight = window.innerHeight;
+
+            // Fortschritt berechnen (0 bis 1)
+            let progress = -rect.top / (trackHeight - viewportHeight);
+
+            // Begrenzen
+            if (progress < 0) progress = 0;
+            if (progress > 1) progress = 1;
+
+            // Mapping: Drehung nur zwischen 20% und 80% des Scroll-Wegs
+            const startP = 0.2;
+            const endP = 0.8;
+            let rotation = 0;
+
+            if (progress > startP && progress < endP) {
+                const innerProgress = (progress - startP) / (endP - startP);
+                rotation = innerProgress * 180;
+            } else if (progress >= endP) {
+                rotation = 180;
+            } else {
+                rotation = 0;
+            }
+
+            // Drehung auf Karten anwenden (mit Domino-Effekt)
+            cards.forEach((card, index) => {
+                let individualRotation = rotation - (index * 10);
+                
+                if (individualRotation < 0) individualRotation = 0;
+                if (individualRotation > 180) individualRotation = 180;
+
+                card.style.transform = `rotateY(${individualRotation}deg)`;
+            });
+        }
+
+        // Event-Listener hinzufügen
+        document.addEventListener('scroll', updateFlipCards);
+        
+        // Einmalig initial aufrufen, um Startposition zu setzen
+        updateFlipCards();
+    }
+
 // =======================================================
 // LOGIK FÜR DIE INTERAKTIVE ANTRAGSHELFER-DEMO
 // =======================================================
@@ -537,7 +589,7 @@ function setupFormlosAntragDemoObserver() {
 
 
 
- // Initialer Aufruf für beide Funktionen
+ // Initialer Aufruf 
  
  setupScrollAnimation();
 setupB2BDemo();
@@ -552,4 +604,5 @@ setupChatDemo();
 setupChatAnimation();
 setupAntragshelferDemoObserver();
 setupFormlosAntragDemoObserver();
+setupFlipCardScroll();
 });
