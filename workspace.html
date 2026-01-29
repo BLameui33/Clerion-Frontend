@@ -887,44 +887,39 @@
     </div>
 
 
-    <!-- MODUL: NOTIZEN -->
-    <div id="mod-notes" class="module-view">
+    <!-- MODUL: ORGANISATION (Notizen & Checklisten gebündelt) -->
+    <div id="mod-org" class="module-view">
         <div class="module-header">
             <button class="btn-back" onclick="showMenu()">←</button>
-            <h2>Persönliche Notizen</h2>
+            <h2>Organisation & Gedanken</h2>
         </div>
 
-        <!-- Ihre Original Notizen Card -->
-        <div class="ws-card">
-            <div class="ws-card-header" style="margin-bottom:0.5rem;">
-                <div class="ws-title">📝 Notizen</div>
-                <span id="note-save-status" style="font-size:0.75rem; color:green; opacity:0; transition:opacity 1s;">
-                    Gespeichert ✓
-                </span>
+        <div class="ws-grid" style="grid-template-columns: 1fr; gap: 2rem;">
+            
+            <!-- 1. Checklisten (Nach oben, weil meist wichtiger) -->
+            <div class="ws-card">
+                <div class="ws-card-header">
+                    <div class="ws-title" id="checklist-title">✅ Nächste Schritte</div>
+                </div>
+                <div style="display:flex; gap:8px; margin-bottom:15px;">
+                    <input type="text" id="checklist-input" placeholder="Neuer Punkt..." 
+                           style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; outline:none;">
+                    <button onclick="addChecklistItem()" class="button-secondary" style="min-width:40px;">+</button>
+                </div>
+                <ul id="checklist-list"></ul>
             </div>
-            <textarea id="personal-notes" placeholder="Platz für Gedanken..."></textarea>
-        </div>
-    </div>
 
-
-    <!-- MODUL: CHECKLISTEN -->
-    <div id="mod-checklist" class="module-view">
-        <div class="module-header">
-            <button class="btn-back" onclick="showMenu()">←</button>
-            <h2>Nächste Schritte</h2>
-        </div>
-
-        <!-- Ihre Original Checklisten Card -->
-        <div class="ws-card">
-            <div class="ws-card-header">
-                <div class="ws-title" id="checklist-title">✅ Nächste Schritte</div>
+            <!-- 2. Persönliche Notizen -->
+            <div class="ws-card">
+                <div class="ws-card-header" style="margin-bottom:0.5rem;">
+                    <div class="ws-title">📝 Schnelle Notizen</div>
+                    <span id="note-save-status" style="font-size:0.75rem; color:green; opacity:0; transition:opacity 1s;">
+                        Gespeichert ✓
+                    </span>
+                </div>
+                <textarea id="personal-notes" placeholder="Platz für Gedanken, Telefonnummern oder Entwürfe..." style="min-height: 150px;"></textarea>
             </div>
-            <div style="display:flex; gap:8px; margin-bottom:15px;">
-                <input type="text" id="checklist-input" placeholder="Neuer Punkt..." 
-                       style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; outline:none;">
-                <button onclick="addChecklistItem()" class="button-secondary" style="min-width:40px;">+</button>
-            </div>
-            <ul id="checklist-list"></ul>
+
         </div>
     </div>
     
