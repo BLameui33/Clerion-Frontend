@@ -1093,6 +1093,43 @@
     box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);
     transform: translateY(-1px);
 }
+
+.ws-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; 
+    gap: 15px;      
+    padding: 10px;  
+}
+
+/* Container für die Buttons */
+.ws-header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* --- MOBILE OPTIMIERUNG (Media Query) --- */
+@media (max-width: 600px) {
+    .ws-header {
+        flex-direction: column; 
+        align-items: flex-start; /* Linksbündig */
+    }
+
+    .ws-header-actions {
+        width: 100%;
+        justify-content: space-between; 
+        margin-top: 5px;
+    }
+    
+   
+    .btn-header-back, .btn-crisis {
+        flex: 1; 
+        justify-content: center;
+        padding: 12px; 
+    }
+}
     </style>
 </head>
 <body>
@@ -1155,34 +1192,25 @@
     <!-- ========================= -->
     <div class="ws-container">
         
-        <!-- HEADER -->
-     
-        <!-- HEADER BEREICH -->
         <div class="ws-header">
-            <!-- Linke Seite: Begrüßung -->
-            <div>
-                <h1 id="ws-greeting">Guten Tag.</h1>
-                <p id="ws-subtext" style="color:#777;">Was steht heute an?</p>
-            </div>
-            
-            <!-- Rechte Seite: Buttons -->
-            <div style="display:flex; gap:10px; align-items:center;">
-                <!-- 1. Zurück Button -->
-                <a href="dashboard.html" class="btn-header-back">
-                    <span>&larr;</span> <span>Tools</span>
-                </a>
+    <div class="ws-greeting-container">
+        <h1 id="ws-greeting">Guten Tag.</h1>
+        <p id="ws-subtext" style="color:#777;">Was steht heute an?</p>
+    </div>
+    
+    <div class="ws-header-actions">
+        <a href="dashboard.html" class="btn-header-back">
+            <span>&larr;</span> <span class="btn-text">Tools</span>
+        </a>
 
-                <!-- 2. Notfall Button -->
-                <button onclick="toggleCrisisMode()" class="btn-crisis">
-                    <span>🆘</span> <span>Notfall</span>
-                </button>
-            </div>
-        </div>
+        <button onclick="toggleCrisisMode()" class="btn-crisis">
+            <span>🆘</span> <span class="btn-text">Notfall</span>
+        </button>
+    </div>
+</div>
 
-        <!-- HINWEIS-CONTAINER (Jetzt UNTER dem Header) -->
-        <div id="gentle-hint-container" class="hidden gentle-hint">
-            <!-- Text kommt aus JS -->
-        </div>
+<div id="gentle-hint-container" class="hidden gentle-hint">
+    </div>
         <!-- GRID LAYOUT -->
        <!-- ========================= -->
     <!-- 1. NEUES HAUPTMENÜ        -->
