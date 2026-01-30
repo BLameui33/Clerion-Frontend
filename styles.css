@@ -7964,3 +7964,145 @@ cursor: move;
 }
 
 
+/* === FEATURE TOGGLE SECTION === */
+
+.feature-toggle-section {
+    padding: 60px 0;
+    position: relative;
+}
+
+/* 1. Der Schalter (Toggle Switch) */
+.toggle-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.toggle-label {
+    font-weight: 600;
+    color: #888;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+    cursor: pointer;
+}
+
+.toggle-label.active {
+    color: var(--ws-accent, #6b8e23); /* Fallback Farbe */
+    color: #2c3e50;
+}
+
+/* Der eigentliche Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+}
+
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2c3e50; /* Dunkelblau wenn aktiv */
+}
+
+input:checked + .slider:before {
+    transform: translateX(30px);
+}
+
+/* 2. Karten Design (Einheitlich Weiß) */
+.flip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    perspective: 1000px; /* Für den 3D Effekt */
+}
+
+.flip-card {
+    background-color: transparent;
+    height: 320px; /* Feste Höhe nötig für Flip */
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Schöner Schwung */
+    transform-style: preserve-3d;
+}
+
+/* Die Klasse, die per JS hinzugefügt wird */
+.flip-card-inner.is-flipped {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    
+    /* Design der Showcase-Card direkt hier */
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Rückseite drehen */
+.flip-card-back {
+    transform: rotateY(180deg);
+    /* KEINE Farben mehr, genau wie Front */
+}
+
+.showcase-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.flip-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.flip-card p {
+    font-size: 0.95rem;
+    color: #666;
+    line-height: 1.5;
+}

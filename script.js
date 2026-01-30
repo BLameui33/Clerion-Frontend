@@ -254,6 +254,38 @@ function setupScrollHighlighting() {
     });
 }
 
+function toggleFlipCards(sectionId) {
+    // 1. Checkbox Status prüfen
+    const checkbox = document.getElementById('toggle-' + sectionId);
+    const isChecked = checkbox.checked;
+
+    // 2. Grid finden
+    const grid = document.getElementById('grid-' + sectionId);
+    if (!grid) return;
+
+    // 3. Labels einfärben (Optional, für besseres UX)
+    const labelFront = document.getElementById('label-' + sectionId + '-front');
+    const labelBack = document.getElementById('label-' + sectionId + '-back');
+    
+    if (isChecked) {
+        labelFront.classList.remove('active');
+        labelBack.classList.add('active');
+    } else {
+        labelFront.classList.add('active');
+        labelBack.classList.remove('active');
+    }
+
+    // 4. Alle Karten drehen
+    const cards = grid.querySelectorAll('.flip-card-inner');
+    cards.forEach(card => {
+        if (isChecked) {
+            card.classList.add('is-flipped');
+        } else {
+            card.classList.remove('is-flipped');
+        }
+    });
+}
+
 function setupCounterAnimation() {
     const counters = document.querySelectorAll('.metric-number');
     if (counters.length === 0) return;
@@ -554,4 +586,5 @@ setupChatDemo();
 setupChatAnimation();
 setupAntragshelferDemoObserver();
 setupFormlosAntragDemoObserver();
+toggleFlipCards();
 });
