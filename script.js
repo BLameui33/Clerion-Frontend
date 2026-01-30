@@ -586,5 +586,4 @@ setupChatDemo();
 setupChatAnimation();
 setupAntragshelferDemoObserver();
 setupFormlosAntragDemoObserver();
-toggleFlipCards();
 });
