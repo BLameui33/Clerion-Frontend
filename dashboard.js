@@ -984,33 +984,30 @@ function showResetPasswordView() {
         elementsToFadeIn.forEach(element => { observer.observe(element); });
     }
 
-    function displaySignature(path) {
+   function displaySignature(path) {
     const previewContainer = document.getElementById('signature-preview-container');
     const deleteButton = document.getElementById('delete-signature-button');
 
+    // Leere zuerst immer die Vorschau
     previewContainer.innerHTML = '';
 
     if (path) {
-        
+        // WENN ein Pfad zur Unterschrift existiert:
+        // 1. Erstelle ein neues Bild-Element
         const img = document.createElement('img');
-        
-        img.id = 'secure-signature-img'; 
-        
+        img.src = `${API_BASE_URL}/${path.replace(/\\/g, '/')}`;
         img.alt = 'Ihre gespeicherte Unterschrift';
         img.style.maxWidth = '200px';
         img.style.border = '1px solid #eee';
-        img.style.display = 'block'; // Sieht meist besser aus
         
-        // 2. Füge das (noch leere) Bild zur Vorschau hinzu
+        // 2. Füge das Bild zur Vorschau hinzu
         previewContainer.appendChild(img);
 
-        const timestamp = new Date().getTime();
-showSecureImage(`/api/user/signature/download?t=${timestamp}`, 'secure-signature-img');
-
-        // 4. Zeige den Löschen-Button an
+        // 3. Zeige den Löschen-Button an
         deleteButton.classList.remove('hidden');
     } else {
         // WENN kein Pfad existiert:
+        // 1. Verstecke den Löschen-Button
         deleteButton.classList.add('hidden');
     }
 }
