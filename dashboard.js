@@ -771,7 +771,7 @@ async function renameCase(caseId, newTitle, titleElement) {
 
         historyDetailContainer.classList.remove('hidden');
         
-        const isPremium = currentUser.subscriptionStatus === 'active';
+        const isPremium = currentUser.subscriptionStatus === 'active' || currentUser.subscriptionStatus === 'premium_plus';
         if (currentUser.type === 'b2b' || isPremium) {
             // Nutzer ist B2B oder PREMIUM B2C -> Zeige das Feature und lade die Dokumente
             caseDocumentsContainer.classList.remove('hidden');
