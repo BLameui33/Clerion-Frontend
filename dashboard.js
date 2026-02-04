@@ -1004,7 +1004,8 @@ function showResetPasswordView() {
         // 2. Füge das (noch leere) Bild zur Vorschau hinzu
         previewContainer.appendChild(img);
 
-        showSecureImage('/api/user/signature/download', 'secure-signature-img');
+        const timestamp = new Date().getTime();
+showSecureImage(`/api/user/signature/download?t=${timestamp}`, 'secure-signature-img');
 
         // 4. Zeige den Löschen-Button an
         deleteButton.classList.remove('hidden');
