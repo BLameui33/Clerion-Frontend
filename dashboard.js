@@ -788,36 +788,51 @@ async function renameCase(caseId, newTitle, titleElement) {
 }
 
 async function fetchAndRenderDocuments(caseId) {
-        const documentList = document.getElementById('document-list');
-        const uploadForm = document.getElementById('upload-document-form');
-        uploadForm.dataset.caseId = caseId; // Speichere die caseId am Formular
-        documentList.innerHTML = '<li>Lade Dokumente...</li>';
+    const documentList = document.getElementById('document-list');
+    const uploadForm = document.getElementById('upload-document-form');
+    uploadForm.dataset.caseId = caseId; 
+    documentList.innerHTML = '<li>Lade Dokumente...</li>';
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/documents/case/${caseId}`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/documents/case/${caseId}`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (!response.ok) throw new Error('Dokumente konnten nicht geladen werden.');
+        
+        const documents = await response.json();
+
+        documentList.innerHTML = '';
+        
+        if (documents.length === 0) {
+            documentList.innerHTML = '<li>Keine Dokumente abgelegt.</li>';
+        } else {
+            documents.forEach(doc => {
+                const li = document.createElement('li');
+                
+                li.innerHTML = `
+                    <a href="#" 
+                       onclick="downloadSecureFile('/api/documents/download/${doc.id}', '${doc.fileName}'); return false;" 
+                       style="color: blue; text-decoration: underline; cursor: pointer;">
+                        ${doc.fileName}
+                    </a>
+                    
+                    <span style="margin-left: 10px; color: #666;">
+                        (${new Date(doc.createdAt).toLocaleDateString('de-DE')})
+                    </span>
+                    
+                    <button class="delete-document-button" data-doc-id="${doc.id}" style="margin-left: 10px; color: red;">
+                        ×
+                    </button>
+                `;
+                
+                documentList.appendChild(li);
             });
-            if (!response.ok) throw new Error('Dokumente konnten nicht geladen werden.');
-            const documents = await response.json();
-
-            documentList.innerHTML = '';
-            if (documents.length === 0) {
-                documentList.innerHTML = '<li>Keine Dokumente abgelegt.</li>';
-            } else {
-                documents.forEach(doc => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <a href="${API_BASE_URL}/${doc.filePath.replace(/\\/g, '/')}" target="_blank">${doc.fileName}</a>
-                        <span>(${new Date(doc.createdAt).toLocaleDateString('de-DE')})</span>
-                        <button class="delete-document-button" data-doc-id="${doc.id}">×</button>
-                    `;
-                    documentList.appendChild(li);
-                });
-            }
-        } catch (error) {
-            documentList.innerHTML = `<li>Fehler: ${error.message}</li>`;
         }
+    } catch (error) {
+        documentList.innerHTML = `<li>Fehler: ${error.message}</li>`;
     }
+}
 
 
 
@@ -973,29 +988,32 @@ function showResetPasswordView() {
     const previewContainer = document.getElementById('signature-preview-container');
     const deleteButton = document.getElementById('delete-signature-button');
 
-    // Leere zuerst immer die Vorschau
     previewContainer.innerHTML = '';
 
     if (path) {
-        // WENN ein Pfad zur Unterschrift existiert:
-        // 1. Erstelle ein neues Bild-Element
+        
         const img = document.createElement('img');
-        img.src = `${API_BASE_URL}/${path.replace(/\\/g, '/')}`;
+        
+        img.id = 'secure-signature-img'; 
+        
         img.alt = 'Ihre gespeicherte Unterschrift';
         img.style.maxWidth = '200px';
         img.style.border = '1px solid #eee';
+        img.style.display = 'block'; // Sieht meist besser aus
         
-        // 2. Füge das Bild zur Vorschau hinzu
+        // 2. Füge das (noch leere) Bild zur Vorschau hinzu
         previewContainer.appendChild(img);
 
-        // 3. Zeige den Löschen-Button an
+        showSecureImage('/api/user/signature/download', 'secure-signature-img');
+
+        // 4. Zeige den Löschen-Button an
         deleteButton.classList.remove('hidden');
     } else {
         // WENN kein Pfad existiert:
-        // 1. Verstecke den Löschen-Button
         deleteButton.classList.add('hidden');
     }
 }
+
 
 async function loadGlobalTodos() {
     const list = document.getElementById('global-todo-list');

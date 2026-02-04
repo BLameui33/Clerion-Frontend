@@ -1094,44 +1094,49 @@ function makeInteractive(element, sigDataRef) {
         const docs = await response.json();
         
         const documentList = document.getElementById('document-list');
-        documentList.innerHTML = docs.length === 0 
-            ? '<li>Keine Dokumente vorhanden.</li>' 
-            : docs.map(doc => `
+        
+        if (docs.length === 0) {
+            documentList.innerHTML = '<li>Keine Dokumente vorhanden.</li>';
+        } else {
+            
+            const listHtml = docs.map(doc => `
                 <li data-doc-li-id="${doc.id}">
-                    <a href="${API_BASE_URL}/${doc.filePath.replace(/\\/g, '/')}" target="_blank">${doc.fileName}</a>
+                    <!-- HIER DIE ÄNDERUNG: -->
+                    <a href="#" onclick="downloadSecureFile('/api/applications/documents/download/${doc.id}', '${doc.fileName}'); return false;" style="color: blue; text-decoration: underline;">
+                        ${doc.fileName}
+                    </a>
                     <button class="delete-button delete-doc-btn" data-doc-id="${doc.id}" title="Dokument löschen">&times;</button>
-                </li>`).join('');
+                </li>
+            `).join('');
+            
+            documentList.innerHTML = listHtml;
 
-        // ==========================================================
-        // NEU: Fügt die Lösch-Funktion zu den Buttons hinzu
-        // ==========================================================
-        documentList.querySelectorAll('.delete-doc-btn').forEach(button => {
-            button.addEventListener('click', async (e) => {
-                e.stopPropagation(); // Verhindert andere Klick-Events
-                const docId = e.target.dataset.docId;
-                if (confirm('Möchten Sie dieses Dokument wirklich endgültig löschen?')) {
-                    try {
-                        const deleteResponse = await fetch(`${API_BASE_URL}/api/applications/documents/${docId}`, {
-                            method: 'DELETE',
-                            headers: { 'Authorization': `Bearer ${authToken}` }
-                        });
-                        if (!deleteResponse.ok) {
-                            throw new Error('Dokument konnte nicht gelöscht werden.');
+            documentList.querySelectorAll('.delete-doc-btn').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    e.stopPropagation(); 
+                    const docId = e.target.dataset.docId;
+                    if (confirm('Möchten Sie dieses Dokument wirklich endgültig löschen?')) {
+                        try {
+                            const deleteResponse = await fetch(`${API_BASE_URL}/api/applications/documents/${docId}`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': `Bearer ${authToken}` }
+                            });
+                            if (!deleteResponse.ok) throw new Error('Dokument konnte nicht gelöscht werden.');
+                            document.querySelector(`li[data-doc-li-id="${docId}"]`).remove();
+                        } catch (error) {
+                            alert(error.message);
                         }
-                        // Entfernt das Dokument aus der Ansicht
-                        document.querySelector(`li[data-doc-li-id="${docId}"]`).remove();
-                    } catch (error) {
-                        alert(error.message);
                     }
-                }
+                });
             });
-        });
-        // ==========================================================
+        }
 
     } catch (e) { 
+        console.error(e);
         document.getElementById('document-list').innerHTML = '<li>Dokumente konnten nicht geladen werden.</li>'; 
     }
 }
+
 
 // =======================================================
 // NEUER CODEBLOCK A: STEUERUNG DES PDF-EDITORS

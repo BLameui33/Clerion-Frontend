@@ -1768,38 +1768,38 @@ function renderDocs(docs) {
         return;
     }
     
-        docs.forEach(doc => {
-    const div = document.createElement('div');
-    div.className = 'doc-item';
-    // WICHTIG: Das doc-item selbst braucht display:flex und eine Breitenbegrenzung
-    div.style.cssText = "display:flex; align-items:center; justify-content:space-between; width:100%; overflow:hidden; margin-bottom:8px; gap:10px;";
+    docs.forEach(doc => {
+        const div = document.createElement('div');
+        div.className = 'doc-item';
+        div.style.cssText = "display:flex; align-items:center; justify-content:space-between; width:100%; overflow:hidden; margin-bottom:8px; gap:10px;";
 
-    const icon = doc.fileName.endsWith('.pdf') ? '📄' : '🖼️';
-    
-    div.innerHTML = `
-    <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px; flex: 1; min-width: 0;">
-        <span style="flex-shrink: 0;">${icon}</span>
-        <a href="${API_BASE_URL}/${doc.filePath.replace(/\\/g, '/')}" 
-           target="_blank" 
-           title="${doc.fileName}" 
-           style="text-decoration:none; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display: block; width: 100%;">
-            ${doc.fileName}
-        </a>
-    </div>
+        const icon = doc.fileName.endsWith('.pdf') ? '📄' : '🖼️';
+        
+        // HIER IST DIE ÄNDERUNG:
+        div.innerHTML = `
+        <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px; flex: 1; min-width: 0;">
+            <span style="flex-shrink: 0;">${icon}</span>
+            <a href="#" 
+               onclick="downloadSecureFile('/api/workspace/documents/download/${doc.id}', '${doc.fileName}'); return false;"
+               title="${doc.fileName}" 
+               style="text-decoration:none; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display: block; width: 100%;">
+                ${doc.fileName}
+            </a>
+        </div>
 
-    <div style="display:flex; align-items:center; gap:8px; flex-shrink: 0; margin-left: auto;">
-        <span style="font-size:0.7rem; color:#aaa; background:#eee; padding:2px 5px; border-radius:4px; white-space: nowrap;">
-            ${doc.category || 'Allgemein'}
-        </span>
-        <button class="doc-delete" style="border:none; background:none; color:#999; cursor:pointer; padding:5px;">🗑</button>
-    </div>
-`;
-    
-    div.querySelector('.doc-delete').addEventListener('click', () => deleteDoc(doc.id));
-    list.appendChild(div);
-});
-
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink: 0; margin-left: auto;">
+            <span style="font-size:0.7rem; color:#aaa; background:#eee; padding:2px 5px; border-radius:4px; white-space: nowrap;">
+                ${doc.category || 'Allgemein'}
+            </span>
+            <button class="doc-delete" style="border:none; background:none; color:#999; cursor:pointer; padding:5px;">🗑</button>
+        </div>
+        `;
+        
+        div.querySelector('.doc-delete').addEventListener('click', () => deleteDoc(doc.id));
+        list.appendChild(div);
+    });
 }
+
 
 async function uploadDocument() {
     const input = document.getElementById('doc-upload-input');
