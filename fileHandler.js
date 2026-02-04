@@ -1,6 +1,6 @@
 
 
-const API_BASE_URL_FILE = 'https://clerion.de'; // Oder deine URL
+const API_BASE_URL_FILE = 'https://api.clerion.de'; // Oder deine URL
 
 /**
  * Lädt ein Dokument sicher herunter (für PDFs, Word, etc.)
