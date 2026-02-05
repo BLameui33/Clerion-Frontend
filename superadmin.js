@@ -144,13 +144,16 @@ loadPublicTemplates();
         renderTable(filteredData);
     }
 
-    async function loadSubmitted() {
-  const res = await fetch(`${API_BASE_URL}/uploads/vorlagen/eingereicht/eingereichte.json`, {
+   async function loadSubmitted() {
+  // KORREKTUR 1: "/uploads" entfernen
+  const res = await fetch(`${API_BASE_URL}/vorlagen/eingereicht/eingereichte.json`, {
     headers: { 'Authorization': `Bearer ${authToken}` }
   });
+  
   if (!res.ok) return;
   const list = await res.json();
   const tbody = document.getElementById("submitted-list");
+  
   tbody.innerHTML = list.map(f => `
     <tr>
       <td>${f.filename}</td>
@@ -158,7 +161,9 @@ loadPublicTemplates();
       <td>${f.uploader}</td>
       <td>${new Date(f.createdAt).toLocaleString()}</td>
       <td>
-        <a href="${API_BASE_URL}/uploads/vorlagen/eingereicht/${f.filename}" target="_blank" class="btn btn-secondary">Download</a>
+        <!-- KORREKTUR 2: Auch beim Download-Link "/uploads" entfernen -->
+        <a href="${API_BASE_URL}/vorlagen/eingereicht/${f.filename}" target="_blank" class="btn btn-secondary">Download</a>
+        
         <button class="btn btn-primary" data-file="${f.filename}">In Bibliothek übernehmen</button>
         <button class="btn btn-delete-submission" data-filename="${f.filename}">Löschen</button>
       </td>
@@ -166,7 +171,6 @@ loadPublicTemplates();
   `).join("");
 }
 loadSubmitted();
-    
 
 
 // Zentraler Event-Listener für alle Aktionen
