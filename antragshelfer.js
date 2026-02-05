@@ -1414,43 +1414,51 @@ async function displayFinalPdf(downloadUrl) {
 }
 
 async function finalizeApplicationWithSignatures() {
-    if (!state.applicationId) return null;
-
+    if (!state.applicationId) return false;
 
     try {
+        // 1. Unterschriften-Positionen berechnen 
         const canvas = document.getElementById('pdf-canvas');
         const finalSignatures = await Promise.all(signatures.map(async (sig) => {
             const page = await loadedPdfDocument.getPage(sig.page);
             const unscaledViewport = page.getViewport({ scale: 1 });
             const scaleFactorX = unscaledViewport.width / canvas.clientWidth;
             const scaleFactorY = unscaledViewport.height / canvas.clientHeight;
+            
             const sigX = sig.x * scaleFactorX;
             const sigY_from_top = sig.y * scaleFactorY;
             const sigWidth = sig.width * scaleFactorX;
             const sigHeight = sig.height * scaleFactorY;
             const sigY_from_bottom = unscaledViewport.height - sigY_from_top - sigHeight;
+            
             return { page: sig.page, x: sigX, y: sigY_from_bottom, width: sigWidth, height: sigHeight };
         }));
 
+        // 2. An dein Backend senden (Name der Route angepasst!)
         const response = await fetch(`${API_BASE_URL}/api/applications/${state.applicationId}/add-signatures`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-            body: JSON.stringify({ signatures: finalSignatures })
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${authToken}` 
+            },
+            body: JSON.stringify({ signatures: finalSignatures }) //  add-signatures Endpoint braucht nur signatures
         });
 
         if (!response.ok) {
             const err = await response.json();
-            throw new Error(err.message || 'Fehler beim Hinzufügen der Unterschriften.');
+            throw new Error(err.message || 'Fehler beim Unterschreiben.');
         }
         
-        const data = await response.json();
-        return data.downloadUrl;
+        return true; 
 
     } catch (error) {
+        console.error(error);
         alert(error.message);
-        return null;
+        return false;
     }
 }
+
+
 
 /**
  * Initialisiert alle Event-Listener für die Elemente IM Editor-Overlay.
@@ -1497,21 +1505,63 @@ const pdfContainer = document.getElementById('editor-pdf-container');
 
     if (downloadButton) {
         downloadButton.onclick = async () => {
-            // Zeigt einen Lade-Zustand an
-            downloadButton.textContent = 'PDF wird erstellt...';
+            // UI-Update: Zeige Lade-Zustand
+            const originalText = downloadButton.textContent;
+            downloadButton.textContent = 'PDF wird finalisiert...';
             downloadButton.disabled = true;
 
-            const downloadUrl = await finalizeApplicationWithSignatures();
-            if (downloadUrl) {
-                // Öffnet das fertige, unterschriebene PDF in einem neuen Tab
-                window.open(`${API_BASE_URL}${downloadUrl}`, '_blank');
+            try {
+                await finalizeApplicationWithSignatures();
+
+                // UI-Update
+                downloadButton.textContent = 'Lade herunter...';
+
+                // SCHRITT 2: Das fertige PDF sicher abrufen (mit Token!)
+                // Wir rufen hier unsere neue Hilfsfunktion auf
+                await downloadSecurePDF(state.applicationId, "Mein_Antrag_Final.pdf");
+
+            } catch (error) {
+                console.error("Fehler beim Finalisieren/Download:", error);
+                alert("Fehler beim Herunterladen des PDFs.");
+            } finally {
+                // Reset Button
+                downloadButton.textContent = originalText;
+                downloadButton.disabled = false;
             }
-            
-            // Setzt den Button-Zustand zurück
-            downloadButton.textContent = 'Fertiges PDF herunterladen';
-            downloadButton.disabled = false;
         };
     }
+    }
+
+    /**
+ * Lädt ein PDF sicher (mit Auth-Token) herunter und löst den Download im Browser aus.
+ */
+async function downloadSecurePDF(appId, filename) {
+    const token = localStorage.getItem('token'); 
+    
+    const response = await fetch(`${API_BASE_URL}/api/applications/${appId}/download-final`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}` // WICHTIG: Token mitschicken!
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Download fehlgeschlagen: ${response.statusText}`);
+    }
+
+    const blob = await response.blob();
+    
+    const downloadUrl = window.URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = filename; // Dateiname für den User
+    document.body.appendChild(a);
+    a.click();
+    
+    // Aufräumen
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
 }
 
 // ======================================================
