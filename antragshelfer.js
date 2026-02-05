@@ -1255,6 +1255,51 @@ async function renderInteractivePdf(pdfUrl, container) {
 // =======================================================
 
 /**
+ * Sucht den Text im PDF, der dem angeklickten Feld am nächsten ist.
+ * Berücksichtigt Links, Oben, Rechts und Unten.
+ */
+function findNearestLabel(inputElement) {
+    const inputRect = inputElement.getBoundingClientRect();
+    const pageContainer = inputElement.closest('.page'); 
+    if (!pageContainer) return null;
+    
+    // Holt alle Text-Schnipsel der Seite
+    const textSpans = pageContainer.querySelectorAll('.textLayer span');
+    
+    let bestCandidate = null;
+    let minDistance = Infinity;
+
+    textSpans.forEach(span => {
+        const spanRect = span.getBoundingClientRect();
+
+        const dx = Math.max(0, inputRect.left - spanRect.right, spanRect.left - inputRect.right);
+        const dy = Math.max(0, inputRect.top - spanRect.bottom, spanRect.top - inputRect.bottom);
+        const distance = Math.sqrt(dx*dx + dy*dy);
+
+        // Nur Kandidaten betrachten, die nah genug sind (< 80px)
+        if (distance < 80) {
+            
+            
+            let weightedDistance = distance;
+            
+            const isLeft = (spanRect.right <= inputRect.left);
+            const isAbove = (spanRect.bottom <= inputRect.top);
+            
+            if (isLeft || isAbove) {
+                weightedDistance = distance * 0.8; 
+            }
+
+            if (weightedDistance < minDistance) {
+                minDistance = weightedDistance;
+                bestCandidate = span.textContent;
+            }
+        }
+    });
+
+    return bestCandidate ? bestCandidate.trim() : null;
+}
+
+/**
  * Aktiviert das KI-Hilfefenster für ein bestimmtes Feld.
  * @param {string} fieldName - Der Name des Feldes, das angeklickt wurde.
  */
@@ -1269,6 +1314,13 @@ async function activateAiHelper(fieldName) {
       <p>KI lädt Erklärung...</p>
   </div>
 `;
+
+const inputElement = document.querySelector(`[name="${fieldName}"]`);
+    let visualLabel = null;
+    if (inputElement) {
+        visualLabel = findNearestLabel(inputElement);
+        console.log(`Feld: ${fieldName}, Gefundenes Label: ${visualLabel}`);
+    }
     
     const field = editorFormFields.find(f => f.name === fieldName);
     if (!field) {
@@ -1284,7 +1336,8 @@ async function activateAiHelper(fieldName) {
             body: JSON.stringify({
                 fieldName: field.name,
                 fieldType: field.type,
-                fieldContext: contextWindow
+                fieldContext: contextWindow,
+                visualLabel: visualLabel
             })
         });
         if (!response.ok) throw new Error('Hilfe konnte nicht geladen werden.');
