@@ -1536,7 +1536,7 @@ const pdfContainer = document.getElementById('editor-pdf-container');
  * Lädt ein PDF sicher (mit Auth-Token) herunter und löst den Download im Browser aus.
  */
 async function downloadSecurePDF(appId, filename) {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('behoerdenhilfe_token'); 
     
     const response = await fetch(`${API_BASE_URL}/api/applications/${appId}/download-final`, {
         method: 'GET',
