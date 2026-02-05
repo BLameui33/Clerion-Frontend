@@ -172,84 +172,95 @@ loadApplication(data.applicationId);
         }
     }
 
-    async function loadApplication(id) {
+        async function loadApplication(id) {
         loadingOverlay.classList.remove('hidden');
         currentAppId = id;
 
         try {
+            // 1. Metadaten des Antrags laden
             const res = await fetch(`${API_BASE_URL}/api/manual-applications/${id}`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             
             if (!res.ok) {
-  if (res.status === 403) {
-    const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.message || 'Nur für Premium-Plus-Mitglieder verfügbar.');
-  }
-  const errData = await res.json().catch(() => ({}));
-  throw new Error(errData.message || 'Konnte Antrag nicht laden');
-}
+                if (res.status === 403) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.message || 'Nur für Premium-Plus-Mitglieder verfügbar.');
+                }
+                throw new Error('Konnte Antrag nicht laden');
+            }
 
-appData = await res.json();
-
+            appData = await res.json();
             currentStepIndex = appData.currentStepIndex || 0;
 
             // Views umschalten
             viewDashboard.classList.add('hidden');
             viewWorkspace.classList.remove('hidden');
 
-            // 1. PDF laden
-            // WICHTIG: API liefert relativen Pfad. Base URL davor setzen.
-            const fileUrl = `${API_BASE_URL}${appData.originalFileUrl}`;
+            const secureFileUrl = `${API_BASE_URL}/api/manual-applications/${id}/file`;
 
-// Simple Erkennung über Endung (Backend liefert aktuell kein mimeType) [file:2]
-const isPdf = fileUrl.toLowerCase().endsWith('.pdf');
+            // Wir müssen raten, ob es PDF oder Bild ist, da wir den MimeType im Frontend oft nicht haben.
+            // Der Dateiname im originalFileUrl hilft uns dabei.
+            const originalPath = appData.originalFileUrl || '';
+            const isPdf = originalPath.toLowerCase().endsWith('.pdf');
 
-if (isPdf) {
-  // PDF wie gehabt laden
-  const loadingTask = pdfjsLib.getDocument(fileUrl);
-  pdfDoc = await loadingTask.promise;
+            if (isPdf) {
+                // PDF-Fall: Token im Header mitschicken!
+                const loadingTask = pdfjsLib.getDocument({
+                    url: secureFileUrl,
+                    httpHeaders: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
 
-  document.getElementById('pdf-page-count').textContent = pdfDoc.numPages;
+                pdfDoc = await loadingTask.promise;
+                document.getElementById('pdf-page-count').textContent = pdfDoc.numPages;
 
-  // Canvas sichtbar lassen (wenn du es per CSS/HTML versteckst, hier wieder einblenden)
-  document.getElementById('pdf-canvas').style.display = 'block';
+                // UI umschalten
+                document.getElementById('pdf-canvas').style.display = 'block';
+                const img = document.getElementById('image-preview');
+                if (img) img.style.display = 'none';
 
-  // Optional: Falls du ein <img> ergänzt, hier ausblenden
-  const img = document.getElementById('image-preview');
-  if (img) img.style.display = 'none';
-} else {
-  // Bild-Fall: KEIN pdfjsLib.getDocument aufrufen
-  pdfDoc = null;
+            } else {
+                pdfDoc = null;
+                document.getElementById('pdf-page-count').textContent = '1';
+                document.getElementById('pdf-page-num').textContent = '1';
 
-  document.getElementById('pdf-page-count').textContent = '1';
-  document.getElementById('pdf-page-num').textContent = '1';
+                // Canvas weg
+                document.getElementById('pdf-canvas').style.display = 'none';
 
-  // Canvas ausblenden
-  document.getElementById('pdf-canvas').style.display = 'none';
+                // Bild laden
+                const imgRes = await fetch(secureFileUrl, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (!imgRes.ok) throw new Error("Bild konnte nicht geladen werden.");
+                
+                const imgBlob = await imgRes.blob();
+                const imgObjectUrl = URL.createObjectURL(imgBlob);
 
-  // Bild anzeigen (du brauchst dafür ein <img id="image-preview"> im HTML)
-  const img = document.getElementById('image-preview');
-  if (img) {
-    img.src = fileUrl;
-    img.style.display = 'block';
-  } else {
-    // Fallback: wenigstens in neuem Tab öffnen, falls HTML noch kein <img> hat
-    window.open(fileUrl, '_blank');
-  }
-}
+                const img = document.getElementById('image-preview');
+                if (img) {
+                    img.src = imgObjectUrl;
+                    img.style.display = 'block';
+                    
+                    // Speicher freigeben, wenn das Bild geladen ist (optional, aber sauber)
+                    img.onload = () => URL.revokeObjectURL(imgObjectUrl);
+                }
+            }
 
-// Schritt rendern
-renderCurrentStep();
+            // Schritt rendern
+            renderCurrentStep();
 
         } catch (error) {
             console.error(error);
-            alert('Fehler beim Öffnen des Antrags.');
+            alert('Fehler beim Öffnen des Antrags: ' + error.message);
             showDashboard();
         } finally {
             loadingOverlay.classList.add('hidden');
         }
     }
+
 
     function renderCurrentStep() {
         if (!appData || !appData.structure || !appData.structure.steps) return;
