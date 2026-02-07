@@ -59,6 +59,18 @@ input:checked + .slider:before { transform: translateX(20px); }
     }
 }
 
+@media (max-width: 768px) {
+    #back-to-pdf-container {
+        display: block !important; /* Nur auf Mobile anzeigen */
+    }
+}
+
+@media (min-width: 769px) {
+    #back-to-pdf-container {
+        display: none !important; /* Auf Desktop verstecken */
+    }
+}
+
 
 </style>  
 </head>
@@ -208,9 +220,10 @@ input:checked + .slider:before { transform: translateX(20px); }
 </div>
             <div class="pdf-editor-actions">
                 <button id="save-and-close-editor-button" class="btn btn-primary">Speichern & Schließen</button>
-                <button id="scroll-to-ai-button" class="scroll-ai-btn hidden">
+                <button id="scroll-to-ai-button" class="scroll-ai-btn">
 ⬇️ KI Hilfe
 </button>
+
                 <button id="close-editor-button" class="modal-close-button">&times;</button>
                 
 
@@ -232,6 +245,11 @@ input:checked + .slider:before { transform: translateX(20px); }
                         <input type="text" id="ai-helper-chat-input" placeholder="Ihre Frage zum Feld...">
                         <button id="ai-helper-chat-send" class="btn btn-primary">Senden</button>
                     </div>
+                    <div class="mobile-back-to-pdf" style="text-align: center; padding: 10px; display: none;" id="back-to-pdf-container">
+    <button id="scroll-to-pdf-button" class="btn btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span>↑</span> Zurück zum Formular
+    </button>
+</div>
                 </div>
             </div>
         </div>

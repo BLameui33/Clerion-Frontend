@@ -1535,6 +1535,28 @@ function setupEditorEventListeners() {
     };
 }
 
+const scrollBtn = document.getElementById("scroll-to-ai-button");
+if (scrollBtn) {
+    scrollBtn.addEventListener("click", () => {
+        const copilot = document.getElementById("editor-ai-copilot");
+        if (copilot) {
+            copilot.scrollIntoView({ behavior: "smooth" });
+        }
+    });
+}
+
+// In setupEditorEventListeners() hinzufügen:
+const backToPdfBtn = document.getElementById("scroll-to-pdf-button");
+if (backToPdfBtn) {
+    backToPdfBtn.addEventListener("click", () => {
+        const pdfView = document.getElementById("editor-pdf-container");
+        if (pdfView) {
+            // Wir scrollen zum Container und nutzen 'start', damit man ganz oben landet
+            pdfView.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    });
+}
+
 const aiToggle = document.getElementById('ai-help-mode-toggle');
     if (aiToggle) {
         // Sicherstellen, dass der Schalter beim Öffnen immer AUS ist (oder Status merken)
@@ -1715,11 +1737,7 @@ function setupTextSelectionAI() {
     });
 }
 
-document.getElementById("scroll-to-ai-button")
-.addEventListener("click", () => {
-    document.getElementById("editor-ai-copilot")
-        .scrollIntoView({ behavior: "smooth" });
-});
+
 
 
 
