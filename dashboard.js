@@ -1510,43 +1510,60 @@ if (canvas) {
 }
 
 
-// --- MOBILE NAVIGATION LOGIC ---
+// --- MOBILE NAVIGATION & SICHTBARKEITS-LOGIK ---
+const mobileNav = document.getElementById('mobile-bottom-nav');
+const dashboardWrapper = document.getElementById('dashboard-wrapper');
 const mobileNavBtns = document.querySelectorAll('.mobile-nav-btn');
-const historySection = document.getElementById('history-container');
-const toolsSection = document.getElementById('akten-analyse-link-container'); // Der Start der Sidebar
 
+if (mobileNav && dashboardWrapper) {
+   
+    const updateNavVisibility = () => {
+        // In deinem HTML wird das Dashboard über die Klasse 'hidden' gesteuert
+        if (dashboardWrapper.classList.contains('hidden')) {
+            mobileNav.style.display = 'none';
+        } else {
+            // CSS media queries sorgen dafür, dass es nur auf Mobilgeräten erscheint
+            mobileNav.style.display = ''; 
+        }
+    };
+
+    // Beobachtet Änderungen am Dashboard-Container (Login/Logout Wechsel)
+    const visibilityObserver = new MutationObserver(() => {
+        updateNavVisibility();
+    });
+
+    visibilityObserver.observe(dashboardWrapper, { 
+        attributes: true, 
+        attributeFilter: ['class'] 
+    });
+
+    // Initialer Check beim Laden der Seite
+    updateNavVisibility();
+}
+
+// Deine Klick-Logik für die Buttons (Analyse, Akten, Tools)
 if (mobileNavBtns.length > 0) {
     mobileNavBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            // 1. Button Aktiv-Status setzen
+            const target = e.currentTarget.dataset.target;
+            
+            // UI-Update: Aktiven Button markieren
             mobileNavBtns.forEach(b => b.classList.remove('active'));
             e.currentTarget.classList.add('active');
 
-            const target = e.currentTarget.dataset.target;
-            
-            // 2. Ansicht umschalten
             if (target === 'view-main') {
-                // Zeige Analyse-Bereich
                 document.body.classList.remove('mobile-view-sidebar');
-                window.scrollTo(0, 0);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
-                // Zeige Sidebar-Bereich
                 document.body.classList.add('mobile-view-sidebar');
                 
-                // 3. Smart Scrolling: Zu den spezifischen Elementen springen
+                // Scroll-Logik für Akten oder Tools
                 if (target === 'view-sidebar-history') {
-                    // Zeige Verlauf, auch wenn er hidden wäre (Logik aus deinem bestehenden Code beachten)
-                    if(historySection && historySection.classList.contains('hidden')) {
-                        // Falls Verlauf versteckt ist (z.B. initial), simulieren wir Klick auf "Alle Fälle"
-                        const showAllBtn = document.getElementById('show-all-cases-button');
-                        if(showAllBtn) showAllBtn.click();
-                    }
-                    // Kurz warten bis Rendering fertig, dann scrollen
-                    setTimeout(() => {
-                        historySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
+                    const history = document.getElementById('history-container');
+                    if(history) setTimeout(() => history.scrollIntoView({ behavior: 'smooth' }), 50);
                 } else if (target === 'view-sidebar-tools') {
-                    toolsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const tools = document.getElementById('akten-analyse-link-container');
+                    if(tools) setTimeout(() => tools.scrollIntoView({ behavior: 'smooth' }), 50);
                 }
             }
         });
