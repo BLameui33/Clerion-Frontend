@@ -46,6 +46,46 @@
 input:checked + .slider { background-color: #4CAF50; } /* Grün wenn aktiv */
 input:focus + .slider { box-shadow: 0 0 1px #4CAF50; }
 input:checked + .slider:before { transform: translateX(20px); }
+
+/* Container für den gesamten Editor-Inhalt (unter der Toolbar) */
+#editor-content-wrapper {
+    display: flex;
+    height: calc(100vh - 60px); /* Abzüglich Toolbar-Höhe */
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Das PDF-Fenster links */
+#editor-pdf-container {
+    flex: 1; /* Nimmt den restlichen Platz ein */
+    overflow-y: auto; /* PDF scrollt hier */
+    padding: 20px;
+    background-color: #525659; /* Standard PDF-Viewer Grau */
+    position: relative;
+}
+
+/* Die KI-Sidebar rechts - IMMER SICHTBAR */
+#ai-helper-sidebar {
+    width: 350px; /* Feste Breite für den Chat */
+    min-width: 300px;
+    background: white;
+    border-left: 1px solid #ddd;
+    display: flex; /* Flexbox für Chat-Nachrichten und Input */
+    flex-direction: column;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    z-index: 100;
+    
+    /* WICHTIG: Überschreibt altes "display: none" oder "hidden" */
+    display: flex !important; 
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+}
+
+/* Falls Sie den Chat vorher mit einer Klasse .hidden versteckt haben: */
+#ai-helper-sidebar.hidden {
+    display: flex !important; /* Zwingt ihn sichtbar zu bleiben */
+}
 </style>  
 </head>
 <body>

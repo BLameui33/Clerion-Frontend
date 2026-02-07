@@ -1152,6 +1152,13 @@ let editorFormFields = []; // Eigener State für die Felder im Editor
 async function openPdfEditor(applicationId) {
     state.applicationId = applicationId;
     const overlay = document.getElementById('pdf-editor-overlay');
+
+    const sidebar = document.getElementById('ai-helper-sidebar');
+    if (sidebar) {
+        sidebar.classList.remove('hidden');
+        sidebar.style.display = 'flex'; // Sicherstellen, dass Flexbox greift
+    }
+    
     const pdfContainer = document.getElementById('editor-pdf-container');
     
     pdfContainer.innerHTML = '<div class="loading-indicator"><h3>Analysiere Antrag & lade Editor...</h3><div id="loading-spinner"></div></div>';

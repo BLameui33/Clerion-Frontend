@@ -667,6 +667,19 @@ function updateUI() {
             document.querySelectorAll('#history-list li').forEach(item => item.classList.remove('selected'));
             li.classList.add('selected');
             showCaseDetails(caseItem.id);
+
+            if (window.innerWidth <= 900) {
+        // 1. Die CSS-Klasse entfernen, die nur die Sidebar anzeigt
+        document.body.classList.remove('mobile-view-sidebar');
+        
+        // 2. Den "Analyse"-Button in der Navigationsleiste aktiv machen (visuell)
+        document.querySelectorAll('.mobile-nav-btn').forEach(btn => btn.classList.remove('active'));
+        const mainNavBtn = document.querySelector('.mobile-nav-btn[data-target="view-main"]');
+        if(mainNavBtn) mainNavBtn.classList.add('active');
+
+        // 3. Nach oben scrollen, damit man die Details sofort sieht
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
         });
 
         // Edit Button (unverändert)
