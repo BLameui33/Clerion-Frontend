@@ -1496,6 +1496,50 @@ if (canvas) {
     }
 }
 
+
+// --- MOBILE NAVIGATION LOGIC ---
+const mobileNavBtns = document.querySelectorAll('.mobile-nav-btn');
+const historySection = document.getElementById('history-container');
+const toolsSection = document.getElementById('akten-analyse-link-container'); // Der Start der Sidebar
+
+if (mobileNavBtns.length > 0) {
+    mobileNavBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // 1. Button Aktiv-Status setzen
+            mobileNavBtns.forEach(b => b.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+
+            const target = e.currentTarget.dataset.target;
+            
+            // 2. Ansicht umschalten
+            if (target === 'view-main') {
+                // Zeige Analyse-Bereich
+                document.body.classList.remove('mobile-view-sidebar');
+                window.scrollTo(0, 0);
+            } else {
+                // Zeige Sidebar-Bereich
+                document.body.classList.add('mobile-view-sidebar');
+                
+                // 3. Smart Scrolling: Zu den spezifischen Elementen springen
+                if (target === 'view-sidebar-history') {
+                    // Zeige Verlauf, auch wenn er hidden wäre (Logik aus deinem bestehenden Code beachten)
+                    if(historySection && historySection.classList.contains('hidden')) {
+                        // Falls Verlauf versteckt ist (z.B. initial), simulieren wir Klick auf "Alle Fälle"
+                        const showAllBtn = document.getElementById('show-all-cases-button');
+                        if(showAllBtn) showAllBtn.click();
+                    }
+                    // Kurz warten bis Rendering fertig, dann scrollen
+                    setTimeout(() => {
+                        historySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                } else if (target === 'view-sidebar-tools') {
+                    toolsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+    });
+}
+
     const openDeleteModalButton = document.getElementById('open-delete-modal-button');
 const deleteModalOverlay = document.getElementById('delete-modal-overlay');
 const closeModalButton = document.getElementById('close-modal-button');
@@ -1573,9 +1617,6 @@ if (showAllCasesButton) {
             item.classList.remove('selected');
         });
 
-        // =======================================================
-        // NEUE ZEILE: Entfernt die Markierung auch von der Fall-Liste
-        // =======================================================
         document.querySelectorAll('#history-list li').forEach(item => {
             item.classList.remove('selected');
         });

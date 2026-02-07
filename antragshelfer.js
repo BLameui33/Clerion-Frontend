@@ -116,6 +116,7 @@ let currentFieldIndex = 0; // NEU: Ersetzt 'currentStep'
 let signatures = [];
 let allClients = [];
 let lastExplainedText = "";
+let aiFieldHelpEnabled = false;
 
 let debounceTimer;
 function debounce(func, delay) {
@@ -1525,12 +1526,34 @@ function setupEditorEventListeners() {
     };
 }
 
+const aiToggle = document.getElementById('ai-help-mode-toggle');
+    if (aiToggle) {
+        // Sicherstellen, dass der Schalter beim Öffnen immer AUS ist (oder Status merken)
+        aiToggle.checked = false; 
+        aiFieldHelpEnabled = false;
+
+        aiToggle.addEventListener('change', (e) => {
+            aiFieldHelpEnabled = e.target.checked;
+            
+            // Optional: Visuelles Feedback für den Nutzer
+            const statusText = aiFieldHelpEnabled ? "Aktiviert" : "Deaktiviert";
+            console.log(`KI-Feldhilfe ist jetzt: ${statusText}`);
+            
+            if (aiFieldHelpEnabled) {
+                alert("Hinweis: Klicken Sie nun auf ein Formularfeld, um eine Erklärung zu erhalten.\n(Achtung: Funktioniert am besten bei klar benannten Feldern.)");
+            }
+        });
+    }
+
+
 const pdfContainer = document.getElementById('editor-pdf-container');
     if (pdfContainer) {
-        // Wir lauschen auf das 'focus'-Event in der "Capturing"-Phase.
-        // Das bedeutet, der Lauscher reagiert, bevor das eigentliche Feld den Fokus erhält.
         pdfContainer.addEventListener('focus', (e) => {
-            // Prüfen, ob das fokussierte Element ein Formularfeld ist
+
+            if (!aiFieldHelpEnabled) {
+            return;
+        }
+            
             if (e.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
                 const fieldName = e.target.name;
                 console.log('%c--- ERFOLG: Feld fokussiert! Name:', 'color: green; font-weight: bold;', fieldName);
