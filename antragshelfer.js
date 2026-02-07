@@ -1153,11 +1153,13 @@ async function openPdfEditor(applicationId) {
     state.applicationId = applicationId;
     const overlay = document.getElementById('pdf-editor-overlay');
 
-    const sidebar = document.getElementById('ai-helper-sidebar');
-    if (sidebar) {
-        sidebar.classList.remove('hidden');
-        sidebar.style.display = 'flex'; // Sicherstellen, dass Flexbox greift
+    const aiContent = document.getElementById('ai-helper-content');
+    if (aiContent) {
+        aiContent.classList.remove('hidden'); // Zur Sicherheit nochmal entfernen
+        aiContent.style.display = 'flex';     // Falls CSS es anderswo versteckt
+        aiContent.style.flexDirection = 'column';
     }
+
     
     const pdfContainer = document.getElementById('editor-pdf-container');
     
