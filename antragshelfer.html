@@ -52,7 +52,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     font-size: 0.9rem;
 }
 
-/* Nur Mobile anzeigen */
+
 @media (min-width: 901px) {
     .scroll-ai-btn {
         display: none;
@@ -61,16 +61,47 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 @media (max-width: 768px) {
     #back-to-pdf-container {
-        display: block !important; /* Nur auf Mobile anzeigen */
+        display: block !important; 
     }
 }
 
 @media (min-width: 769px) {
     #back-to-pdf-container {
-        display: none !important; /* Auf Desktop verstecken */
+        display: none !important; 
     }
 }
 
+#back-to-pdf-container {
+    display: none; 
+    justify-content: center;
+    padding: 15px 0;
+}
+
+#scroll-to-pdf-button {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%; 
+    background-color: #e0e0e0; 
+    color: #444; 
+    border: 1px solid #ccc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#scroll-to-pdf-button:hover {
+    background-color: #d0d0d0;
+}
+
+/* Nur auf Mobile anzeigen */
+@media (max-width: 768px) {
+    #back-to-pdf-container {
+        display: flex !important;
+    }
+}
 
 </style>  
 </head>
@@ -221,7 +252,7 @@ input:checked + .slider:before { transform: translateX(20px); }
             <div class="pdf-editor-actions">
                 <button id="save-and-close-editor-button" class="btn btn-primary">Speichern & Schließen</button>
                 <button id="scroll-to-ai-button" class="scroll-ai-btn">
-⬇️ KI Hilfe
+⬇↓ KI Hilfe
 </button>
 
                 <button id="close-editor-button" class="modal-close-button">&times;</button>
@@ -245,9 +276,9 @@ input:checked + .slider:before { transform: translateX(20px); }
                         <input type="text" id="ai-helper-chat-input" placeholder="Ihre Frage zum Feld...">
                         <button id="ai-helper-chat-send" class="btn btn-primary">Senden</button>
                     </div>
-                    <div class="mobile-back-to-pdf" style="text-align: center; padding: 10px; display: none;" id="back-to-pdf-container">
-    <button id="scroll-to-pdf-button" class="btn btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <span>↑</span> Zurück zum Formular
+                    <div class="mobile-back-to-pdf" id="back-to-pdf-container">
+    <button id="scroll-to-pdf-button" aria-label="Zurück zum Formular">
+        <span style="font-size: 20px; font-weight: bold;">↑</span>
     </button>
 </div>
                 </div>
