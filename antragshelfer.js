@@ -1570,7 +1570,7 @@ const pdfContainer = document.getElementById('editor-pdf-container');
                     activateAiHelper(fieldName);
                 }
             }
-        }, true); // Das 'true' am Ende ist entscheidend, es aktiviert die Capturing-Phase.
+        }, true); 
     }
 
     function setupMainViewEventListeners() {
@@ -1656,53 +1656,71 @@ function setupTextSelectionAI() {
     const editorContainer = document.getElementById("editor-pdf-container");
     if (!editorContainer) return;
 
-    editorContainer.addEventListener("mouseup", async () => {
-        const selectedText = window.getSelection().toString().trim();
-        if (selectedText.length < 10) return; // Zu kurz, vermutlich keine sinnvolle Auswahl
+    let selectionTimeout;
 
-        // Verhindert versehentliches Auslösen
-        if (!confirm("Möchten Sie eine KI-Erklärung für den markierten Abschnitt erhalten?")) return;
+    document.addEventListener("selectionchange", () => {
+        clearTimeout(selectionTimeout);
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/applications/assist-paragraph`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ pastedText: selectedText })
-            });
+        // kleines Delay → verhindert Dauertrigger beim Ziehen
+        selectionTimeout = setTimeout(async () => {
 
-            if (!response.ok) throw new Error("Analyse fehlgeschlagen.");
-            const data = await response.json();
-            lastExplainedText = selectedText;
+            const selection = window.getSelection();
+            if (!selection) return;
 
-            // KI-CoPilot Panel aktualisieren
-            const aiContent = document.getElementById("ai-helper-content");
-            const aiExplanation = document.getElementById("ai-helper-explanation");
-            const aiInstruction = document.getElementById("ai-helper-instruction");
+            const selectedText = selection.toString().trim();
 
-            aiInstruction.classList.add("hidden");
-            aiContent.classList.remove("hidden");
+            if (selectedText.length < 10) return;
 
-            aiExplanation.innerHTML = `
-  <div class="loading-spinner small">
-      <div class="spinner"></div>
-      <p>KI lädt Erklärung...</p>
-  </div>
-`;
+            // Prüfen ob Auswahl im Editor liegt
+            if (!editorContainer.contains(selection.anchorNode)) return;
 
+            if (!confirm("Möchten Sie eine KI-Erklärung für den markierten Abschnitt erhalten?")) return;
 
-            aiExplanation.innerHTML = `
-    <h5>Erklärung des markierten Abschnitts:</h5>
-    <p>${data.explanation}</p>
-`;
-        } catch (err) {
-            console.error("Fehler bei der KI-Analyse:", err);
-            alert("Die KI-Erklärung konnte nicht geladen werden.");
-        }
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/applications/assist-paragraph`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ pastedText: selectedText })
+                });
+
+                if (!response.ok) throw new Error("Analyse fehlgeschlagen.");
+                const data = await response.json();
+
+                const aiContent = document.getElementById("ai-helper-content");
+                const aiExplanation = document.getElementById("ai-helper-explanation");
+                const aiInstruction = document.getElementById("ai-helper-instruction");
+
+                aiInstruction.classList.add("hidden");
+                aiContent.classList.remove("hidden");
+
+                aiExplanation.innerHTML = `
+                    <h5>Erklärung des markierten Abschnitts:</h5>
+                    <p>${data.explanation}</p>
+                `;
+
+                if (window.innerWidth < 900) {
+    document.getElementById("editor-ai-copilot")
+        .scrollIntoView({ behavior: "smooth" });
+}
+
+            } catch (err) {
+                console.error("Fehler bei der KI-Analyse:", err);
+                alert("Die KI-Erklärung konnte nicht geladen werden.");
+            }
+
+        }, 500); // wichtig für Mobile
     });
 }
+
+document.getElementById("scroll-to-ai-button")
+.addEventListener("click", () => {
+    document.getElementById("editor-ai-copilot")
+        .scrollIntoView({ behavior: "smooth" });
+});
+
 
 
 /**
