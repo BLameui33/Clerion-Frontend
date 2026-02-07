@@ -31,8 +31,19 @@
 /* 2. Mobile / Tablet (alles unter 900px) */
 @media (max-width: 900px) {
     
+    
+    #auth-container:not(.hidden) ~ #mobile-bottom-nav,
+    #auth-container:not(.hidden) + #mobile-bottom-nav,
+    body:has(#auth-container:not(.hidden)) #mobile-bottom-nav {
+        display: none !important;
+    }
+
+    #dashboard-wrapper.hidden ~ #mobile-bottom-nav,
+    body:has(#dashboard-wrapper.hidden) #mobile-bottom-nav {
+        display: none !important;
+    }
+
     body {
-        /* Platz unten schaffen, damit die schwebende Leiste nichts verdeckt */
         padding-bottom: 100px;
     }
 
