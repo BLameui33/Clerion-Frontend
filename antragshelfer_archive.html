@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antragshelfer Co-Pilot - Clerion</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/css/shepherd.css"/>
+
+    <link rel="icon" href="/clerion-logo.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Clerion",
+  "url": "https://clerion.de",
+  "logo": "https://clerion.de/clerion-logo.png"
+}
+</script>
+  <style>#document-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+#document-list li a {
+    flex: 1;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider { background-color: #4CAF50; } /* Grün wenn aktiv */
+input:focus + .slider { box-shadow: 0 0 1px #4CAF50; }
+input:checked + .slider:before { transform: translateX(20px); }
+
+.scroll-ai-btn {
+    margin-left: 10px;
+    font-size: 0.9rem;
+}
+
+
+@media (min-width: 901px) {
+    .scroll-ai-btn {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    #back-to-pdf-container {
+        display: block !important; 
+    }
+}
+
+@media (min-width: 769px) {
+    #back-to-pdf-container {
+        display: none !important; 
+    }
+}
+
+#back-to-pdf-container {
+    display: none; 
+    justify-content: center;
+    padding: 15px 0;
+}
+
+#scroll-to-pdf-button {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%; 
+    background-color: #e0e0e0; 
+    color: #444; 
+    border: 1px solid #ccc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#scroll-to-pdf-button:hover {
+    background-color: #d0d0d0;
+}
+
+/* Nur auf Mobile anzeigen */
+@media (max-width: 768px) {
+    #back-to-pdf-container {
+        display: flex !important;
+    }
+}
+
+</style>  
+</head>
+<body>
+    <div class="container">
+        <main id="app-container">
+            <div class="app-header">
+                <h1>Antragshelfer</h1>
+                <div>
+                    <button id="start-new-application-button" class="btn btn-primary btn-header">Neuen Antrag starten</button>
+                    <a href="dashboard.html" class="button-secondary btn-header">Zurück zum Dashboard</a>
+                    <button id="logout-button">Logout</button>
+                </div>
+            </div>
+
+            <div class="app-layout">
+
+                <div class="app-sidebar">
+                    
+                    <div id="b2b-dashboard" class="card hidden">
+                        <h4>Klientenverwaltung</h4>
+                        <form id="add-client-form">
+                            <input type="text" id="client-name-input" placeholder="Name des neuen Klienten" required>
+                            <button type="submit">Hinzufügen</button>
+                        </form>
+                        <ul id="client-list"></ul>
+                         <button id="show-all-applications-button" class="btn btn-ghost" style="width: 100%; margin-top: 1rem;">Alle Anträge anzeigen</button>
+                    </div>
+
+                    <div id="application-history-container" class="card">
+                        <h3>Antrags-Verlauf</h3>
+                        <p class="hint-text">Tipp: Klicken Sie auf einen Antrags-Titel, um ihn umzubenennen.</p>
+                        <p class="section-subtitle" style="font-size: 0.9rem;">Wählen Sie einen Antrag aus, um ihn weiter zu bearbeiten oder Notizen und zugehörige Dokumente hinzuzufügen.</p>
+                        <ul id="application-history-list"></ul>
+                    </div>
+                    <div id="notes-container" class="card">
+    <h3>Notizen zum Antrag</h3>
+    <p class="section-subtitle" style="font-size: 0.9rem;">
+        Hier können Sie persönliche Notizen zu diesem Antrag speichern.
+    </p>
+    <textarea id="notes-input" rows="5" class="form-input" placeholder="z.B. Nächste Schritte, wichtige Daten..."></textarea>
+    <button id="save-notes-button" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;">Notizen speichern</button>
+</div>
+
+
+<div id="documents-container" class="card">
+    <h3>Zugehörige Dokumente</h3>
+    <p class="section-subtitle" style="font-size: 0.9rem;">
+        Laden Sie hier weitere Unterlagen wie Gutachten oder Bescheide hoch.
+    </p>
+    <ul id="document-list" style="list-style: none; padding: 0; margin-bottom: 1rem;">
+        </ul>
+    <input type="file" id="document-upload-input" style="display: none;">
+    <label for="document-upload-input" class="btn btn-secondary" style="width: 100%;">Dokument auswählen...</label>
+    <button id="upload-documents-button" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Ausgewählte Datei hochladen</button>
+</div>
+                </div>
+
+
+
+<div class="app-main-content">
+    <div id="upload-section" class="card">
+    <h2>Starten Sie einen neuen Antrag</h2>
+    <p class="section-subtitle">Laden Sie Ihr ausfüllbares PDF-Formular hoch, um mit dem interaktiven Ausfüllen zu beginnen oder erstellen Sie direkt einen formlosen Antrag.
+    </p>
+
+    <!-- 1. PDF Upload Button (Dein Original) -->
+    <label for="pdf-upload-input" class="btn btn-primary" style="width: 100%; margin-bottom: 10px; display: inline-block; text-align: center;">PDF-Formular (ausfüllbar) hochladen</label>
+    
+    <!-- 2. Formloser Antrag Button (Dein Original) -->
+    <a href="generator.html" class="btn btn-secondary" style="width: 100%; margin-bottom: 10px; display: inline-block; text-align: center;">Formlosen Antrag per KI erstellen</a>
+
+    <!-- 3. NEU: Papier-Antrag Button (Eingefügt) -->
+    <a href="manual_helper.html" class="btn btn-secondary" style="width: 100%; display: inline-block; text-align: center;">📷 Papier-Antrag Hilfe (Scan/Foto/PDF)</a>
+
+    <!-- Input und Footer (Dein Original) -->
+    <input type="file" id="pdf-upload-input" accept="application/pdf" style="display: none;">
+    <p style="margin-top: 1.5rem;">
+        oder <a href="vorlagen.html">wählen Sie einen Antrag aus unserer Bibliothek</a>.
+    </p>
+</div>
+
+
+
+    <div id="main-view" class="hidden">
+    <div id="pdf-render-container" class="card">
+        <h4>Vorschau & Unterschrift</h4>
+        <div class="pdf-navigation">
+            <button id="pdf-prev-page" class="btn btn-secondary">&lt; Zurück</button>
+            <span>Seite <span id="pdf-page-num">1</span> / <span id="pdf-page-count">1</span></span>
+            <select id="pdf-page-selector" class="form-input" style="display: inline-block; width: auto; margin-left: 1rem;"></select>
+            <button id="pdf-next-page" class="btn btn-secondary">Weiter &gt;</button>
+        </div>
+        <div id="pdf-page-wrapper">
+            <canvas id="pdf-canvas"></canvas>
+            </div>
+    </div>
+
+    <div class="card">
+        <h4>✅ Finale Schritte</h4>
+        <div class="button-group">
+            <button id="open-editor-button" class="btn btn-secondary">PDF Antrag bearbeiten</button>
+            <button id="signature-mode-button" class="btn btn-secondary">Unterschrift platzieren</button>
+            <button id="download-final-pdf-button" class="btn btn-primary">Fertiges PDF herunterladen</button>
+        </div>
+    </div>
+</div>
+
+        </div> </div> </div>            </div> <div id="client-detail-modal-overlay" class="modal-overlay hidden">
+                <div id="client-detail-modal-content" class="modal-content" style="max-width: 600px; text-align: left;">
+                    <button id="close-client-detail-modal-button" class="modal-close-button">&times;</button>
+                    <h3 id="client-modal-title">Klientendetails</h3>
+                    <div id="client-modal-body">
+                        <div class="form-group">
+                            <label for="client-name-edit">Name des Klienten</label>
+                            <input type="text" id="client-name-edit" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="client-address-edit">Adresse</label>
+                            <input type="text" id="client-address-edit" class="form-input" placeholder="Straße Nr., PLZ Ort">
+                        </div>
+                        <div class="form-group">
+                            <label for="client-status-edit">Aktueller Stand / Wichtige Infos</label>
+                            <textarea id="client-status-edit" rows="3" class="form-input" placeholder="z.B. Im Widerspruchsverfahren, wartet auf Gutachten..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="client-notes-edit">Allgemeine Notizen</label>
+                            <textarea id="client-notes-edit" rows="5" class="form-input" placeholder="z.B. Kontaktdaten Angehörige, besondere Bedürfnisse..."></textarea>
+                        </div>
+                        <button id="save-client-details-button" class="btn btn-primary" style="width: 100%;">Änderungen speichern</button>
+                    </div>
+                </div>
+            </div>
+            <div id="pdf-editor-overlay" class="modal-overlay hidden">
+    <div id="pdf-editor-content" class="modal-content">
+        <div class="pdf-editor-header">
+            <h3 id="pdf-editor-title">Antrag ausfüllen</h3>
+            <p id="text-selection-hint" class="text-selection-hint">
+  💡 Tipp: Aktivieren Sie die Interaktive Feld-Hilfe (Beta), um Erklärungen direkt beim Klick ins Feld zu bekommen.
+</p>
+<div class="ai-toggle-container" style="display: flex; align-items: center; gap: 10px; margin-right: 20px;">
+    <span style="font-size: 0.9rem; color: #666;">Interaktive Feld-Hilfe (Beta)</span>
+    <label class="switch" style="position: relative; display: inline-block; width: 40px; height: 20px;">
+        <input type="checkbox" id="ai-help-mode-toggle">
+        <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
+    </label>
+</div>
+            <div class="pdf-editor-actions">
+                <button id="save-and-close-editor-button" class="btn btn-primary">Speichern & Schließen</button>
+                <button id="scroll-to-ai-button" class="scroll-ai-btn">
+↓ KI Hilfe
+</button>
+
+                <button id="close-editor-button" class="modal-close-button">&times;</button>
+                
+
+            </div>
+        </div>
+        <div class="pdf-editor-body">
+            <div id="editor-pdf-container" class="pdf-container">
+  <div id="editor-pdf-viewer" class="pdfViewer"></div>
+</div>
+            <div id="editor-ai-copilot">
+                <h4>🤖 KI Co-Pilot</h4>
+                <p id="ai-helper-instruction">Makieren Sie Textstellen, um Hilfe zu erhalten.</p>
+                <div id="ai-helper-content">
+                    <div id="ai-helper-explanation"></div>
+                    <hr>
+                    <h5>Frage an die KI</h5>
+                    <div id="ai-helper-chat-container"></div>
+                    <div class="chat-input-group">
+                        <input type="text" id="ai-helper-chat-input" placeholder="Ihre Frage zum Feld...">
+                        <button id="ai-helper-chat-send" class="btn btn-primary">Senden</button>
+                    </div>
+                    <div class="mobile-back-to-pdf" id="back-to-pdf-container">
+    <button id="scroll-to-pdf-button" aria-label="Zurück zum Formular">
+        <span style="font-size: 20px; font-weight: bold;">↑</span>
+    </button>
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+        </main>
+    </div>
+    <footer class="main-footer" style="margin-top: 2rem; border-top: 1px solid #eee;">
+        <div class="footer-container">
+           <p>&copy; 2026 Clerion</p>
+           <div class="footer-links">
+               <a href="anleitung.html">Hilfe & Anleitung</a>
+               <a href="Datenschutz.html">Datenschutz</a>
+               <a href="Impressum.html">Impressum</a>
+               <a href="AGB.html">AGB</a>
+        <a href="widerruf.html">Widerruf</a>
+           </div>
+       </div>
+       <p class="footer-disclaimer">
+    ⚖️ Hinweis: Dieses Tool ersetzt keine Rechtsberatung. Alle generierten Inhalte sind unverbindlich
+    und sollten vor Verwendung eigenständig geprüft werden.
+  </p>
+
+   </footer>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.js"></script>
+    <script src="antragshelfer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/js/shepherd.min.js"></script>
+    <script src="fileHandler.js"></script>
+</body>
+</html>

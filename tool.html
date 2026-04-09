@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clerion - Dokumenten-Assistent</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+
+    <style>
+        .step-container { display: none; animation: fadeIn 0.3s; }
+        .step-container.active { display: block; }
+        .service-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .service-card { border: 2px solid var(--border-color); padding: 1.5rem; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .service-card:hover, .service-card.selected { border-color: var(--primary-color); background: var(--bg-secondary); }
+        .file-list { margin-top: 1rem; font-size: 0.9rem; }
+        .file-list li { margin-bottom: 0.5rem; color: var(--text-secondary); }
+        .error-text { color: var(--error-color); font-size: 0.9rem; margin-top: 0.5rem; }
+    </style>
+</head>
+<body class="mobile-view-sidebar">
+    <div class="app-layout" style="display: flex; gap: 2rem; max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+        
+        <aside class="app-sidebar" style="width: 300px; flex-shrink: 0;">
+            <div class="card">
+                <h4>Meine Absender-Daten</h4>
+                <p style="font-size: 0.8rem; color: #666; margin-bottom: 1rem;">Wird nur lokal in Ihrem Browser gespeichert.</p>
+                <div class="form-group">
+                    <label>Voller Name</label>
+                    <input type="text" id="local-name" class="form-input" placeholder="Max Mustermann">
+                </div>
+                <div class="form-group">
+                    <label>Komplette Adresse</label>
+                    <input type="text" id="local-address" class="form-input" placeholder="Musterstraße 1, 12345 Musterstadt">
+                </div>
+                <div class="form-group">
+                    <label>E-Mail (für Briefkopf)</label>
+                    <input type="email" id="local-email" class="form-input" placeholder="max@beispiel.de">
+                </div>
+                <div class="form-group">
+                    <label>Telefon (für Briefkopf)</label>
+                    <input type="text" id="local-phone" class="form-input" placeholder="0123 456789">
+                </div>
+                <button id="save-local-data-btn" class="button-secondary" style="width: 100%;">Speichern</button>
+            </div>
+
+            <div class="card" style="margin-top: 1rem;">
+                <h4>Meine Unterschrift</h4>
+                <div id="signature-pad-wrapper" style="border: 1px solid var(--border-color); border-radius: 4px; background: #fff;">
+                    <canvas id="signature-canvas" style="width: 100%; height: 150px;"></canvas>
+                </div>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                    <button id="signature-clear-btn" class="button-secondary" style="flex: 1; padding: 0.5rem;">Leeren</button>
+                    <button id="signature-save-btn" class="button-primary" style="flex: 1; padding: 0.5rem;">Sichern</button>
+                </div>
+                <p id="signature-status" style="font-size: 0.8rem; color: green; margin-top: 0.5rem; display: none;">✓ Lokal gespeichert</p>
+            </div>
+        </aside>
+
+        <main class="app-main-content" style="flex-grow: 1;">
+            
+            <div id="step-1" class="step-container active card">
+                <h2>Was möchten Sie tun?</h2>
+                <div class="service-cards" style="margin-top: 1.5rem;">
+                    <div class="service-card" data-service="brief">
+                        <h3>Briefanalyse</h3>
+                        <p>Behördenbriefe bis 5 Seiten einfach erklärt (inkl. Antwort-PDF).</p>
+                    </div>
+                    <div class="service-card" data-service="bescheid">
+                        <h3>Bescheidanalyse</h3>
+                        <p>Bescheide auf Fristen & Pflichten prüfen (bis 5 Seiten).</p>
+                    </div>
+                    <div class="service-card" data-service="akte">
+                        <h3>Aktenanalyse (Tiefenprüfung)</h3>
+                        <p>Große Verträge, Gutachten oder Akten prüfen (bis 100 Seiten).</p>
+                    </div>
+                    <div class="service-card" data-service="antrag">
+                        <h3>Formloser Antrag</h3>
+                        <p>Schnell einen rechtssicheren Antrag generieren lassen.</p>
+                    </div>
+                </div>
+                <button id="btn-next-to-input" class="button-primary" style="margin-top: 1.5rem; width: 100%;" disabled>Weiter</button>
+            </div>
+
+            <div id="step-2" class="step-container card">
+                <button class="button-secondary btn-back" data-target="step-1" style="margin-bottom: 1rem;">Zurück</button>
+                <h2 id="input-title">Dokument hochladen</h2>
+                
+                <div id="upload-area">
+                    <p id="upload-hint" style="color: var(--text-secondary); margin-bottom: 1rem;"></p>
+                    <div class="file-upload-wrapper">
+                        <label for="document-upload" class="button-secondary" style="cursor: pointer; display: inline-block;">📄 Datei(en) wählen</label>
+                        <input type="file" id="document-upload" style="display: none;" accept=".pdf, image/*" multiple>
+                    </div>
+                    <ul id="file-list" class="file-list"></ul>
+                    <p id="file-error" class="error-text"></p>
+                </div>
+                
+                <div id="text-area-container" class="hidden">
+                    <label style="font-weight: bold;">Beschreiben Sie kurz Ihr Anliegen:</label>
+                    <textarea id="intent-description" class="form-input" rows="6" placeholder="z.B. Ich benötige eine Fristverlängerung von 14 Tagen für das Aktenzeichen 12345..."></textarea>
+                </div>
+
+                <hr style="margin: 2rem 0;">
+                
+                <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px;">
+                    <label style="font-weight: bold;">E-Mail Adresse für das Ergebnis (Pflichtfeld)</label>
+                    <p style="font-size: 0.85rem; color: #666;">Falls Sie das Fenster versehentlich schließen, können wir Ihnen Ihr fertiges Dokument manuell zusenden.</p>
+                    <input type="email" id="backup-email" class="form-input" placeholder="Ihre E-Mail Adresse" required>
+                </div>
+
+                <button id="btn-next-to-pay" class="button-primary" style="margin-top: 1.5rem; width: 100%;">Dokumente prüfen & Weiter</button>
+            </div>
+
+            <div id="step-3" class="step-container card">
+                <button class="button-secondary btn-back" data-target="step-2" style="margin-bottom: 1rem;">Zurück</button>
+                <h2>Zusammenfassung & Zahlung</h2>
+                <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                    <p>Gewählter Service: <strong id="summary-service">...</strong></p>
+                    <p>Ihre E-Mail für Rückfragen: <strong id="summary-email">...</strong></p>
+                </div>
+                
+                <p style="text-align: center; color: #666; margin: 2rem 0;">(Hier wird später PayPal/Stripe integriert)</p>
+                
+                <button id="btn-simulate-payment" class="button-primary" style="width: 100%;">SIMULATION: Bezahlen & Analyse starten</button>
+                
+                <div id="loading-spinner" class="hidden" style="text-align: center; margin-top: 2rem;">
+                    <p><strong>KI analysiert Ihr Dokument... Bitte warten.</strong></p>
+                    <div class="spinner" style="margin: 1rem auto;"></div>
+                </div>
+            </div>
+
+            <div id="step-4" class="step-container card">
+                <h2>Ihr Ergebnis</h2>
+                <div id="analysis-result-content" style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                    </div>
+
+                <hr style="margin: 2rem 0;">
+
+                <div id="pdf-generator-section">
+                    <h3>Antwortschreiben konfigurieren</h3>
+                    
+                    <div class="pdf-details-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div class="pdf-details-group">
+                            <label>Empfängername (Behörde)</label>
+                            <input type="text" id="recipient-name" class="form-input" placeholder="Name der Behörde">
+                            <label style="margin-top: 0.5rem;">Empfängeradresse</label>
+                            <input type="text" id="recipient-address" class="form-input" placeholder="Amtstraße 2, 54321 Amtshausen">
+                        </div>
+                        <div class="pdf-details-group">
+                            <label>Aktenzeichen / Fallnummer</label>
+                            <input type="text" id="case-reference" class="form-input" placeholder="Falls vorhanden">
+                        </div>
+                    </div>
+
+                    <div id="intent-container" style="margin-top: 1.5rem;">
+                        <label>Ihr konkretes Anliegen (für den Brieftext):</label>
+                        <textarea id="freitext-input" class="form-input" rows="4" placeholder="z.B. Ich möchte Widerspruch einlegen..."></textarea>
+                    </div>
+
+                    <button id="generate-final-pdf" class="button-primary" style="margin-top: 1.5rem; width: 100%;">PDF generieren & herunterladen</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="notification-container"></div>
+
+    <script src="tool.js"></script>
+</body>
+</html>

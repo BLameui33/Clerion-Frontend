@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Clerion</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/css/shepherd.css"/>
+    <link rel="stylesheet" href="styles.css">
+
+    <link rel="icon" href="/clerion-logo.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Clerion",
+  "url": "https://clerion.de",
+  "logo": "https://clerion.de/clerion-logo.png"
+}
+</script>
+
+<style>
+/* --- MOBILE OPTIMIERUNG & NAVIGATION --- */
+
+/* 1. Desktop: Navigation ausblenden */
+.mobile-nav {
+    display: none;
+}
+
+/* 2. Mobile / Tablet (alles unter 900px) */
+@media (max-width: 900px) {
+    
+    
+    #auth-container:not(.hidden) ~ #mobile-bottom-nav,
+    #auth-container:not(.hidden) + #mobile-bottom-nav,
+    body:has(#auth-container:not(.hidden)) #mobile-bottom-nav {
+        display: none !important;
+    }
+
+    #dashboard-wrapper.hidden ~ #mobile-bottom-nav,
+    body:has(#dashboard-wrapper.hidden) #mobile-bottom-nav {
+        display: none !important;
+    }
+
+    body {
+        padding-bottom: 100px;
+    }
+
+    body.not-logged-in #mobile-bottom-nav {
+    display: none !important;
+}
+    
+    /* Wir müssen das Flexbox-Layout aufheben, damit wir Bereiche stapeln/verstecken können */
+    .app-layout, .container, .dashboard-wrapper { 
+        /* Passe diesen Selektor an deinen Haupt-Container an, falls nötig */
+        display: block !important; 
+    }
+
+    /* Standard-Zustand: Wir sind im "Analyse" Modus */
+    .app-sidebar {
+        display: none; /* Sidebar ist WEG */
+        width: 100% !important;
+    }
+
+    .app-main-content {
+        display: block; /* Hauptinhalt ist DA */
+        width: 100% !important;
+    }
+
+    body.mobile-view-sidebar .app-sidebar {
+        display: block; /* Sidebar zeigen */
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    body.mobile-view-sidebar .app-main-content {
+        display: none; /* Hauptinhalt verstecken */
+    }
+
+    /* --- DESIGN: SCHWEBENDE NAVIGATION --- */
+    .mobile-nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem;
+        
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%); /* Zentriert */
+        
+        width: auto;
+        min-width: 220px;
+        padding: 12px 30px;
+        
+        /* Glassmorphism Effekt */
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 50px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+    }
+
+    .mobile-nav-btn {
+        background: transparent;
+        border: none;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .nav-icon {
+        font-size: 1.5rem;
+        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .nav-label {
+        display: none; /* Optional: Text ausblenden für cleaneren Look */
+    }
+
+    /* Aktiver Zustand */
+    .mobile-nav-btn.active {
+        color: var(--primary-color, #0056b3);
+    }
+
+    .mobile-nav-btn.active .nav-icon {
+        transform: translateY(-5px);
+    }
+
+    /* Kleiner Punkt unter dem aktiven Icon */
+    .mobile-nav-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        width: 5px;
+        height: 5px;
+        background-color: var(--primary-color, #0056b3);
+        border-radius: 50%;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+}
+</style>
+</head>
+<body>
+    <div class="container">
+        
+        <div id="auth-container" class="hidden">
+    <h1>Willkommen...</h1>
+    <p>Bitte einloggen oder registrieren, um auf Ihr Dashboard zuzugreifen.</p>
+
+    <div id="default-auth-view">
+    <div class="auth-layout-container">
+
+        <div class="auth-switch">
+    <button id="show-login" class="active">Login</button>
+    <button id="show-register">Registrieren</button>
+</div>
+        
+        <form id="login-form" class="auth-form">
+            <h2>Einloggen</h2>
+            <input type="text" id="login-username" placeholder="E-Mail-Adresse" required>
+            
+            <div class="password-wrapper">
+                <input type="password" id="login-password" placeholder="Passwort" required>
+                <span class="password-toggle">👁️</span>
+            </div>
+            
+            <button type="submit">Login</button>
+            <a href="#" id="forgot-password-link" class="small-link">Passwort vergessen?</a>
+        </form>
+
+                <form id="register-form" class="auth-form">
+            <h2>Noch kein Konto? Registrieren</h2>
+            <input type="text" id="register-username" placeholder="E-Mail-Adresse" required>
+            
+            <div class="password-wrapper">
+                <!-- minlength hinzugefügt und Placeholder angepasst -->
+                <input type="password" id="register-password" placeholder="Passwort (min. 8 Zeichen)" minlength="8" required>
+                <span class="password-toggle">👁️</span>
+            </div>
+            <div class="password-wrapper">
+                <input type="password" id="register-confirm-password" placeholder="Passwort bestätigen" minlength="8" required>
+                <span class="password-toggle">👁️</span>
+            </div>
+            
+            <div class="account-type-selector">
+                <label><input type="radio" name="accountType" value="b2c" checked> Privat</label>
+                <label><input type="radio" name="accountType" value="b2b"> Geschäftlich</label>
+            </div>
+
+            <!-- NEU: AGB und Datenschutz Checkbox -->
+            <div style="margin: 1rem 0; text-align: left; font-size: 0.9rem;">
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" id="register-terms" required style="width: auto; margin-top: 0.2rem;">
+                    <span>
+                        Ich stimme den <a href="AGB.html" target="_blank">AGB</a> und der <a href="Datenschutz.html" target="_blank">Datenschutzerklärung</a> zu.
+                    </span>
+                </label>
+            </div>
+
+            <button type="submit">Registrieren</button>
+        </form>
+
+
+    </div>
+</div>
+
+    <div id="reset-password-container" class="hidden">
+        <h2>Passwort zurücksetzen</h2>
+        <form id="request-reset-form" class="auth-form" style="margin: 0 auto;">
+            <p>Geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.</p>
+            <input type="text" id="reset-email" placeholder="E-Mail-Adresse" required>
+            <button type="submit">Link anfordern</button>
+        </form>
+        <form id="do-reset-form" class="hidden auth-form" style="margin: 0 auto;">
+            <p>Geben Sie Ihr neues Passwort ein.</p>
+            <input type="password" id="new-password" placeholder="Neues Passwort" required>
+            <input type="password" id="confirm-password" placeholder="Neues Passwort bestätigen" required>
+            <button type="submit">Passwort speichern</button>
+        </form>
+        <a href="#" id="back-to-login-link" class="small-link" style="margin-top: 1rem; display: block; text-align: center;">Zurück zum Login</a>
+    </div>
+
+    <p id="auth-message" class="message"></p>
+    <p style="margin-top: 2rem; text-align: center;"><a href="index.html">Zurück zur Startseite</a></p>
+</div>
+
+        <main id="app-container" class="hidden">
+            <div class="app-header">
+    <h1 id="welcome-message"></h1>
+    <div>
+        <a href="admin.html" id="admin-dashboard-link" class="btn btn-primary btn-header hidden" style="margin-right: 1rem;">Zur Verwaltung</a>
+        <a href="konto.html" class="button-secondary">Konto</a>
+        
+        
+        <button id="logout-button">Logout</button>
+    </div>
+</div>
+
+
+
+            <div class="app-layout">
+                <div class="app-sidebar">
+
+                    <div id="akten-analyse-link-container" class="card">
+    <a href="workspace.html" class="btn btn-primary btn-special-workspace">🏠 Mein Cockpit</a>
+    <a href="akten-analyse.html" class="btn btn-primary">Zur Dokumenten-Analyse</a>
+   <a href="email-assistent.html" class="btn btn-primary">E-Mail-Assistent</a>
+    <a href="antragshelfer.html" id="antragshelfer-link" class="btn btn-primary">Antragshelfer</a>
+    <a href="vertrag-assistent.html" class="btn btn-primary">Vertrags-Assistent</a>
+        </div>
+
+       
+                    <div id="b2b-dashboard" class="hidden card">
+                        <h4>Klientenverwaltung</h4>
+                        <form id="add-client-form">
+                            <input type="text" id="client-name-input" placeholder="Name des neuen Klienten" required>
+                            <button type="submit">Hinzufügen</button>
+                        </form>
+                        <ul id="client-list"></ul>
+                    </div>
+
+                    <div id="global-todo-container" class="card">
+        <h4>Meine To-Do Liste</h4>
+        <div class="todo-input-group">
+            <input type="text" id="global-todo-input" placeholder="Neue Aufgabe..." style="flex:1;">
+            <button id="add-global-todo-btn" style="padding: 0 10px;">+</button>
+        </div>
+        <ul id="global-todo-list" class="todo-list-ul"></ul>
+    </div>
+
+                                        <div id="deadlines-container" class="card">
+                        <h4>Anstehende Termine & Fristen</h4>
+                        <ul id="deadline-list">
+                            </ul>
+                        <hr>
+                        <form id="add-deadline-form">
+                            <input type="text" id="deadline-title-input" placeholder="Neue Frist / Neuer Termin" required>
+                            <input type="date" id="deadline-date-input" required>
+                            <div class="form-group" id="deadline-client-selector-group" style="display: none;">
+                                <select id="deadline-client-selector">
+                                    <option value="">-- Klient zuordnen (optional) --</option>
+                                </select>
+                            </div>
+                            <button type="submit">Hinzufügen</button>
+                        </form>
+                    </div>
+                    
+                    <div id="history-container" class="hidden card">
+                        <h3>Fall-Verlauf</h3>
+                        <div class="date-filter-group">
+                            <input type="date" id="start-date-input">
+                            <span>bis</span>
+                            <input type="date" id="end-date-input">
+                            <button id="date-search-button">Suchen</button>
+                        </div>
+                        <button id="show-all-cases-button" class="button-secondary" style="width: 100%; margin-bottom: 1rem;">Alle Fälle anzeigen</button>
+                        <div class="history-list-wrapper"><ul id="history-list"></ul></div>
+                    </div>
+
+                    <div id="sender-info-container" class="card">
+                        <h4>Meine Absender-Daten</h4>
+                        <form id="sender-info-form">
+                            <div class="form-group">
+    <label for="sender-info-fullname">Ihr voller Name:</label>
+    <input type="text" id="sender-info-fullname" class="form-input" placeholder="Max Mustermann">
+</div>
+<div class="form-group">
+    <label for="sender-info-fulladdress">Ihre komplette Adresse:</label>
+    <input type="text" id="sender-info-fulladdress" class="form-input" placeholder="Musterstraße 1, 12345 Musterstadt">
+</div>
+    
+                            <div class="form-group">
+                                <label for="sender-info-phone">Telefon (optional)</label>
+                                <input type="text" id="sender-info-phone" class="form-input" placeholder="Ihre Telefonnummer">
+                            </div>
+                            <div class="form-group">
+                                <label for="sender-info-email">E-Mail (optional)</label>
+                                <input type="email" id="sender-info-email" class="form-input" placeholder="Ihre E-Mail-Adresse">
+                            </div>
+                             <div class="form-group">
+                                <label for="sender-info-extra">Zusatz 1 (optional)</label>
+                                <input type="text" id="sender-info-extra" class="form-input" placeholder="z.B. Webseite, Bürozeiten">
+                            </div>
+                            <div class="form-group">
+                                <label for="sender-info-extra2">Zusatz 2 (optional)</label>
+                                <input type="text" id="sender-info-extra2" class="form-input" placeholder="z.B. Steuernummer">
+                            </div>
+                            <button type="submit">Speichern</button>
+                        </form>
+                    </div>
+
+                    <div id="signature-container" class="card">
+    <h4>Ihre digitale Unterschrift</h4>
+    
+    <div id="signature-preview-container"></div>
+    <button id="delete-signature-button" class="delete-button-icon hidden" title="Gespeicherte Unterschrift löschen">&times;</button>
+    
+    <hr>
+
+    <div class="button-group">
+        <button id="open-upload-button" class="button-secondary">Datei hochladen</button>
+        <button id="open-signature-pad-button" class="button-primary">Direkt unterschreiben</button>
+    </div>
+
+    <form id="signature-upload-form" class="hidden" style="margin-top: 1rem;">
+        <label for="signature-file-input" class="button-secondary">Datei auswählen...</label>
+        <input type="file" id="signature-file-input" accept="image/png, image/jpeg" required>
+        <span id="file-name-display"></span>
+        <button type="submit">Hochladen & Speichern</button>
+    </form>
+</div>
+
+                </div>
+                <div class="app-main-content">
+                    <div id="analyze-container" class="card">
+                        <p class="counter-info">Verbleibende kostenlose Analysen: <span id="pdf-counter">3</span></p>
+                        <div id="subscribe-container" class="hidden">
+        <p style="text-align:center; font-weight: 500;">Jetzt auf Premium upgraden:</p>
+        <div class="button-group-vertical">
+            <button id="subscribe-button" class="btn btn-secondary">Premium kaufen</button>
+            <button id="subscribe-plus-button" class="btn btn-primary">Premium Plus kaufen</button>
+        </div>
+    </div>
+                        <div class="input-tabs">
+                <button id="text-tab-button" class="tab-button active">Text eingeben</button>
+                <button id="file-tab-button" class="tab-button">Bild oder PDF hochladen</button>
+            </div>
+
+            <div id="text-input-container">
+                <p>Gib den Text aus deinem Behördenbrief hier ein.</p>
+                <textarea id="letter-text" rows="10" placeholder="Text hier einfügen..."></textarea>
+            </div>
+
+            <div id="file-input-container" class="hidden">
+                <p>Lade eine Datei (Bild oder PDF) deines Schreibens hoch.</p>
+                <div class="dropzone">
+                    <span>Klicken zum Auswählen oder Dokument hierher ziehen</span>
+                    <input type="file" id="letter-file-input" accept="image/*,application/pdf">
+                </div>
+            </div>
+                       <button id="analyze-button" type="button" class="button-analyze">Jetzt einfach erklären lassen</button>
+                        <button id="start-blank-letter-button" type="button">Ohne Analyse starten</button>
+                        
+                        <div id="loading-spinner" class="hidden"></div>
+                    </div>
+                    
+                    <div id="result-container" class="hidden card">
+                        <h2>Das bedeutet dein Brief:</h2>
+                        <p id="explanation-text"></p>
+                        <div id="pdf-details-container" class="card-section">
+                            <div class="form-group" id="client-info-selector-group" style="margin-bottom: 1.5rem; background-color: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-md);">
+                                <label for="client-info-selector">Schnellzugriff auf Klienten-Details:</label>
+                                <select id="client-info-selector">
+                                    <option value="">-- Klientendetails anzeigen --</option>
+                                </select>
+                            </div>
+    <h4>Angaben für das Antwortschreiben</h4>
+    <button id="insert-my-address-button" class="btn btn-secondary btn-sm mb-3">
+        Meine gespeicherte Adresse einfügen
+    </button>
+    <div id="persona-selector" class="hidden" style="margin-bottom: 1.5rem;">
+        <label>Schreiben im Namen von:</label>
+        <div class="account-type-selector" style="justify-content: flex-start;">
+            <label><input type="radio" name="persona" value="me" checked> Mir selbst</label>
+            <label><input type="radio" name="persona" value="client"> Meinem Klienten</label>
+        </div>
+    </div>
+    <div class="pdf-details-grid">
+        <div class="pdf-details-group">
+            <label for="sender-name">Ihr Absendername</label>
+            <input type="text" id="sender-name" placeholder="Max Mustermann">
+            <label for="sender-address">Ihre Adresse</label>
+            <input type="text" id="sender-address" placeholder="Musterstraße 1, 12345 Musterstadt">
+        </div>
+        <div class="pdf-details-group">
+            <label for="recipient-name">Empfängername</label>
+            <input type="text" id="recipient-name" placeholder="Name der Behörde">
+            <label for="recipient-address">Empfängeradresse</label>
+            <input type="text" id="recipient-address" placeholder="Amtstraße 2, 54321 Amtshausen">
+        </div>
+        <div class="pdf-details-group-full">
+            <label for="case-reference">Aktenzeichen / Fallnummer (von der KI erkannt)</label>
+            <input type="text" id="case-reference" placeholder="Wird von der KI ausgefüllt...">
+        </div>
+    </div>
+</div>
+                        <div id="intent-container" class="hidden">
+    <h4>Was möchtest du als Nächstes tun?</h4>
+    
+    <label for="template-select">Wähle eine Vorlage (optional)</label>
+    <select id="template-select">
+        <option value="">-- Bitte wählen --</option>
+        <option value="widerspruch">Widerspruch (allgemein)</option>
+        <option value="ratenzahlung">Ratenzahlung vorschlagen</option>
+        <option value="fristverlaengerung">Fristverlängerung bitten</option>
+        <option value="unterlagen_nachgereicht">Hinweis auf bereits eingereichte Unterlagen</option>
+    </select>
+
+    <label for="freitext-input">Dein Anliegen (kann angepasst werden)</label>
+    <a href="prompt-beispiele.html" target="_blank" class="small-link" style="float: right;">Anregungen & Beispiele</a>
+    <textarea id="freitext-input" rows="5" placeholder="Beschreibe hier in ein bis zwei Sätzen, was du erreichen möchtest. Wähle eine Vorlage oder schreibe frei."></textarea>
+    
+    <button id="download-pdf-button" style="margin-top: 1rem;">Antwort-PDF erstellen</button>
+</div>
+                    </div>
+                    <div id="history-detail-container" class="hidden card">
+                        <h3>Falldetails</h3>
+                        <h4 id="detail-case-title" class="card-title"></h4>
+                        <h4>Erklärung der KI:</h4>
+                        <p id="detail-explanation" class="result-preview"></p>
+                        <div id="link-client-container" class="hidden">
+        <hr>
+        <h4>Diesen Fall einem Klienten zuweisen:</h4>
+        <select id="link-client-select"></select>
+        <button id="link-client-button">Zuweisen</button>
+    </div>
+                        <h4>Ihre Notizen:</h4>
+                        <textarea id="detail-notes" rows="5" placeholder="Hier können Sie Ihre privaten Notizen zum Fall eintragen..."></textarea>
+                        <button id="back-to-analyze-button">Neue Analyse / Zurück</button>
+                        <button id="save-notes-button">Notizen speichern</button>
+
+                        <div id="checklist-print-area">
+        <hr>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4>Fall-Checkliste</h4>
+            <button onclick="window.print()" class="btn btn-sm btn-secondary no-print" style="font-size: 0.8rem;">🖨️ Drucken</button>
+        </div>
+        <div class="todo-input-group no-print">
+            <input type="text" id="case-checklist-input" placeholder="Neuer Punkt..." style="flex:1;">
+            <button id="add-checklist-item-btn" style="padding: 0 10px;">+</button>
+        </div>
+        <ul id="case-checklist-list" class="todo-list-ul"></ul>
+    </div>
+    <hr class="no-print">
+
+                        <div id="case-documents-container">
+                            <hr>
+                            <h4>Zugehörige Dokumente</h4>
+                            <ul id="document-list"></ul>
+                                                    <form id="upload-document-form">
+                            <div class="document-upload-controls">
+                                <label for="document-file-input" class="button-secondary-style">Datei auswählen...</label>
+                                <input type="file" id="document-file-input" required>
+                                <span id="document-file-name">Keine Datei ausgewählt</span>
+                                <button type="submit">Hochladen</button>
+                            </div>
+                        </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="main-footer" style="margin-top: 2rem; border-top: 1px solid #eee;">
+        <div class="footer-container">
+           <p>&copy; 2026 Clerion</p>
+           <div class="footer-links">
+            <a href="#" id="restart-tour-link">Interaktive Tour starten</a>
+               <a href="anleitung.html">Hilfe & Anleitung</a>
+               <a href="Datenschutz.html">Datenschutz</a>
+               <a href="Impressum.html">Impressum</a>
+               <a href="AGB.html">AGB</a>
+               <a href="widerruf.html">Widerruf</a>
+           </div>
+       </div>
+       <p class="footer-disclaimer">
+    ⚖️ Hinweis: Dieses Tool ersetzt keine Rechtsberatung. Alle generierten Inhalte sind unverbindlich
+    und sollten vor Verwendung eigenständig geprüft werden.
+  </p>
+   </footer>
+
+       <div id="client-detail-modal-overlay" class="modal-overlay hidden">
+        <div id="client-detail-modal-content" class="modal-content" style="max-width: 600px; text-align: left;">
+            <button id="close-client-detail-modal-button" class="modal-close-button">&times;</button>
+            <h3 id="client-modal-title">Klientendetails</h3>
+            <div id="client-modal-body">
+                <div class="form-group">
+                    <label for="client-name-edit">Name des Klienten</label>
+                    <input type="text" id="client-name-edit" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="client-address-edit">Adresse</label>
+                    <input type="text" id="client-address-edit" class="form-input" placeholder="Straße Nr., PLZ Ort">
+                </div>
+                 <div class="form-group">
+                    <label for="client-status-edit">Aktueller Stand / Wichtige Infos</label>
+                    <textarea id="client-status-edit" rows="3" class="form-input" placeholder="z.B. Im Widerspruchsverfahren mit Krankenkasse, wartet auf Gutachten..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="client-notes-edit">Allgemeine Notizen</label>
+                    <textarea id="client-notes-edit" rows="5" class="form-input" placeholder="z.B. Kontaktdaten Angehörige, besondere Bedürfnisse..."></textarea>
+                </div>
+                <button id="save-client-details-button" class="btn btn-primary" style="width: 100%;">Änderungen speichern</button>
+            </div>
+        </div>
+    </div>
+    
+    </div>
+
+    <div id="deadline-reminder-modal-overlay" class="modal-overlay hidden">
+        <div id="deadline-reminder-modal-content" class="modal-content">
+            <button id="close-deadline-reminder-modal-button" class="modal-close-button">&times;</button>
+            <h3>Heute fällige Fristen & Termine</h3>
+            <p class="section-subtitle" style="font-size: 1rem;">Die folgenden Einträge sind heute fällig:</p>
+            <div id="todays-deadlines-list" style="text-align: left;">
+                </div>
+        </div>
+    </div>
+    
+<div id="notification-container"></div>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/js/shepherd.min.js"></script>
+    <div id="signature-modal-overlay" class="modal-overlay hidden">
+    <div id="signature-modal-content" class="modal-content">
+        <button id="close-signature-modal-button" class="modal-close-button">&times;</button>
+        <h3>Bitte unterschreiben Sie im Feld</h3>
+        <div id="signature-pad-wrapper" style="border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem; position: relative;">
+            <canvas id="signature-canvas"></canvas>
+        </div>
+        <div class="button-group">
+            <button id="signature-clear-button" class="button-secondary">Leeren</button>
+            <button id="signature-save-button" class="button-primary">Unterschrift speichern</button>
+        </div>
+    </div>
+</div>
+    <div id="delete-modal-overlay" class="modal-overlay hidden">
+    <div id="delete-modal-content" class="modal-content">
+        <button id="close-modal-button" class="modal-close-button">&times;</button>
+        <h3 id="delete-modal-title"></h3>
+        <p id="delete-modal-text"></p>
+        <p id="delete-modal-warning" style="font-weight: bold; color: var(--error-color);"></p>
+        <button id="final-delete-button" class="button-danger">Ich verstehe, endgültig löschen</button>
+    </div>
+</div>
+
+<div id="review-modal-overlay" class="modal-overlay hidden">
+    <div id="review-modal-content" class="modal-content" style="max-width: 800px; text-align: left;">
+        <button id="close-review-modal-button" class="modal-close-button">&times;</button>
+        <h3>Brieftext prüfen & korrigieren</h3>
+        <p style="font-size: 0.9rem;">Hier sehen Sie den von der KI erstellten Text. Sie können ihn vor dem finalen Download anpassen.</p>
+        <textarea id="review-textarea" style="width: 100%; min-height: 300px; resize: vertical;"></textarea>
+        <button id="final-pdf-button" class="btn btn-primary">Finales PDF jetzt erstellen</button>
+    </div>
+</div>
+
+<!-- START ANIMATION OVERLAY -->
+<div id="login-animation-overlay" class="hidden">
+    <div class="animation-wrapper">
+        <div class="logo-circle">
+            <!-- Linke, obere Klammer -->
+            <div class="bracket bracket-upper"></div>
+            <!-- Rechte, untere Klammer -->
+            <div class="bracket bracket-lower"></div>
+        </div>
+        <!-- Neuer Text mit Span-Punkten für Animation -->
+        <p class="loading-text">Anmeldung läuft<span>.</span><span>.</span><span>.</span></p>
+    </div>
+</div>
+<!-- END ANIMATION OVERLAY -->
+
+<!-- fixierte Navigationsleiste -->
+
+<nav id="mobile-bottom-nav" class="mobile-nav hidden-desktop">
+    <button class="mobile-nav-btn active" data-target="view-main">
+        <span class="nav-icon">📝</span>
+        <span class="nav-label">Analyse</span>
+    </button>
+    
+    <button class="mobile-nav-btn" data-target="view-sidebar-history">
+        <span class="nav-icon">📂</span>
+        <span class="nav-label">Verlauf</span>
+    </button>
+
+    <button class="mobile-nav-btn" data-target="view-sidebar-tools">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Tools</span>
+    </button>
+</nav>
+
+<script src="fileHandler.js"></script>
+ 
+</body>
+</html>

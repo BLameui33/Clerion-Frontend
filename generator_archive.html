@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antrags-Generator - Clerion</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="/clerion-logo.png">
+
+    <style>/* === Overlay-Stil === */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.overlay-content {
+  background: #fff;
+  border-radius: 10px;
+  padding: 2rem;
+  max-width: 800px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  animation: fadeInUp 0.3s ease;
+}
+
+.overlay-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+    <div class="container">
+        <main id="app-container">
+            <div class="app-header">
+                <h1>KI Antrags-Generator</h1>
+                <div>
+                    <a href="antragshelfer.html" class="button-secondary btn-header">Zurück zum Antragshelfer</a>
+                    <button id="logout-button">Logout</button>
+                </div>
+            </div>
+
+            <div class="app-layout" style="display: block; max-width: 900px; margin: 0 auto;">
+                
+                <div id="generator-card" class="card">
+                    <h2>Formlosen Antrag per KI erstellen</h2>
+                    <p class="section-subtitle">
+                        Beschreiben Sie, welchen Antrag Sie benötigen. Die KI erstellt daraus ein formales, fertiges PDF.
+                    </p>
+                    <p class="hint-text">
+                        <strong>Wichtig:</strong> Geben Sie alle notwendigen Daten (Daten, Aktenzeichen, wichtige Details etc.) direkt mit an, da das PDF final generiert wird.
+                    </p>
+
+                    <div id="b2b-client-selector" class="form-group hidden" style="margin-top: 1.5rem;">
+                        <label for="client-select-dropdown">Für Klient generieren (Optional):</label>
+                        <select id="client-select-dropdown" class="form-input">
+                            <option value="">Für mich selbst / Ohne Zuweisung</option>
+                            </select>
+                    </div>
+
+                    <h4 style="margin-top: 2rem;">Absender- und Empfänger-Angaben</h4>
+<p class="section-subtitle">Bitte geben Sie sowohl Ihre als auch die Empfängerinformationen an.</p>
+
+<div class="address-grid">
+  <div>
+    <h5 style="margin-bottom:0.5rem;">Absender</h5>
+    <div class="form-group">
+      <label for="sender-name">Vollständiger Name</label>
+      <input type="text" id="sender-name" class="form-input" placeholder="z. B. Max Mustermann">
+    </div>
+    <div class="form-group">
+      <label for="sender-address">Adresse</label>
+      <input type="text" id="sender-address" class="form-input" placeholder="Straße Nr., PLZ Ort">
+    </div>
+  </div>
+
+  <div>
+    <h5 style="margin-bottom:0.5rem;">Empfänger</h5>
+    <div class="form-group">
+      <label for="recipient-name">Behörde / Ansprechpartner</label>
+      <input type="text" id="recipient-name" class="form-input" placeholder="z. B. Agentur für Arbeit">
+    </div>
+    <div class="form-group">
+      <label for="recipient-address">Adresse</label>
+      <input type="text" id="recipient-address" class="form-input" placeholder="Straße Nr., PLZ Ort">
+    </div>
+  </div>
+</div>
+                    <div class="form-group" style="margin-top: 2rem;">
+                        <label for="ai-prompt-input">Ihre Anweisung an die KI (Der Inhalt des Briefes):</label>
+                        <textarea id="ai-prompt-input" rows="8" class="form-input" placeholder="z.B. Bitte um Fristverlängerung für das Aktenzeichen 123-ABC um 14 Tage."></textarea>
+                    </div>
+
+                    <button id="generate-pdf-button" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                        Antrag generieren & speichern
+                    </button>
+
+                    <div id="loading-indicator" class="loading-indicator hidden" style="margin-top: 1rem;">
+                        <h3>PDF wird generiert...</h3>
+                        <div id="loading-spinner"></div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+
+    <div id="review-overlay" class="overlay hidden">
+  <div class="overlay-content card">
+    <h2>KI-Vorschau prüfen & bearbeiten</h2>
+    <p class="section-subtitle">
+      Überprüfen Sie den automatisch erstellten Antrag. Sie können den Text unten noch anpassen, bevor das PDF final erstellt wird.
+    </p>
+
+    <div id="review-meta" style="margin-bottom:1rem;">
+  <p><strong>Titel:</strong> <span id="review-title"></span></p>
+  <p><strong>Betreff:</strong> <span id="review-subject"></span></p>
+</div>
+
+    <textarea id="review-textarea" class="form-input" rows="15" style="width:100%;"></textarea>
+
+    <div class="overlay-actions">
+      <button id="cancel-review" class="btn btn-secondary">Abbrechen</button>
+      <button id="confirm-review" class="btn btn-primary">PDF final erstellen</button>
+    </div>
+  </div>
+</div>
+
+    
+    <footer class="main-footer" style="margin-top: 2rem; border-top: 1px solid #eee;">
+        <div class="footer-container">
+           <p>&copy; 2026 Clerion</p>
+           <div class="footer-links">
+            <a href="anleitung.html">Hilfe & Anleitung</a>
+               <a href="Datenschutz.html">Datenschutz</a>
+               <a href="Impressum.html">Impressum</a>
+               <a href="AGB.html">AGB</a>
+        <a href="widerruf.html">Widerruf</a>
+           </div>
+       </div>
+        <p class="footer-disclaimer">
+    ⚖️ Hinweis: Dieses Tool ersetzt keine Rechtsberatung. Alle generierten Inhalte sind unverbindlich
+    und sollten vor Verwendung eigenständig geprüft werden.
+  </p>
+   </footer>
+    <script src="generator.js"></script>
+</body>
+</html>

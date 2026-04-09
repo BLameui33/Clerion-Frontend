@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Mail Assistent - Clerion</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <link rel="icon" href="/clerion-logo.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Clerion",
+  "url": "https://clerion.de",
+  "logo": "https://clerion.de/clerion-logo.png"
+}
+</script>
+</head>
+<body>
+    <div class="container">
+        <main id="app-container">
+            <div class="app-header">
+                <h1>E-Mail Assistent</h1>
+                <div>
+                    <a href="dashboard.html" class="button-secondary" style="margin-right: 1rem;">Zurück zum Dashboard</a>
+                    <button id="logout-button">Logout</button>
+                </div>
+            </div>
+
+            <div class="app-main-content">
+    <div id="email-assistant-container" class="card">
+        <p class="section-subtitle">Fügen Sie eine E-Mail ein, lassen Sie einen Entwurf erstellen und verfeinern Sie ihn mit Anweisungen an die KI.</p>
+        <p style="font-size: 0.9rem; font-style: italic; color: var(--text-secondary); margin-top: -0.5rem;">Tipp: Du kannst diesen Entwurf direkt im Textfeld bearbeiten.</p>
+
+        <div class="email-workflow-grid">
+            <div class="email-column">
+                <h4>1. Erhaltene E-Mail</h4>
+                <textarea id="original-email-input" class="form-input" placeholder="Kopieren Sie hier die E-Mail hinein, auf die Sie antworten möchten..." required rows="15"></textarea>
+                <button id="generate-draft-button" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Antwort-Entwurf generieren</button>
+            </div>
+
+            <div class="email-column">
+                <h4>2. KI-Antwort-Entwurf</h4>
+                <textarea id="ai-draft-output" class="form-input" placeholder="Der KI-Entwurf wird hier erscheinen..." rows="15"></textarea>
+                
+                <div id="refinement-section" class="hidden" style="margin-top: 1rem;">
+                    <label for="refinement-input" style="font-weight: 500;">3. Anweisung zur Verbesserung:</label>
+                    <input type="text" id="refinement-input" class="form-input" placeholder="z.B. 'Füge einen Satz über die Dringlichkeit hinzu.'">
+                    <div class="button-group" style="margin-top: 0.5rem;">
+                        <button id="update-draft-button" class="btn btn-secondary">Aktualisieren</button>
+                        <button id="copy-button" class="btn btn-secondary">Text kopieren</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <button type="button" id="reset-button" class="button-delete-trigger" style="display: block; margin: 2rem auto 0;">Vorgang zurücksetzen</button>
+    </div>
+</div>                       
+                </div>
+            </div>
+        </main>
+    </div>
+    <footer class="main-footer" style="margin-top: 2rem; border-top: 1px solid #eee;">
+        <div class="footer-container">
+           <p>&copy; 2026 Clerion</p>
+           <div class="footer-links">
+               <a href="anleitung.html">Hilfe & Anleitung</a>
+               <a href="Datenschutz.html">Datenschutz</a>
+               <a href="Impressum.html">Impressum</a>
+               <a href="AGB.html">AGB</a>
+               
+        <a href="widerruf.html">Widerruf</a>
+           </div>
+       </div>
+       <p class="footer-disclaimer">
+    ⚖️ Hinweis: Dieses Tool ersetzt keine Rechtsberatung. Alle generierten Inhalte sind unverbindlich
+    und sollten vor Verwendung eigenständig geprüft werden.
+  </p>
+   </footer>
+    <div id="notification-container"></div>
+    <script src="email-assistent.js"></script>
+</body>
+</html>

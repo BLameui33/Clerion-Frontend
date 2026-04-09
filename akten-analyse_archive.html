@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumenten-Analyse - Clerion</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/css/shepherd.css"/>
+
+    <link rel="icon" href="/clerion-logo.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Clerion",
+  "url": "https://clerion.de",
+  "logo": "https://clerion.de/clerion-logo.png"
+}
+</script>
+</head>
+<body>
+    <div class="container">
+        <main id="app-container">
+            <div class="app-header">
+                <h1>Dokumenten-Analyse</h1>
+                <div>
+                    <a href="dashboard.html" class="button-secondary" style="margin-right: 1rem;">Zur Brief-Analyse</a>
+                    <button id="logout-button">Logout</button>
+                </div>
+            </div>
+
+            <div class="app-layout">
+                <div class="app-sidebar">
+                    <div id="b2b-dashboard" class="card">
+                        <h4>Klientenverwaltung</h4>
+                        <form id="add-client-form">
+                            <input type="text" id="client-name-input" placeholder="Name des neuen Klienten" required>
+                            <button type="submit">Hinzufügen</button>
+                        </form>
+                        <ul id="client-list"></ul>
+                    </div>
+
+                                        <div id="deadlines-container" class="card">
+                        <h4>Anstehende Termine & Fristen</h4>
+                        <ul id="deadline-list">
+                            </ul>
+                        <hr>
+                        <form id="add-deadline-form">
+                            <input type="text" id="deadline-title-input" placeholder="Neue Frist / Neuer Termin" required>
+                            <input type="date" id="deadline-date-input" required>
+                            <div class="form-group" id="deadline-client-selector-group" style="display: none;">
+                                <select id="deadline-client-selector">
+                                    <option value="">-- Klient zuordnen (optional) --</option>
+                                </select>
+                            </div>
+                            <button type="submit">Hinzufügen</button>
+                        </form>
+                    </div>
+
+                    <div id="file-history-container" class="card">
+    <h3>Dokumenten-Verlauf</h3>
+    <button id="show-all-file-cases-button" class="button-secondary" style="width: 100%; margin-bottom: 1rem;">Alle Dokumente anzeigen</button>
+    <ul id="file-history-list"></ul>
+</div>
+
+
+        
+                </div>
+                <div class="app-main-content">
+                    <div id="upload-section" class="card">
+                        <h3>1. Dokument hochladen (PDF, max. 100 Seiten)</h3>
+                        <div class="dropzone" id="pdf-dropzone">
+                            <span>PDF-Dokument hierher ziehen oder klicken</span>
+                            <input type="file" id="pdf-file-input" accept="application/pdf" style="display: none;">
+                        </div>
+                        <p id="file-info" style="text-align: center; font-weight: bold; margin-top: 1rem;"></p>
+                    </div>
+
+                    <div id="analysis-loading-section" class="card hidden">
+        <div class="loading-indicator">
+            <div id="loading-spinner"></div>
+            <h3>Ihre Analyse wird verarbeitet...</h3>
+            <p>Dieser Vorgang kann je nach Dokumentengröße einen Moment dauern. Bitte schließen Sie dieses Fenster nicht.</p>
+        </div>
+    </div>
+
+                    <div id="payment-section" class="card hidden">
+                        <h3>2. Analyse-Paket auswählen</h3>
+                        <div id="pricing-options"></div>
+                    </div>
+
+                    <div id="result-section" class="card hidden">
+                        <h3>3. Ergebnis der Analyse</h3>
+                        <div id="analysis-result-content"></div>
+                        <div id="follow-up-chat-container" style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1.5rem;">
+    <h4>Rückfragen zum Dokument stellen</h4>
+    
+    <div id="chat-history" style="margin-bottom: 1rem; padding: 1rem; background-color: #f9f9f9; border-radius: 8px; min-height: 50px; max-height: 300px; overflow-y: auto;">
+        </div>
+    
+    <div id="chat-input-area" style="display: flex;">
+        <input type="text" id="chat-input" placeholder="z.B. Wie lautet die Kündigungsfrist?" style="flex-grow: 1; margin-right: 0.5rem;">
+        <button id="send-chat-button">Fragen</button>
+    </div>
+    <div id="chat-loading-spinner" class="hidden" style="margin-top: 0.5rem;"></div>
+</div>
+<div id="notes-section-container" style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1.5rem;">
+        <h4>Interne Notizen zum Fall</h4>
+        <p class="section-subtitle" style="font-size: 0.9rem;">Diese Notizen sind auch für den Administrator im Admin-Dashboard sichtbar.</p>
+        <textarea id="case-notes-textarea" rows="5" placeholder="Hier können Sie Ihre Notizen eintragen..."></textarea>
+        <button id="save-notes-button" class="button-primary" style="margin-top: 0.5rem;">Notizen speichern</button>
+    </div>
+                        <button id="back-to-new-analysis-button" class="button-secondary" style="margin-top: 1rem;">Neues Dokument analysieren</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="main-footer" style="margin-top: 2rem; border-top: 1px solid #eee;">
+        <div class="footer-container">
+           <p>&copy; 2026 Clerion</p>
+           <div class="footer-links">
+               <a href="anleitung.html">Hilfe & Anleitung</a>
+               <a href="Datenschutz.html">Datenschutz</a>
+               <a href="Impressum.html">Impressum</a>
+               <a href="AGB.html">AGB</a>
+        <a href="widerruf.html">Widerruf</a>
+           </div>
+       </div>
+   </footer>
+    </div>
+        <div id="client-detail-modal-overlay" class="modal-overlay hidden">
+        <div id="client-detail-modal-content" class="modal-content" style="max-width: 600px; text-align: left;">
+            <button id="close-client-detail-modal-button" class="modal-close-button">&times;</button>
+            <h3 id="client-modal-title">Klientendetails</h3>
+            <div id="client-modal-body">
+                <div class="form-group">
+                    <label for="client-name-edit">Name des Klienten</label>
+                    <input type="text" id="client-name-edit" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="client-address-edit">Adresse</label>
+                    <input type="text" id="client-address-edit" class="form-input" placeholder="Straße Nr., PLZ Ort">
+                </div>
+                 <div class="form-group">
+                    <label for="client-status-edit">Aktueller Stand / Wichtige Infos</label>
+                    <textarea id="client-status-edit" rows="3" class="form-input" placeholder="z.B. Im Widerspruchsverfahren mit Krankenkasse, wartet auf Gutachten..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="client-notes-edit">Allgemeine Notizen</label>
+                    <textarea id="client-notes-edit" rows="5" class="form-input" placeholder="z.B. Kontaktdaten Angehörige, besondere Bedürfnisse..."></textarea>
+                </div>
+                <button id="save-client-details-button" class="btn btn-primary" style="width: 100%;">Änderungen speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="deadline-reminder-modal-overlay" class="modal-overlay hidden">
+        <div id="deadline-reminder-modal-content" class="modal-content">
+            <button id="close-deadline-reminder-modal-button" class="modal-close-button">&times;</button>
+            <h3>Heute fällige Fristen & Termine</h3>
+            <p class="section-subtitle" style="font-size: 1rem;">Die folgenden Einträge sind heute fällig:</p>
+            <div id="todays-deadlines-list" style="text-align: left;">
+                </div>
+        </div>
+    </div>
+    
+    <div id="notification-container"></div>
+    <script src="akten-analyse.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/js/shepherd.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vorlagen-Bibliothek - Clerion</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <link rel="icon" href="/clerion-logo.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Clerion",
+  "url": "https://clerion.de",
+  "logo": "https://clerion.de/clerion-logo.png"
+}
+</script>
+
+<style>
+  /* Grund-Overlay */
+  .modal {
+    position: fixed; /* <- wichtig: aus dem normalen Fluss */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* halbtransparenter Hintergrund */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999; /* über allem */
+  }
+
+  /* Versteckt-Zustand */
+  .modal.hidden {
+    display: none;
+  }
+
+  /* Das eigentliche weiße Fenster */
+  .modal-content {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 480px;
+    animation: fadeIn 0.25s ease-out;
+  }
+
+  /* Sanfter Einstieg */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Optional: Stil für Formularfelder */
+  #formUpload input[type="file"],
+  #formUpload input[type="text"] {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  #formUpload button {
+    margin-right: 0.5rem;
+  }
+
+  .link-btn {
+    flex: 1;
+    min-width: 200px;
+    text-align: center;
+    padding: 0.4rem 0.8rem; /* kleiner als Standardbuttons */
+    font-size: 0.9rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .link-btn:hover {
+    background-color: #e7e7e7;
+    transform: translateY(-1px);
+  }
+</style>
+</head>
+<body>
+    <div class="container">
+        <main id="app-container">
+            <div class="app-header">
+                <h1>Vorlagen-Bibliothek</h1>
+
+                <button class="btn btn-primary" onclick="openUpload()">Formular einreichen</button>
+                
+                <a href="antragshelfer.html" class="button-secondary">Zurück zum Upload</a>
+            </div>
+
+            
+
+
+            <div class="card" style="margin-top: 1rem;">
+
+              <div class="card" style="margin-top: 1rem; background-color: #f9f9f9;">
+  <h2>Offizielle Formularquellen</h2>
+  <p style="color: #555; margin-bottom: 1rem; line-height: 1.6;">
+    Neben unserer eigenen Formularbibliothek finden Sie hier eine Auswahl offizieller Portale mit 
+    <strong>ausfüllbaren PDF-Anträgen</strong> öffentlicher Stellen. 
+    Diese Formulare können Sie dort herunterladen und anschließend direkt in unserem 
+    <strong><a href="antragshelfer.html" style="color: #0077cc; text-decoration: none;">KI-Antragshelfer</a></strong> 
+    bearbeiten, ausfüllen und speichern.<br><br>
+    <em>Hinweis:</em> Die Formulare einiger Krankenkassen sind nur im 
+    <strong>persönlichen Login-Bereich</strong> verfügbar. Falls Sie dort nichts finden, 
+    lohnt sich ein kurzer Blick auf die jeweilige Webseite oder der Kontakt mit Ihrer Kasse.
+  </p>
+
+  <div style="
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  ">
+    <a href="https://www.deutsche-rentenversicherung.de/DRV/DE/Online-Services/Formularsuche/formularsuche_node.html" target="_blank" class="button-secondary link-btn" style="flex: 1; min-width: 220px; text-align: center;">
+      Deutsche Rentenversicherung
+    </a>
+    <a href="https://www.arbeitsagentur.de/downloads" target="_blank" class="button-secondary link-btn" style="flex: 1; min-width: 220px; text-align: center;">
+      Agentur für Arbeit / Kindergeld
+    </a>
+    <a href="https://www.bmjv.de/DE/service/formulare/formulare_muster_node.html" target="_blank" class="button-secondary link-btn" style="flex: 1; min-width: 220px; text-align: center;">
+      Bundesministeriums der Justiz
+    </a>
+    <a href="https://thformular.thueringen.de/buerger/" target="_blank" class="button-secondary link-btn" style="flex: 1; min-width: 220px; text-align: center;">
+      Zentraler Formular­service (viele allgemeine Formulare auch für andere Bundesländer)
+ </a>
+ <a href="https://justiz.de/service/formular/index.php;jsessionid=0CFEE2D861AA03E88EDA15741733652B" target="_blank" class="button-secondary link-btn" style="flex: 1; min-width: 220px; text-align: center;">
+      Justizformulare
+ </a>
+  </div>
+</div>
+
+
+                <div id="search-container" style="margin-bottom: 2rem;">
+                    <input type="search" id="search-input" class="form-input" placeholder="Antrag suchen (z.B. 'Wohngeld')...">
+                </div>
+
+                <div id="templates-container">
+                    <div class="loading-indicator">
+                        <h3>Lade Vorlagen...</h3>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <footer class="main-footer" style="margin-top: 2rem; border-top: 1px solid #eee;">
+        <div class="footer-container">
+           <p>&copy; 2025 Clerion</p>
+           <div class="footer-links">
+               <a href="anleitung.html">Hilfe & Anleitung</a>
+               <a href="Datenschutz.html">Datenschutz</a>
+               <a href="Impressum.html">Impressum</a>
+               <a href="AGB.html">AGB</a>
+           </div>
+       </div>
+       <p class="footer-disclaimer">
+    ⚖️ Hinweis: Dieses Tool ersetzt keine Rechtsberatung. Alle generierten Inhalte sind unverbindlich
+    und sollten vor Verwendung eigenständig geprüft werden.
+  </p>
+   </footer>
+
+    <div id="uploadModal" class="modal hidden">
+  <div class="modal-content">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3>Formular einreichen</h3>
+      <button type="button" class="btn btn-secondary" onclick="closeUpload()">×</button>
+    </div>
+    <p style="margin-top: 0.5rem; margin-bottom: 1rem; color: #555; font-size: 0.95rem;">
+      Helfen Sie mit, unsere Bibliothek zu erweitern!
+Wenn Sie ein Formular oder einen Antrag besitzen, der hier noch nicht verfügbar ist,
+können Sie ihn uns als PDF über dieses Formular zukommen lassen. 
+Wichtig: das PDF muss ausfüllbar sein.
+    </p>
+
+    <form id="formUpload" enctype="multipart/form-data">
+      <label for="fileInput"><strong>PDF auswählen:</strong></label><br>
+      <div id="fileSelector" style="
+        border: 2px dashed #aaa;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        margin-bottom: 1rem;
+      " onclick="document.getElementById('fileInput').click()">
+        <span id="fileLabel">Klicke hier oder ziehe eine PDF hinein</span>
+      </div>
+      <input id="fileInput" type="file" name="file" accept="application/pdf" required style="display:none;">
+
+      <label for="descInput"><strong>Titel der Vorlage (Pflichtfeld):</strong></label><br>
+<input 
+  id="descInput" 
+  type="text" 
+  name="description" 
+  placeholder="z. B. Antrag auf Wohngeld" 
+  required 
+  style="width:100%; margin-bottom:1rem; padding:0.5rem; border-radius:6px; border:1px solid #ccc;"
+>
+
+      <label for="categorySelect"><strong>Kategorie auswählen:</strong></label><br>
+<select id="categorySelect" name="category" required style="width:100%; margin-bottom:1rem; padding:0.5rem; border-radius:6px; border:1px solid #ccc;">
+  <option value="">-- Kategorie wählen --</option>
+</select>
+
+      <button type="submit" class="btn btn-primary">Hochladen</button>
+      <button type="button" class="btn btn-secondary" onclick="closeUpload()">Abbrechen</button>
+      <p id="uploadMessage" style="margin-top: 0.5rem;"></p>
+    </form>
+  </div>
+</div>
+
+<script>
+  const fileInput = document.getElementById('fileInput');
+  const fileLabel = document.getElementById('fileLabel');
+  const fileSelector = document.getElementById('fileSelector');
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+      fileLabel.textContent = "Ausgewählt: " + fileInput.files[0].name;
+      fileSelector.style.borderColor = "#4caf50";
+    } else {
+      fileLabel.textContent = "Klicke hier oder ziehe eine PDF hinein";
+      fileSelector.style.borderColor = "#aaa";
+    }
+  });
+</script>
+    <script src="vorlagen.js"></script>
+</body>
+</html>
