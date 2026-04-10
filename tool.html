@@ -155,12 +155,24 @@
                         </div>
                     </div>
 
-                    <div id="intent-container" style="margin-top: 1.5rem;">
-                        <label>Ihr konkretes Anliegen (für den Brieftext):</label>
-                        <textarea id="freitext-input" class="form-input" rows="4" placeholder="z.B. Ich möchte Widerspruch einlegen..."></textarea>
+                    <div id="intent-container" style="margin-top: 1.5rem; background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px;">
+                        <label style="font-weight: bold;">Ihr konkretes Anliegen (in eigenen Worten):</label>
+                        <textarea id="freitext-input" class="form-input" rows="3" placeholder="z.B. Ich möchte Widerspruch einlegen und um eine Ratenzahlung bitten..."></textarea>
+                        <button id="btn-draft-text" class="button-secondary" style="margin-top: 1rem;">KI-Entwurf erstellen</button>
+
+                        <div id="correction-window" class="hidden" style="margin-top: 1.5rem; border-top: 1px solid #ccc; padding-top: 1.5rem;">
+                            <label style="font-weight: bold; color: var(--primary-color);">Brieftext (Sie können hier direkt tippen):</label>
+                            <textarea id="final-letter-textarea" class="form-input" rows="8" style="margin-top: 0.5rem;"></textarea>
+                            
+                            <label style="margin-top: 1rem; font-size: 0.9rem;">Entwurf passt noch nicht? KI um Änderung bitten:</label>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                <input type="text" id="correction-instruction" class="form-input" placeholder="z.B. Mach es etwas höflicher..." style="flex-grow: 1;">
+                                <button id="btn-apply-correction" class="button-secondary">KI Ändern lassen</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <button id="generate-final-pdf" class="button-primary" style="margin-top: 1.5rem; width: 100%;">PDF generieren & herunterladen</button>
+                    <button id="generate-final-pdf" class="button-primary" style="margin-top: 1.5rem; width: 100%;" disabled>PDF generieren & herunterladen</button>
                 </div>
             </div>
 

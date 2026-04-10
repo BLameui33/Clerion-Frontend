@@ -287,6 +287,73 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- TEXT ENTWURF & KORREKTUR ---
+    const btnDraft = document.getElementById('btn-draft-text');
+    const correctionWindow = document.getElementById('correction-window');
+    const finalLetterArea = document.getElementById('final-letter-textarea');
+    const btnApplyCorrection = document.getElementById('btn-apply-correction');
+    const btnFinalPdf = document.getElementById('generate-final-pdf');
+
+    // 1. Entwurf erstellen
+    btnDraft.addEventListener('click', async () => {
+        const intentText = document.getElementById('freitext-input').value.trim();
+        if (!intentText) return showNotification('Bitte beschreiben Sie kurz Ihr Anliegen.', 'error');
+
+        btnDraft.disabled = true;
+        btnDraft.textContent = 'Erstelle Entwurf...';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/paygo/generate-text`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ intentText })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message);
+
+            // Text anzeigen und Fenster einblenden
+            finalLetterArea.value = data.letterText;
+            correctionWindow.classList.remove('hidden');
+            btnFinalPdf.disabled = false; // Jetzt darf PDF generiert werden
+
+        } catch (error) {
+            showNotification(error.message, 'error');
+        } finally {
+            btnDraft.disabled = false;
+            btnDraft.textContent = 'KI-Entwurf neu erstellen';
+        }
+    });
+
+    // 2. Entwurf durch KI korrigieren lassen
+    btnApplyCorrection.addEventListener('click', async () => {
+        const correctionInstruction = document.getElementById('correction-instruction').value.trim();
+        const previousText = finalLetterArea.value.trim();
+        
+        if (!correctionInstruction) return showNotification('Bitte geben Sie einen Änderungswunsch ein.', 'error');
+
+        btnApplyCorrection.disabled = true;
+        btnApplyCorrection.textContent = 'Ändere...';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/paygo/generate-text`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ previousText, correctionInstruction })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message);
+
+            finalLetterArea.value = data.letterText;
+            document.getElementById('correction-instruction').value = ''; // Feld leeren
+
+        } catch (error) {
+            showNotification(error.message, 'error');
+        } finally {
+            btnApplyCorrection.disabled = false;
+            btnApplyCorrection.textContent = 'KI Ändern lassen';
+        }
+    });
+
     // --- SCHRITT 4: PDF GENERIEREN & DOWNLOADEN ---
     document.getElementById('generate-final-pdf').addEventListener('click', async () => {
         if (!currentTransactionId) return showNotification('Keine aktive Transaktion gefunden.', 'error');
@@ -349,7 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
             recipientName: document.getElementById('recipient-name').value,
             recipientAddress: document.getElementById('recipient-address').value,
             caseReference: document.getElementById('case-reference').value,
-            bodyText: document.getElementById('freitext-input').value,
+            bodyText: document.getElementById('final-letter-textarea').value,
             signatureBase64: localStorage.getItem('clerion_signature') // Deine lokal gespeicherte Unterschrift
         };
         
