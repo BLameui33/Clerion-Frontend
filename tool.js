@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedService = null;
     let selectedFiles = []; // Speichert die File-Objekte für den Backend-Upload
     let signaturePad = null;
+    let currentTransactionId = null; // Speichert die ID für den PDF-Druck
 
     // --- DOM ELEMENTE ---
     const steps = {
@@ -208,39 +209,133 @@ document.addEventListener('DOMContentLoaded', () => {
         showStep(3);
     });
 
-    // --- SCHRITT 3: SIMULATION BEZAHLUNG & API AUFRUF ---
-    document.getElementById('btn-simulate-payment').addEventListener('click', () => {
+    // --- SCHRITT 3: ECHTER API AUFRUF (ANALYSE) ---
+    document.getElementById('btn-simulate-payment').addEventListener('click', async () => {
         document.getElementById('btn-simulate-payment').classList.add('hidden');
         document.getElementById('loading-spinner').classList.remove('hidden');
 
-        // HIER WIRD SPÄTER DER FETCH-AUFRUF ANS BACKEND GEMACHT
-        /*
+        // 1. Daten für das Backend zusammenbauen
         const formData = new FormData();
         formData.append('serviceType', selectedService);
         formData.append('backupEmail', document.getElementById('backup-email').value);
-        if(selectedService === 'antrag') {
+        
+        if (selectedService === 'antrag') {
             formData.append('intentText', document.getElementById('intent-description').value);
         } else {
+            // Hängt alle vom Nutzer ausgewählten Dateien an (bis zu 5 Stück)
             selectedFiles.forEach(f => formData.append('documents', f));
         }
 
-        // Simulierter Call (Da das Backend noch fehlt)
-        fetch('/api/paygo/analyze', { method: 'POST', body: formData }) ...
-        */
+        try {
+            // 2. Echter Aufruf an unsere neue PayGo Route
+            const response = await fetch('/api/paygo/analyze', {
+                method: 'POST',
+                body: formData // WICHTIG: Kein 'Content-Type' Header setzen bei FormData!
+            });
+            
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Fehler bei der Analyse');
 
-        // SIMULATION: Wir warten 3 Sekunden und tun so, als wäre das Backend fertig
-        setTimeout(() => {
+            // 3. ID merken für das spätere PDF
+            currentTransactionId = data.transactionId;
+
+            // 4. KI-Ergebnis im Frontend aufbauen
+            renderAnalysisResult(data.aiExplanation);
+
             document.getElementById('loading-spinner').classList.add('hidden');
             document.getElementById('btn-simulate-payment').classList.remove('hidden');
-            
-            // Fülle die Ergebnisse-Box mock-mäßig
-            document.getElementById('analysis-result-content').innerHTML = `
-                <h4>Zusammenfassung</h4>
-                <p>Das ist eine simulierte KI-Antwort, da das Backend noch nicht verbunden ist. Wenn Sie diesen Text sehen, hat das Frontend die Dateien erfolgreich verarbeitet und würde sie jetzt an den Server senden.</p>
-            `;
-            
             showStep(4);
-        }, 3000);
+
+        } catch (error) {
+            showNotification(error.message, 'error');
+            document.getElementById('loading-spinner').classList.add('hidden');
+            document.getElementById('btn-simulate-payment').classList.remove('hidden');
+        }
+    });
+
+    // Hilfsfunktion: Rendert die KI-Antwort dynamisch (egal ob Akte, Brief oder Bescheid)
+    function renderAnalysisResult(explanation) {
+        let html = `<h4>Zusammenfassung</h4><p>${explanation.zusammenfassung || 'Erfolgreich analysiert.'}</p>`;
+        
+        if (explanation.kernthema) html += `<h4>Kernthema</h4><p>${explanation.kernthema}</p>`;
+        
+        if (explanation.aktionen && explanation.aktionen.length > 0) {
+            html += `<h4>Nächste Schritte</h4><ul>`;
+            explanation.aktionen.forEach(a => html += `<li>${a.beschreibung}</li>`);
+            html += `</ul>`;
+        }
+        
+        if (explanation.fristen && explanation.fristen.length > 0) {
+            html += `<h4 style="color: var(--primary-color);">Fristen</h4><ul>`;
+            explanation.fristen.forEach(f => html += `<li><strong>${f.datum}:</strong> ${f.beschreibung}</li>`);
+            html += `</ul>`;
+        }
+        
+        if (explanation.wichtige_klauseln && explanation.wichtige_klauseln.length > 0) {
+            html += `<h4>Wichtige Klauseln</h4><ul>`;
+            explanation.wichtige_klauseln.forEach(k => html += `<li><strong>${k.klausel}:</strong> ${k.erklaerung}</li>`);
+            html += `</ul>`;
+        }
+
+        document.getElementById('analysis-result-content').innerHTML = html;
+        
+        // Versuchen, das Aktenzeichen direkt in das PDF-Feld vorab einzufügen, falls die KI eines gefunden hat
+        if (explanation.aktenzeichen) {
+            document.getElementById('case-reference').value = explanation.aktenzeichen;
+        }
+    }
+
+    // --- SCHRITT 4: PDF GENERIEREN & DOWNLOADEN ---
+    document.getElementById('generate-final-pdf').addEventListener('click', async () => {
+        if (!currentTransactionId) return showNotification('Keine aktive Transaktion gefunden.', 'error');
+        
+        const btn = document.getElementById('generate-final-pdf');
+        btn.disabled = true;
+        btn.textContent = 'PDF wird erstellt...';
+
+        // Wir ziehen alle lokalen Daten (Briefkopf/Unterschrift) und die Benutzereingaben zusammen
+        const payload = {
+            transactionId: currentTransactionId,
+            senderName: localStorage.getItem('clerion_local-name') || '',
+            senderAddress: localStorage.getItem('clerion_local-address') || '',
+            email: localStorage.getItem('clerion_local-email') || '',
+            phone: localStorage.getItem('clerion_local-phone') || '',
+            recipientName: document.getElementById('recipient-name').value,
+            recipientAddress: document.getElementById('recipient-address').value,
+            caseReference: document.getElementById('case-reference').value,
+            bodyText: document.getElementById('freitext-input').value,
+            signatureBase64: localStorage.getItem('clerion_signature') || null // Das Base64 Bild der Unterschrift
+        };
+
+        try {
+            const response = await fetch('/api/paygo/generate-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('Fehler bei der PDF-Generierung auf dem Server.');
+
+            // Da das Backend eine PDF-Datei schickt (Blob), müssen wir sie im Browser entpacken und den Download erzwingen
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'Antwortschreiben.pdf'; // Name der Datei
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+
+            showNotification('PDF erfolgreich heruntergeladen!', 'success');
+
+        } catch (error) {
+            showNotification(error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'PDF generieren & herunterladen';
+        }
     });
 
     // --- SCHRITT 4: PDF GENERIEREN ---
