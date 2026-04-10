@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    const API_BASE_URL = 'https://api.clerion.de';
     // --- VARIABLEN ---
     let selectedService = null;
     let selectedFiles = []; // Speichert die File-Objekte für den Backend-Upload
@@ -228,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // 2. Echter Aufruf an unsere neue PayGo Route
-            const response = await fetch('/api/paygo/analyze', {
+            const response = await fetch(`${API_BASE_URL}/api/paygo/analyze`, {
                 method: 'POST',
                 body: formData // WICHTIG: Kein 'Content-Type' Header setzen bei FormData!
             });
@@ -308,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch('/api/paygo/generate-pdf', {
+            const response = await fetch(`${API_BASE_URL}/api/paygo/generate-pdf`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
