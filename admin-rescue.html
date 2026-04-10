@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Clerion Admin - Notfall PDF Rettung</title>
+    <style>
+        body { font-family: sans-serif; padding: 2rem; background: #f4f4f9; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
+        .btn { padding: 5px 10px; background: #0056b3; color: white; text-decoration: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Letzte Transaktionen & PDFs</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Datum</th>
+                <th>E-Mail</th>
+                <th>Service</th>
+                <th>Status</th>
+                <th>Aktion</th>
+            </tr>
+        </thead>
+        <tbody id="transaction-list">
+            <tr><td colspan="6">Lade Daten...</td></tr>
+        </tbody>
+    </table>
+
+    <script>
+        fetch('/api/paygo/admin/transactions')
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('transaction-list');
+                tbody.innerHTML = '';
+                data.forEach(t => {
+                    const date = new Date(t.createdAt).toLocaleString('de-DE');
+                    let actionBtn = t.pdfPath 
+                        ? `<a href="#" onclick="alert('In Produktion: Route zum Herunterladen des PDFs ${t.pdfPath} aufrufen')" class="btn">PDF Retten</a>` 
+                        : 'Kein PDF';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${t.id}</td>
+                            <td>${date}</td>
+                            <td><strong>${t.backupEmail}</strong></td>
+                            <td>${t.serviceType.toUpperCase()}</td>
+                            <td>${t.status}</td>
+                            <td>${actionBtn}</td>
+                        </tr>
+                    `;
+                });
+            });
+    </script>
+</body>
+</html>
