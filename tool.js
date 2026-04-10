@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedFiles = []; // Speichert die File-Objekte für den Backend-Upload
     let signaturePad = null;
     let currentTransactionId = null; // Speichert die ID für den PDF-Druck
+    let currentAnalysisSummary = ""; // Speichert den Kontext für die KI-Antwort
 
     // --- DOM ELEMENTE ---
     const steps = {
@@ -216,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-simulate-payment').classList.add('hidden');
         document.getElementById('loading-spinner').classList.remove('hidden');
 
-        // 1. Daten für das Backend zusammenbauen
         const formData = new FormData();
         formData.append('serviceType', selectedService);
         formData.append('backupEmail', document.getElementById('backup-email').value);
@@ -224,25 +224,36 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedService === 'antrag') {
             formData.append('intentText', document.getElementById('intent-description').value);
         } else {
-            // Hängt alle vom Nutzer ausgewählten Dateien an (bis zu 5 Stück)
             selectedFiles.forEach(f => formData.append('documents', f));
         }
 
         try {
-            // 2. Echter Aufruf an unsere neue PayGo Route
             const response = await fetch(`${API_BASE_URL}/api/paygo/analyze`, {
                 method: 'POST',
-                body: formData // WICHTIG: Kein 'Content-Type' Header setzen bei FormData!
+                body: formData
             });
             
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'Fehler bei der Analyse');
 
-            // 3. ID merken für das spätere PDF
             currentTransactionId = data.transactionId;
 
-            // 4. KI-Ergebnis im Frontend aufbauen
-            renderAnalysisResult(data.aiExplanation);
+            // UI-Steuerung basierend auf dem Service
+            if (selectedService === 'antrag') {
+                // Beim Antrag verstecken wir die Zusammenfassung komplett!
+                document.getElementById('analysis-result-content').style.display = 'none';
+                
+                // Wir übertragen das Anliegen aus Schritt 2 direkt ins Formular
+                document.getElementById('freitext-input').value = document.getElementById('intent-description').value;
+                
+                // Wir starten AUTOMATISCH den Entwurf, sodass der Nutzer direkt das Korrekturfenster sieht
+                document.getElementById('btn-draft-text').click();
+            } else {
+                // Bei Brief/Bescheid/Akte zeigen wir die Erklärung an
+                document.getElementById('analysis-result-content').style.display = 'block';
+                currentAnalysisSummary = data.aiExplanation.zusammenfassung || ""; // Kontext merken!
+                renderAnalysisResult(data.aiExplanation);
+            }
 
             document.getElementById('loading-spinner').classList.add('hidden');
             document.getElementById('btn-simulate-payment').classList.remove('hidden');
@@ -255,10 +266,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Hilfsfunktion: Rendert die KI-Antwort dynamisch (egal ob Akte, Brief oder Bescheid)
     function renderAnalysisResult(explanation) {
         let html = `<h4>Zusammenfassung</h4><p>${explanation.zusammenfassung || 'Erfolgreich analysiert.'}</p>`;
-        
         if (explanation.kernthema) html += `<h4>Kernthema</h4><p>${explanation.kernthema}</p>`;
         
         if (explanation.aktionen && explanation.aktionen.length > 0) {
@@ -280,8 +289,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         document.getElementById('analysis-result-content').innerHTML = html;
-        
-        // Versuchen, das Aktenzeichen direkt in das PDF-Feld vorab einzufügen, falls die KI eines gefunden hat
         if (explanation.aktenzeichen) {
             document.getElementById('case-reference').value = explanation.aktenzeichen;
         }
@@ -294,7 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnApplyCorrection = document.getElementById('btn-apply-correction');
     const btnFinalPdf = document.getElementById('generate-final-pdf');
 
-    // 1. Entwurf erstellen
     btnDraft.addEventListener('click', async () => {
         const intentText = document.getElementById('freitext-input').value.trim();
         if (!intentText) return showNotification('Bitte beschreiben Sie kurz Ihr Anliegen.', 'error');
@@ -302,19 +308,24 @@ document.addEventListener('DOMContentLoaded', () => {
         btnDraft.disabled = true;
         btnDraft.textContent = 'Erstelle Entwurf...';
 
+        // NEU: Wir senden den Kontext der Briefanalyse mit ans Backend!
+        const payload = { intentText };
+        if (selectedService === 'brief' && currentAnalysisSummary) {
+            payload.documentContext = currentAnalysisSummary;
+        }
+
         try {
             const response = await fetch(`${API_BASE_URL}/api/paygo/generate-text`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ intentText })
+                body: JSON.stringify(payload)
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.message);
 
-            // Text anzeigen und Fenster einblenden
             finalLetterArea.value = data.letterText;
             correctionWindow.classList.remove('hidden');
-            btnFinalPdf.disabled = false; // Jetzt darf PDF generiert werden
+            btnFinalPdf.disabled = false;
 
         } catch (error) {
             showNotification(error.message, 'error');
@@ -324,7 +335,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 2. Entwurf durch KI korrigieren lassen
     btnApplyCorrection.addEventListener('click', async () => {
         const correctionInstruction = document.getElementById('correction-instruction').value.trim();
         const previousText = finalLetterArea.value.trim();
@@ -344,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(data.message);
 
             finalLetterArea.value = data.letterText;
-            document.getElementById('correction-instruction').value = ''; // Feld leeren
+            document.getElementById('correction-instruction').value = ''; 
 
         } catch (error) {
             showNotification(error.message, 'error');
@@ -355,14 +365,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- SCHRITT 4: PDF GENERIEREN & DOWNLOADEN ---
-    document.getElementById('generate-final-pdf').addEventListener('click', async () => {
+    btnFinalPdf.addEventListener('click', async () => {
         if (!currentTransactionId) return showNotification('Keine aktive Transaktion gefunden.', 'error');
         
-        const btn = document.getElementById('generate-final-pdf');
-        btn.disabled = true;
-        btn.textContent = 'PDF wird erstellt...';
+        btnFinalPdf.disabled = true;
+        btnFinalPdf.textContent = 'PDF wird erstellt...';
 
-        // Wir ziehen alle lokalen Daten (Briefkopf/Unterschrift) und die Benutzereingaben zusammen
+        // BUGFIX: Wir prüfen sicherheitshalber, ob das Korrektur-Fenster offen ist. 
+        // Wenn ja, nehmen wir den Text von dort. Wenn nein, nehmen wir den Text aus dem kleinen Feld (falls der Nutzer keinen Entwurf wollte).
+        let safeBodyText = document.getElementById('freitext-input').value;
+        if (!correctionWindow.classList.contains('hidden')) {
+            safeBodyText = finalLetterArea.value;
+        }
+
         const payload = {
             transactionId: currentTransactionId,
             senderName: localStorage.getItem('clerion_local-name') || '',
@@ -372,8 +387,8 @@ document.addEventListener('DOMContentLoaded', () => {
             recipientName: document.getElementById('recipient-name').value,
             recipientAddress: document.getElementById('recipient-address').value,
             caseReference: document.getElementById('case-reference').value,
-            bodyText: document.getElementById('freitext-input').value,
-            signatureBase64: localStorage.getItem('clerion_signature') || null // Das Base64 Bild der Unterschrift
+            bodyText: safeBodyText, 
+            signatureBase64: localStorage.getItem('clerion_signature') || null
         };
 
         try {
@@ -385,13 +400,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) throw new Error('Fehler bei der PDF-Generierung auf dem Server.');
 
-            // Da das Backend eine PDF-Datei schickt (Blob), müssen wir sie im Browser entpacken und den Download erzwingen
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = 'Antwortschreiben.pdf'; // Name der Datei
+            a.download = 'Antwortschreiben.pdf';
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
@@ -402,27 +416,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             showNotification(error.message, 'error');
         } finally {
-            btn.disabled = false;
-            btn.textContent = 'PDF generieren & herunterladen';
+            btnFinalPdf.disabled = false;
+            btnFinalPdf.textContent = 'PDF generieren & herunterladen';
         }
     });
 
-    // --- SCHRITT 4: PDF GENERIEREN ---
-    document.getElementById('generate-final-pdf').addEventListener('click', () => {
-        // Hier sammeln wir später die Daten für deinen existierenden createPdf Aufruf zusammen
-        const pdfData = {
-            senderName: localStorage.getItem('clerion_local-name'),
-            senderAddress: localStorage.getItem('clerion_local-address'),
-            recipientName: document.getElementById('recipient-name').value,
-            recipientAddress: document.getElementById('recipient-address').value,
-            caseReference: document.getElementById('case-reference').value,
-            bodyText: document.getElementById('final-letter-textarea').value,
-            signatureBase64: localStorage.getItem('clerion_signature') // Deine lokal gespeicherte Unterschrift
-        };
-        
-        console.log("PDF Daten bereit für Backend-Generierung:", pdfData);
-        alert("Frontend Logik abgeschlossen. Die Daten sind bereit für die PDF Generierung im Backend.");
-    });
+    
 
     // --- HILFSFUNKTION BENACHRICHTIGUNGEN ---
     function showNotification(message, type = 'success') {
