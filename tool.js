@@ -7,6 +7,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let signaturePad = null;
     let currentTransactionId = null; // Speichert die ID für den PDF-Druck
     let currentAnalysisSummary = ""; // Speichert den Kontext für die KI-Antwort
+    let fullAnalysisContextText = ""; // Speichert den kompletten Analysetext für PDF & Chat
+
+    const savedTransactionId = localStorage.getItem('clerion_pending_tx');
+    const savedStep = localStorage.getItem('clerion_current_step');
+
+    if (savedTransactionId && savedStep == "4") {
+        currentTransactionId = savedTransactionId;
+        // Optional: Hier könnte man einen automatischen Re-Fetch der Analyse machen
+        // oder dem Nutzer einen Button zeigen: "Letzte Analyse wiederherstellen"
+        console.log("Wiederherstellung verfügbar für ID:", currentTransactionId);
+    }
 
     // --- DOM ELEMENTE ---
     const steps = {
@@ -238,6 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentTransactionId = data.transactionId;
 
+            localStorage.setItem('clerion_pending_tx', currentTransactionId);
+
             // UI-Steuerung basierend auf dem Service
             if (selectedService === 'antrag') {
                 // Beim Antrag verstecken wir die Zusammenfassung komplett!
@@ -268,29 +281,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderAnalysisResult(explanation) {
         let html = `<h4>Zusammenfassung</h4><p>${explanation.zusammenfassung || 'Erfolgreich analysiert.'}</p>`;
-        if (explanation.kernthema) html += `<h4>Kernthema</h4><p>${explanation.kernthema}</p>`;
+        fullAnalysisContextText = `ZUSAMMENFASSUNG:\n${explanation.zusammenfassung || 'Erfolgreich analysiert.'}\n\n`;
+
+        if (explanation.kernthema) {
+            html += `<h4>Kernthema</h4><p>${explanation.kernthema}</p>`;
+            fullAnalysisContextText += `KERNTHEMA:\n${explanation.kernthema}\n\n`;
+        }
         
         if (explanation.aktionen && explanation.aktionen.length > 0) {
             html += `<h4>Nächste Schritte</h4><ul>`;
-            explanation.aktionen.forEach(a => html += `<li>${a.beschreibung}</li>`);
+            fullAnalysisContextText += `NÄCHSTE SCHRITTE:\n`;
+            explanation.aktionen.forEach(a => {
+                html += `<li>${a.beschreibung}</li>`;
+                fullAnalysisContextText += `- ${a.beschreibung}\n`;
+            });
             html += `</ul>`;
+            fullAnalysisContextText += `\n`;
         }
         
         if (explanation.fristen && explanation.fristen.length > 0) {
             html += `<h4 style="color: var(--primary-color);">Fristen</h4><ul>`;
-            explanation.fristen.forEach(f => html += `<li><strong>${f.datum}:</strong> ${f.beschreibung}</li>`);
+            fullAnalysisContextText += `FRISTEN:\n`;
+            explanation.fristen.forEach(f => {
+                html += `<li><strong>${f.datum}:</strong> ${f.beschreibung}</li>`;
+                fullAnalysisContextText += `- ${f.datum}: ${f.beschreibung}\n`;
+            });
             html += `</ul>`;
+            fullAnalysisContextText += `\n`;
         }
         
         if (explanation.wichtige_klauseln && explanation.wichtige_klauseln.length > 0) {
             html += `<h4>Wichtige Klauseln</h4><ul>`;
-            explanation.wichtige_klauseln.forEach(k => html += `<li><strong>${k.klausel}:</strong> ${k.erklaerung}</li>`);
+            fullAnalysisContextText += `WICHTIGE KLAUSELN:\n`;
+            explanation.wichtige_klauseln.forEach(k => {
+                html += `<li><strong>${k.klausel}:</strong> ${k.erklaerung}</li>`;
+                fullAnalysisContextText += `- ${k.klausel}: ${k.erklaerung}\n`;
+            });
             html += `</ul>`;
+            fullAnalysisContextText += `\n`;
         }
 
         document.getElementById('analysis-result-content').innerHTML = html;
         if (explanation.aktenzeichen) {
             document.getElementById('case-reference').value = explanation.aktenzeichen;
+        }
+
+        // NEU: UI Logik für Chat und Download
+        if (selectedService !== 'antrag') {
+            document.getElementById('btn-download-analysis').style.display = 'block';
+            // Chat bei Bescheid & Akte (oder auch bei Brief, wenn du willst)
+            document.getElementById('chat-section').style.display = 'block'; 
         }
     }
 
@@ -413,6 +453,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showNotification('PDF erfolgreich heruntergeladen!', 'success');
 
+            localStorage.removeItem('clerion_pending_tx');
+
         } catch (error) {
             showNotification(error.message, 'error');
         } finally {
@@ -434,5 +476,91 @@ document.addEventListener('DOMContentLoaded', () => {
 
         container.appendChild(notification);
         setTimeout(() => notification.remove(), 5000);
+    }
+
+    // --- NEU: ANALYSE DOWNLOAD & CHAT LOGIK ---
+    const btnDownloadAnalysis = document.getElementById('btn-download-analysis');
+    const btnSendChat = document.getElementById('btn-send-chat');
+    const chatInput = document.getElementById('chat-input');
+    const chatHistory = document.getElementById('chat-history');
+
+    // 1. Analyse als PDF herunterladen
+    btnDownloadAnalysis.addEventListener('click', async () => {
+        btnDownloadAnalysis.disabled = true;
+        btnDownloadAnalysis.textContent = 'PDF wird erstellt...';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/paygo/generate-analysis-pdf`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ analysisText: fullAnalysisContextText })
+            });
+
+            if (!response.ok) throw new Error('Fehler bei der PDF-Generierung.');
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'Clerion_Analyse_Ergebnis.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+
+        } catch (error) {
+            showNotification(error.message, 'error');
+        } finally {
+            btnDownloadAnalysis.disabled = false;
+            btnDownloadAnalysis.textContent = '📄 Analyse als PDF herunterladen';
+        }
+    });
+
+    // 2. Chat-Nachricht senden
+    btnSendChat.addEventListener('click', async () => {
+        const question = chatInput.value.trim();
+        if (!question) return;
+
+        // User Nachricht ins UI packen
+        addChatMessage('Sie', question, '#fff', '#333', '1px solid #ddd');
+        chatInput.value = '';
+        btnSendChat.disabled = true;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/paygo/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+    question: question, 
+    transactionId: currentTransactionId 
+})
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message);
+
+            // KI Antwort ins UI packen
+            addChatMessage('KI Assist', data.reply, '#e6f0ff', '#004085', 'none');
+
+        } catch (error) {
+            showNotification(error.message, 'error');
+        } finally {
+            btnSendChat.disabled = false;
+        }
+    });
+
+    // Hilfsfunktion für die Chat-Sprechblasen
+    function addChatMessage(sender, text, bgColor, textColor, border) {
+        const msgDiv = document.createElement('div');
+        msgDiv.style.background = bgColor;
+        msgDiv.style.color = textColor;
+        msgDiv.style.border = border;
+        msgDiv.style.padding = '0.8rem';
+        msgDiv.style.borderRadius = '8px';
+        msgDiv.innerHTML = `<strong style="font-size: 0.8rem; text-transform: uppercase;">${sender}</strong><br><span style="font-size: 0.95rem;">${text}</span>`;
+        
+        chatHistory.appendChild(msgDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight; // Automatisch nach unten scrollen
     }
 });

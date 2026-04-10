@@ -28,30 +28,51 @@
         </tbody>
     </table>
 
-    <script>
-        fetch('/api/paygo/admin/transactions')
-            .then(res => res.json())
-            .then(data => {
-                const tbody = document.getElementById('transaction-list');
-                tbody.innerHTML = '';
-                data.forEach(t => {
-                    const date = new Date(t.createdAt).toLocaleString('de-DE');
-                    let actionBtn = t.pdfPath 
-                        ? `<a href="#" onclick="alert('In Produktion: Route zum Herunterladen des PDFs ${t.pdfPath} aufrufen')" class="btn">PDF Retten</a>` 
-                        : 'Kein PDF';
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${t.id}</td>
-                            <td>${date}</td>
-                            <td><strong>${t.backupEmail}</strong></td>
-                            <td>${t.serviceType.toUpperCase()}</td>
-                            <td>${t.status}</td>
-                            <td>${actionBtn}</td>
-                        </tr>
-                    `;
-                });
+    // In der admin-rescue.html den Script-Teil ersetzen:
+<script>
+    async function loadTransactions() {
+        const key = prompt("Bitte Admin-Key eingeben:");
+        try {
+            const response = await fetch('/api/paygo/admin/transactions', {
+                headers: { 'x-admin-token': key }
             });
-    </script>
+
+            if (!response.ok) throw new Error("Zugriff verweigert");
+
+            const data = await response.json();
+            const tbody = document.getElementById('transaction-list');
+            tbody.innerHTML = '';
+
+            data.forEach(t => {
+                const date = new Date(t.createdAt).toLocaleString('de-DE');
+                // Wir bauen einen direkten Link zum PDF-Download (falls Pfad existiert)
+                const downloadLink = t.pdfPath 
+                    ? `<button onclick="downloadPdf(${t.id}, '${key}')" class="btn">PDF öffnen</button>` 
+                    : '<span style="color:gray">Kein PDF</span>';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${t.id}</td>
+                        <td>${date}</td>
+                        <td><strong>${t.backupEmail}</strong></td>
+                        <td>${t.serviceType.toUpperCase()}</td>
+                        <td>${t.status}</td>
+                        <td>${downloadLink}</td>
+                    </tr>
+                `;
+            });
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+
+    // Funktion um das PDF direkt vom Server zu holen (muss im Backend noch definiert werden)
+    async function downloadPdf(id, key) {
+        // Logik zum Herunterladen über eine gesicherte Route
+        window.open(`/api/paygo/admin/download-pdf/${id}?token=${key}`, '_blank');
+    }
+
+    loadTransactions();
+</script>
 </body>
 </html>

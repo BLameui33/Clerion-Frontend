@@ -134,8 +134,23 @@
 
             <div id="step-4" class="step-container card">
                 <h2>Ihr Ergebnis</h2>
-                <div id="analysis-result-content" style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                <div id="analysis-result-content" style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
                     </div>
+                
+                <button id="btn-download-analysis" class="button-secondary" style="width: 100%; margin-bottom: 2rem; display: none;">📄 Analyse als PDF herunterladen</button>
+
+                <div id="chat-section" style="background: #eef2f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; display: none;">
+                    <h3 style="margin-bottom: 1rem; color: #333;">Rückfragen an die KI</h3>
+                    <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">Haben Sie eine Klausel nicht verstanden oder Fragen zu den Fristen? Fragen Sie einfach nach.</p>
+                    
+                    <div id="chat-history" style="max-height: 250px; overflow-y: auto; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.8rem; padding-right: 0.5rem;">
+                        </div>
+                    
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="chat-input" class="form-input" placeholder="z.B. Was bedeutet die Widerrufsfrist genau?" style="flex-grow: 1; margin: 0;">
+                        <button id="btn-send-chat" class="button-primary" style="white-space: nowrap;">Fragen</button>
+                    </div>
+                </div>
 
                 <hr style="margin: 2rem 0;">
 
