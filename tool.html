@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clerion - Dokumenten-Assistent</title>
-    <link rel="stylesheet" href="style-tool.css">
+    <link rel="stylesheet" href="styles.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
@@ -20,13 +20,54 @@
         .error-text { color: var(--error-color); font-size: 0.9rem; margin-top: 0.5rem; }
     </style>
 </head>
-<body class="mobile-view-sidebar">
-    <div class="app-layout" style="display: flex; gap: 2rem; max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
-        
-        <aside class="app-sidebar" style="width: 300px; flex-shrink: 0;">
-            <div class="card">
-                <h4>Meine Absender-Daten</h4>
-                <p style="font-size: 0.8rem; color: #666; margin-bottom: 1rem;">Wird nur lokal in Ihrem Browser gespeichert.</p>
+<body>
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="topbar-brand">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="28" height="28" rx="7" fill="#2563EB"/>
+                    <path d="M7 9h14M7 14h9M7 19h11" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="topbar-logo">Clerion</span>
+            </div>
+            <button class="profile-trigger-btn" id="open-profile-drawer" aria-label="Mein Profil öffnen">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                <span>Mein Profil &amp; Unterschrift</span>
+                <div class="profile-status-dot" id="profile-dot"></div>
+            </button>
+        </div>
+    </header>
+
+    <!-- PROFILE INCOMPLETE BANNER -->
+    <div class="profile-banner" id="profile-banner">
+        <div class="profile-banner-inner">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p><strong>Wichtiger Hinweis:</strong> Bitte tragen Sie Ihre Absender-Daten ein, bevor Sie mit der Analyse beginnen. Diese werden für den Briefkopf Ihres Antwortschreibens benötigt.</p>
+            <button class="banner-cta" id="banner-open-profile">Jetzt eintragen</button>
+        </div>
+    </div>
+
+    <!-- DRAWER OVERLAY -->
+    <div class="drawer-overlay" id="drawer-overlay"></div>
+
+    <!-- PROFILE DRAWER -->
+    <aside class="profile-drawer" id="profile-drawer" aria-label="Profil und Unterschrift">
+        <div class="drawer-header">
+            <div>
+                <div class="drawer-title">Mein Profil</div>
+                <div class="drawer-subtitle">Nur lokal in Ihrem Browser gespeichert — keine Weitergabe.</div>
+            </div>
+            <button class="drawer-close-btn" id="close-profile-drawer" aria-label="Drawer schließen">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+
+        <div class="drawer-body">
+
+            <div class="drawer-section">
+                <div class="drawer-section-label">Absender-Daten für Briefkopf</div>
                 <div class="form-group">
                     <label>Voller Name</label>
                     <input type="text" id="local-name" class="form-input" placeholder="Max Mustermann">
@@ -43,125 +84,176 @@
                     <label>Telefon (für Briefkopf)</label>
                     <input type="text" id="local-phone" class="form-input" placeholder="0123 456789">
                 </div>
-                <button id="save-local-data-btn" class="button-secondary" style="width: 100%;">Speichern</button>
+                <button id="save-local-data-btn" class="button-primary" style="width:100%; margin-top:0.25rem;">Daten speichern</button>
             </div>
 
-            <div class="card" style="margin-top: 1rem;">
-                <h4>Meine Unterschrift</h4>
-                <div id="signature-pad-wrapper" style="border: 1px solid var(--border-color); border-radius: 4px; background: #fff;">
-                    <canvas id="signature-canvas" style="width: 100%; height: 150px;"></canvas>
+            <div class="drawer-section">
+                <div class="drawer-section-label">Meine Unterschrift</div>
+                <p class="drawer-hint">Zeichnen Sie Ihre Unterschrift unten mit der Maus oder dem Finger.</p>
+                <div id="signature-pad-wrapper">
+                    <canvas id="signature-canvas"></canvas>
+                    <div class="sig-watermark">Hier unterschreiben</div>
                 </div>
-                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                    <button id="signature-clear-btn" class="button-secondary" style="flex: 1; padding: 0.5rem;">Leeren</button>
-                    <button id="signature-save-btn" class="button-primary" style="flex: 1; padding: 0.5rem;">Sichern</button>
+                <div class="sig-actions">
+                    <button id="signature-clear-btn" class="button-secondary">Leeren</button>
+                    <button id="signature-save-btn" class="button-primary">Unterschrift sichern</button>
                 </div>
-                <p id="signature-status" style="font-size: 0.8rem; color: green; margin-top: 0.5rem; display: none;">✓ Lokal gespeichert</p>
+                <p id="signature-status" class="sig-saved-msg" style="display:none;">✓ Lokal gespeichert</p>
             </div>
-        </aside>
 
-        <main class="app-main-content" style="flex-grow: 1;">
-            
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="app-main">
+        <div class="steps-wrapper">
+
+            <!-- STEP 1 -->
             <div id="step-1" class="step-container active card">
+                <div class="step-eyebrow">Schritt 1 von 3</div>
                 <h2>Was möchten Sie tun?</h2>
-                <div class="service-cards" style="margin-top: 1.5rem;">
+                <p class="step-intro">Wählen Sie den passenden Service für Ihr Anliegen aus.</p>
+
+                <div class="service-cards">
                     <div class="service-card" data-service="brief">
+                        <div class="service-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9l10 6 10-6"/></svg>
+                        </div>
                         <h3>Briefanalyse</h3>
                         <p>Behördenbriefe bis 5 Seiten einfach erklärt (inkl. Antwort-PDF).</p>
+                        <div class="service-tag">Bis 5 Seiten</div>
                     </div>
                     <div class="service-card" data-service="bescheid">
+                        <div class="service-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        </div>
                         <h3>Bescheidanalyse</h3>
-                        <p>Bescheide auf Fristen & Pflichten prüfen (bis 5 Seiten).</p>
+                        <p>Bescheide auf Fristen &amp; Pflichten prüfen (bis 5 Seiten).</p>
+                        <div class="service-tag">Bis 5 Seiten</div>
                     </div>
                     <div class="service-card" data-service="akte">
-                        <h3>Aktenanalyse (Tiefenprüfung)</h3>
+                        <div class="service-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        </div>
+                        <h3>Aktenanalyse</h3>
                         <p>Große Verträge, Gutachten oder Akten prüfen (bis 100 Seiten).</p>
+                        <div class="service-tag service-tag--pro">Tiefenprüfung</div>
                     </div>
                     <div class="service-card" data-service="antrag">
+                        <div class="service-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </div>
                         <h3>Formloser Antrag</h3>
                         <p>Schnell einen rechtssicheren Antrag generieren lassen.</p>
+                        <div class="service-tag">Ohne Vorlage</div>
                     </div>
                 </div>
-                <button id="btn-next-to-input" class="button-primary" style="margin-top: 1.5rem; width: 100%;" disabled>Weiter</button>
+
+                <button id="btn-next-to-input" class="button-primary btn-full" style="margin-top:2rem;" disabled>Weiter zur Dokumenteneingabe →</button>
             </div>
 
+            <!-- STEP 2 -->
             <div id="step-2" class="step-container card">
-                <button class="button-secondary btn-back" data-target="step-1" style="margin-bottom: 1rem;">Zurück</button>
+                <button class="button-secondary btn-back" data-target="step-1">← Zurück</button>
+                <div class="step-eyebrow">Schritt 2 von 3</div>
                 <h2 id="input-title">Dokument hochladen</h2>
                 
                 <div id="upload-area">
-                    <p id="upload-hint" style="color: var(--text-secondary); margin-bottom: 1rem;"></p>
-                    <div class="file-upload-wrapper">
-                        <label for="document-upload" class="button-secondary" style="cursor: pointer; display: inline-block;">📄 Datei(en) wählen</label>
-                        <input type="file" id="document-upload" style="display: none;" accept=".pdf, image/*" multiple>
+                    <p id="upload-hint" class="step-intro"></p>
+                    <div class="file-upload-zone">
+                        <label for="document-upload" class="file-upload-label">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <span>PDF oder Bild auswählen</span>
+                            <span class="file-upload-sub">Klicken oder per Drag &amp; Drop ablegen</span>
+                        </label>
+                        <input type="file" id="document-upload" style="display:none;" accept=".pdf, image/*" multiple>
                     </div>
                     <ul id="file-list" class="file-list"></ul>
                     <p id="file-error" class="error-text"></p>
                 </div>
                 
-                <div id="text-area-container" class="hidden">
-                    <label style="font-weight: bold;">Beschreiben Sie kurz Ihr Anliegen:</label>
+                <div id="text-area-container" class="hidden" style="margin-top:1.5rem;">
+                    <label style="font-weight:600;">Beschreiben Sie kurz Ihr Anliegen:</label>
                     <textarea id="intent-description" class="form-input" rows="6" placeholder="z.B. Ich benötige eine Fristverlängerung von 14 Tagen für das Aktenzeichen 12345..."></textarea>
                 </div>
 
-                <hr style="margin: 2rem 0;">
+                <hr>
                 
-                <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px;">
-                    <label style="font-weight: bold;">E-Mail Adresse für das Ergebnis (Pflichtfeld)</label>
-                    <p style="font-size: 0.85rem; color: #666;">Falls Sie das Fenster versehentlich schließen, können wir Ihnen Ihr fertiges Dokument manuell zusenden.</p>
-                    <input type="email" id="backup-email" class="form-input" placeholder="Ihre E-Mail Adresse" required>
+                <div class="email-backup-box">
+                    <div class="email-backup-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9l10 6 10-6"/></svg>
+                    </div>
+                    <div style="flex:1; min-width:0;">
+                        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.35rem;">
+                            <label style="font-weight:600; font-size:1rem; margin:0;">E-Mail für das Ergebnis</label>
+                            <span class="required-badge">Pflichtfeld</span>
+                        </div>
+                        <p style="font-size:0.88rem; margin:0 0 0.75rem;">Falls Sie das Fenster versehentlich schließen, senden wir Ihnen Ihr fertiges Dokument zu.</p>
+                        <input type="email" id="backup-email" class="form-input" placeholder="Ihre E-Mail Adresse" required>
+                    </div>
                 </div>
 
-                <button id="btn-next-to-pay" class="button-primary" style="margin-top: 1.5rem; width: 100%;">Dokumente prüfen & Weiter</button>
+                <button id="btn-next-to-pay" class="button-primary btn-full" style="margin-top:1.5rem;">Dokumente prüfen &amp; Weiter →</button>
             </div>
 
+            <!-- STEP 3 -->
             <div id="step-3" class="step-container card">
-                <button class="button-secondary btn-back" data-target="step-2" style="margin-bottom: 1rem;">Zurück</button>
-                <h2>Zusammenfassung & Zahlung</h2>
-                <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
-                    <p>Gewählter Service: <strong id="summary-service">...</strong></p>
-                    <p>Ihre E-Mail für Rückfragen: <strong id="summary-email">...</strong></p>
+                <button class="button-secondary btn-back" data-target="step-2">← Zurück</button>
+                <div class="step-eyebrow">Schritt 3 von 3</div>
+                <h2>Zusammenfassung &amp; Zahlung</h2>
+
+                <div class="summary-box">
+                    <div class="summary-row">
+                        <span class="summary-label">Gewählter Service</span>
+                        <strong id="summary-service">...</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Ergebnis wird gesendet an</span>
+                        <strong id="summary-email">...</strong>
+                    </div>
                 </div>
                 
-                <p style="text-align: center; color: #666; margin: 2rem 0;">(Hier wird später PayPal/Stripe integriert)</p>
+                <div class="payment-placeholder">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <p>Zahlungsintegration (PayPal / Stripe) folgt</p>
+                </div>
                 
-                <button id="btn-simulate-payment" class="button-primary" style="width: 100%;">SIMULATION: Bezahlen & Analyse starten</button>
+                <button id="btn-simulate-payment" class="button-primary btn-full">Bezahlen &amp; Analyse starten</button>
                 
-                <div id="loading-spinner" class="hidden" style="text-align: center; margin-top: 2rem;">
-                    <p><strong>KI analysiert Ihr Dokument... Bitte warten.</strong></p>
-                    <div class="spinner" style="margin: 1rem auto;"></div>
+                <div id="loading-spinner" class="hidden loading-box">
+                    <div class="spinner"></div>
+                    <p style="font-weight:600; font-size:1.05rem;">KI analysiert Ihr Dokument…</p>
+                    <p class="loading-sub">Das kann einige Sekunden dauern. Bitte schließen Sie dieses Fenster nicht.</p>
                 </div>
             </div>
 
+            <!-- STEP 4 -->
             <div id="step-4" class="step-container card">
                 <h2>Ihr Ergebnis</h2>
-                <div id="analysis-result-content" style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
-                    </div>
+                <div id="analysis-result-content" class="result-box"></div>
                 
-                <button id="btn-download-analysis" class="button-secondary" style="width: 100%; margin-bottom: 2rem; display: none;">📄 Analyse als PDF herunterladen</button>
+                <button id="btn-download-analysis" class="button-secondary btn-full" style="margin-bottom:2rem; display:none;">📄 Analyse als PDF herunterladen</button>
 
-                <div id="chat-section" style="background: #eef2f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; display: none;">
-                    <h3 style="margin-bottom: 1rem; color: #333;">Rückfragen an die KI</h3>
-                    <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">Haben Sie eine Klausel nicht verstanden oder Fragen zu den Fristen? Fragen Sie einfach nach.</p>
-                    
-                    <div id="chat-history" style="max-height: 250px; overflow-y: auto; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.8rem; padding-right: 0.5rem;">
-                        </div>
-                    
-                    <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" id="chat-input" class="form-input" placeholder="z.B. Was bedeutet die Widerrufsfrist genau?" style="flex-grow: 1; margin: 0;">
-                        <button id="btn-send-chat" class="button-primary" style="white-space: nowrap;">Fragen</button>
+                <div id="chat-section" class="chat-section" style="display:none;">
+                    <h3>Rückfragen an die KI</h3>
+                    <p style="font-size:0.88rem; margin-bottom:1rem;">Haben Sie eine Klausel nicht verstanden oder Fragen zu den Fristen? Fragen Sie einfach nach.</p>
+                    <div id="chat-history" class="chat-history"></div>
+                    <div class="chat-input-row">
+                        <input type="text" id="chat-input" class="form-input" placeholder="z.B. Was bedeutet die Widerrufsfrist genau?" style="flex-grow:1; margin:0;">
+                        <button id="btn-send-chat" class="button-primary" style="white-space:nowrap;">Fragen →</button>
                     </div>
                 </div>
 
-                <hr style="margin: 2rem 0;">
+                <hr>
 
                 <div id="pdf-generator-section">
-                    <h3>Antwortschreiben konfigurieren</h3>
+                    <h3 style="margin-bottom:1rem;">Antwortschreiben konfigurieren</h3>
                     
-                    <div class="pdf-details-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                    <div class="pdf-details-grid">
                         <div class="pdf-details-group">
                             <label>Empfängername (Behörde)</label>
                             <input type="text" id="recipient-name" class="form-input" placeholder="Name der Behörde">
-                            <label style="margin-top: 0.5rem;">Empfängeradresse</label>
+                            <label style="margin-top:0.75rem;">Empfängeradresse</label>
                             <input type="text" id="recipient-address" class="form-input" placeholder="Amtstraße 2, 54321 Amtshausen">
                         </div>
                         <div class="pdf-details-group">
@@ -170,31 +262,66 @@
                         </div>
                     </div>
 
-                    <div id="intent-container" style="margin-top: 1.5rem; background: var(--bg-secondary); padding: 1.5rem; border-radius: 8px;">
-                        <label style="font-weight: bold;">Ihr konkretes Anliegen (in eigenen Worten):</label>
-                        <textarea id="freitext-input" class="form-input" rows="3" placeholder="z.B. Ich möchte Widerspruch einlegen und um eine Ratenzahlung bitten..."></textarea>
-                        <button id="btn-draft-text" class="button-secondary" style="margin-top: 1rem;">KI-Entwurf erstellen</button>
+                    <div id="intent-container" class="intent-container">
+                        <label style="font-weight:600;">Ihr konkretes Anliegen (in eigenen Worten):</label>
+                        <textarea id="freitext-input" class="form-input" rows="3" placeholder="z.B. Ich möchte Widerspruch einlegen und um eine Ratenzahlung bitten…"></textarea>
+                        <button id="btn-draft-text" class="button-secondary" style="margin-top:1rem;">KI-Entwurf erstellen</button>
 
-                        <div id="correction-window" class="hidden" style="margin-top: 1.5rem; border-top: 1px solid #ccc; padding-top: 1.5rem;">
-                            <label style="font-weight: bold; color: var(--primary-color);">Brieftext (Sie können hier direkt tippen):</label>
-                            <textarea id="final-letter-textarea" class="form-input" rows="8" style="margin-top: 0.5rem;"></textarea>
-                            
-                            <label style="margin-top: 1rem; font-size: 0.9rem;">Entwurf passt noch nicht? KI um Änderung bitten:</label>
-                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                                <input type="text" id="correction-instruction" class="form-input" placeholder="z.B. Mach es etwas höflicher..." style="flex-grow: 1;">
-                                <button id="btn-apply-correction" class="button-secondary">KI Ändern lassen</button>
+                        <div id="correction-window" class="hidden correction-window">
+                            <label style="font-weight:600; color:var(--blue-600);">Brieftext (Sie können hier direkt tippen):</label>
+                            <textarea id="final-letter-textarea" class="form-input" rows="8" style="margin-top:0.5rem;"></textarea>
+                            <label style="margin-top:1rem; font-size:0.9rem;">Entwurf passt noch nicht? KI um Änderung bitten:</label>
+                            <div class="correction-row">
+                                <input type="text" id="correction-instruction" class="form-input" placeholder="z.B. Mach es etwas höflicher…" style="flex-grow:1;">
+                                <button id="btn-apply-correction" class="button-secondary">KI ändern lassen</button>
                             </div>
                         </div>
                     </div>
 
-                    <button id="generate-final-pdf" class="button-primary" style="margin-top: 1.5rem; width: 100%;" disabled>PDF generieren & herunterladen</button>
+                    <button id="generate-final-pdf" class="button-primary btn-full" style="margin-top:1.5rem;" disabled>PDF generieren &amp; herunterladen</button>
                 </div>
             </div>
 
-        </main>
-    </div>
+        </div>
+    </main>
 
     <div id="notification-container"></div>
+
+    <script>
+        (function() {
+            var drawer  = document.getElementById('profile-drawer');
+            var overlay = document.getElementById('drawer-overlay');
+            var banner  = document.getElementById('profile-banner');
+            var dot     = document.getElementById('profile-dot');
+
+            function openDrawer()  { drawer.classList.add('open'); overlay.classList.add('open'); document.body.classList.add('drawer-open'); }
+            function closeDrawer() { drawer.classList.remove('open'); overlay.classList.remove('open'); document.body.classList.remove('drawer-open'); }
+
+            document.getElementById('open-profile-drawer').addEventListener('click', openDrawer);
+            document.getElementById('banner-open-profile').addEventListener('click', openDrawer);
+            document.getElementById('close-profile-drawer').addEventListener('click', closeDrawer);
+            overlay.addEventListener('click', closeDrawer);
+
+            document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeDrawer(); });
+
+            document.getElementById('save-local-data-btn').addEventListener('click', function() {
+                var name = document.getElementById('local-name').value.trim();
+                var addr = document.getElementById('local-address').value.trim();
+                if (name && addr) {
+                    banner.classList.add('banner-done');
+                    dot.classList.add('dot-complete');
+                }
+            });
+
+            var watermark = document.querySelector('.sig-watermark');
+            var sigCanvas = document.getElementById('signature-canvas');
+            if (sigCanvas && watermark) {
+                ['mousedown','touchstart'].forEach(function(evt) {
+                    sigCanvas.addEventListener(evt, function() { watermark.style.opacity = '0'; }, {passive:true});
+                });
+            }
+        })();
+    </script>
 
     <script src="tool.js"></script>
 </body>
