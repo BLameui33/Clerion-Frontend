@@ -28,51 +28,54 @@
         </tbody>
     </table>
 
-    // In der admin-rescue.html den Script-Teil ersetzen:
 <script>
-    async function loadTransactions() {
-        const key = prompt("Bitte Admin-Key eingeben:");
-        try {
-            const response = await fetch('/api/paygo/admin/transactions', {
-                headers: { 'x-admin-token': key }
-            });
+        // NEU: Die richtige Adresse deines Backends!
+        const API_BASE_URL = 'https://api.clerion.de'; 
 
-            if (!response.ok) throw new Error("Zugriff verweigert");
+        async function loadTransactions() {
+            const key = prompt("Bitte Admin-Key eingeben:");
+            if (!key) return; // Bricht ab, wenn du auf Abbrechen klickst
 
-            const data = await response.json();
-            const tbody = document.getElementById('transaction-list');
-            tbody.innerHTML = '';
+            try {
+                // Hier wurde die API_BASE_URL eingefügt
+                const response = await fetch(`${API_BASE_URL}/api/paygo/admin/transactions`, {
+                    headers: { 'x-admin-token': key }
+                });
 
-            data.forEach(t => {
-                const date = new Date(t.createdAt).toLocaleString('de-DE');
-                // Wir bauen einen direkten Link zum PDF-Download (falls Pfad existiert)
-                const downloadLink = t.pdfPath 
-                    ? `<button onclick="downloadPdf(${t.id}, '${key}')" class="btn">PDF öffnen</button>` 
-                    : '<span style="color:gray">Kein PDF</span>';
+                if (!response.ok) throw new Error("Zugriff verweigert. Falsches Passwort?");
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${t.id}</td>
-                        <td>${date}</td>
-                        <td><strong>${t.backupEmail}</strong></td>
-                        <td>${t.serviceType.toUpperCase()}</td>
-                        <td>${t.status}</td>
-                        <td>${downloadLink}</td>
-                    </tr>
-                `;
-            });
-        } catch (err) {
-            alert(err.message);
+                const data = await response.json();
+                const tbody = document.getElementById('transaction-list');
+                tbody.innerHTML = '';
+
+                data.forEach(t => {
+                    const date = new Date(t.createdAt).toLocaleString('de-DE');
+                    const downloadLink = t.pdfPath 
+                        ? `<button onclick="downloadPdf(${t.id}, '${key}')" class="btn">PDF öffnen</button>` 
+                        : '<span style="color:gray">Kein PDF</span>';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${t.id}</td>
+                            <td>${date}</td>
+                            <td><strong>${t.backupEmail}</strong></td>
+                            <td>${t.serviceType.toUpperCase()}</td>
+                            <td>${t.status}</td>
+                            <td>${downloadLink}</td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                alert(err.message);
+            }
         }
-    }
 
-    // Funktion um das PDF direkt vom Server zu holen (muss im Backend noch definiert werden)
-    async function downloadPdf(id, key) {
-        // Logik zum Herunterladen über eine gesicherte Route
-        window.open(`/api/paygo/admin/download-pdf/${id}?token=${key}`, '_blank');
-    }
+        // Hier wurde ebenfalls die API_BASE_URL eingefügt
+        function downloadPdf(id, key) {
+            window.open(`${API_BASE_URL}/api/paygo/admin/download-pdf/${id}?token=${key}`, '_blank');
+        }
 
-    loadTransactions();
-</script>
+        loadTransactions();
+    </script>
 </body>
 </html>

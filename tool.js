@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).render('#paypal-button-container');
     }
 
-    // Die echte Fetch-Funktion (ersetzt die Simulator-Logik)
+    //  Fetch-Funktion
     async function executeRealAnalysis(paypalOrderId) {
         const formData = new FormData();
         formData.append('serviceType', selectedService);
