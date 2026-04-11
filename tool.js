@@ -10,13 +10,41 @@ document.addEventListener('DOMContentLoaded', () => {
     let fullAnalysisContextText = ""; // Speichert den kompletten Analysetext für PDF & Chat
 
     const savedTransactionId = localStorage.getItem('clerion_pending_tx');
-    const savedStep = localStorage.getItem('clerion_current_step');
+    // Am Anfang von document.addEventListener('DOMContentLoaded', () => { ...
+    
+    const savedStep = localStorage.getItem('clerion_step');
+    
+    if (savedStep === '4') {
+        // Daten aus dem Speicher holen
+        currentTransactionId = localStorage.getItem('clerion_pending_tx');
+        selectedService = localStorage.getItem('clerion_service');
+        const savedAiData = JSON.parse(localStorage.getItem('clerion_ai_data'));
 
-    if (savedTransactionId && savedStep == "4") {
-        currentTransactionId = savedTransactionId;
-        // Optional: Hier könnte man einen automatischen Re-Fetch der Analyse machen
-        // oder dem Nutzer einen Button zeigen: "Letzte Analyse wiederherstellen"
-        console.log("Wiederherstellung verfügbar für ID:", currentTransactionId);
+        if (currentTransactionId && savedAiData) {
+            console.log("Wiederherstellung: Schritt 4 wird geladen...");
+            
+            // 1. Ergebnis rendern
+            renderAnalysisResult(savedAiData);
+            currentAnalysisSummary = savedAiData.zusammenfassung || "";
+
+            // 2. UI-Bereiche anpassen
+            const pdfSection = document.getElementById('pdf-generator-section');
+            if (selectedService === 'bescheid' || selectedService === 'akte') {
+                pdfSection.style.display = 'none';
+                document.getElementById('chat-section').style.display = 'block';
+            } else {
+                pdfSection.style.display = 'block';
+                // Falls es ein Antrag war, Analyse ausblenden
+                if(selectedService === 'antrag') {
+                    document.getElementById('analysis-result-content').style.display = 'none';
+                    document.getElementById('correction-window').classList.remove('hidden');
+                    document.getElementById('generate-final-pdf').disabled = false;
+                }
+            }
+
+            // 3. Zum Ergebnis-Schritt springen
+            showStep(4);
+        }
     }
 
     // --- DOM ELEMENTE ---
@@ -321,6 +349,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const responseData = await response.json();
             if (!response.ok) throw new Error(responseData.message || 'Fehler bei der Analyse');
+
+            localStorage.setItem('clerion_pending_tx', responseData.transactionId);
+        localStorage.setItem('clerion_service', selectedService);
+        localStorage.setItem('clerion_step', '4');
+        localStorage.setItem('clerion_ai_data', JSON.stringify(responseData.aiExplanation));
 
             currentTransactionId = responseData.transactionId;
             localStorage.setItem('clerion_pending_tx', currentTransactionId);

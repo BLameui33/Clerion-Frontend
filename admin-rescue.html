@@ -5,13 +5,20 @@
     <title>Clerion Admin - Notfall PDF Rettung</title>
     <style>
         body { font-family: sans-serif; padding: 2rem; background: #f4f4f9; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        input[type="text"] { padding: 0.5rem; width: 300px; border: 1px solid #ccc; border-radius: 4px; }
         table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
-        .btn { padding: 5px 10px; background: #0056b3; color: white; text-decoration: none; border-radius: 4px; }
+        .btn { padding: 5px 10px; background: #0056b3; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer;}
+        .btn:hover { background: #003d82; }
     </style>
 </head>
 <body>
-    <h1>Letzte Transaktionen & PDFs</h1>
+    <div class="header-container">
+        <h1>Letzte Transaktionen & PDFs</h1>
+        <input type="text" id="searchInput" placeholder="Nach E-Mail-Adresse suchen..." onkeyup="filterTransactions()">
+    </div>
+    
     <table>
         <thead>
             <tr>
@@ -28,51 +35,72 @@
         </tbody>
     </table>
 
-<script>
-        // NEU: Die richtige Adresse deines Backends!
+    <script>
         const API_BASE_URL = 'https://api.clerion.de'; 
+        let globalKey = '';
+        let allTransactions = []; // Speichert alle Daten für die Suche
 
         async function loadTransactions() {
-            const key = prompt("Bitte Admin-Key eingeben:");
-            if (!key) return; // Bricht ab, wenn du auf Abbrechen klickst
+            globalKey = prompt("Bitte Admin-Key eingeben:");
+            if (!globalKey) return; 
 
             try {
-                // Hier wurde die API_BASE_URL eingefügt
                 const response = await fetch(`${API_BASE_URL}/api/paygo/admin/transactions`, {
-                    headers: { 'x-admin-token': key }
+                    headers: { 'x-admin-token': globalKey }
                 });
 
                 if (!response.ok) throw new Error("Zugriff verweigert. Falsches Passwort?");
 
-                const data = await response.json();
-                const tbody = document.getElementById('transaction-list');
-                tbody.innerHTML = '';
-
-                data.forEach(t => {
-                    const date = new Date(t.createdAt).toLocaleString('de-DE');
-                    const downloadLink = t.pdfPath 
-                        ? `<button onclick="downloadPdf(${t.id}, '${key}')" class="btn">PDF öffnen</button>` 
-                        : '<span style="color:gray">Kein PDF</span>';
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${t.id}</td>
-                            <td>${date}</td>
-                            <td><strong>${t.backupEmail}</strong></td>
-                            <td>${t.serviceType.toUpperCase()}</td>
-                            <td>${t.status}</td>
-                            <td>${downloadLink}</td>
-                        </tr>
-                    `;
-                });
+                allTransactions = await response.json();
+                renderTable(allTransactions); // Tabelle das erste Mal zeichnen
             } catch (err) {
                 alert(err.message);
+                document.getElementById('transaction-list').innerHTML = `<tr><td colspan="6" style="color:red;">Fehler: ${err.message}</td></tr>`;
             }
         }
 
-        // Hier wurde ebenfalls die API_BASE_URL eingefügt
-        function downloadPdf(id, key) {
-            window.open(`${API_BASE_URL}/api/paygo/admin/download-pdf/${id}?token=${key}`, '_blank');
+        // NEU: Trennung von Datenladen und Anzeigen
+        function renderTable(data) {
+            const tbody = document.getElementById('transaction-list');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">Keine Ergebnisse gefunden.</td></tr>';
+                return;
+            }
+
+            data.forEach(t => {
+                const date = new Date(t.createdAt).toLocaleString('de-DE');
+                const downloadLink = t.pdfPath 
+                    ? `<button onclick="downloadPdf(${t.id})" class="btn">PDF öffnen</button>` 
+                    : '<span style="color:gray">Kein PDF (oder gelöscht)</span>';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${t.id}</td>
+                        <td>${date}</td>
+                        <td><strong>${t.backupEmail || '-'}</strong></td>
+                        <td>${t.serviceType ? t.serviceType.toUpperCase() : '-'}</td>
+                        <td>${t.status}</td>
+                        <td>${downloadLink}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // NEU: Die Suchfunktion
+        function filterTransactions() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredData = allTransactions.filter(t => {
+                // Prüft, ob die E-Mail den Suchbegriff enthält
+                const email = t.backupEmail ? t.backupEmail.toLowerCase() : '';
+                return email.includes(searchTerm);
+            });
+            renderTable(filteredData);
+        }
+
+        function downloadPdf(id) {
+            window.open(`${API_BASE_URL}/api/paygo/admin/download-pdf/${id}?token=${globalKey}`, '_blank');
         }
 
         loadTransactions();

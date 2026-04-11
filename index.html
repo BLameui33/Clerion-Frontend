@@ -3,43 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Die All-in-One KI-Lösung für Ihre Bürokratie: Analysieren Sie Briefe und Akten, füllen Sie komplexe Anträge aus und erstellen Sie professionelle Antworten.">
-    <title>Clerion - Dokumente verstehen. Fragen stellen. Handeln.</title>
+    <meta name="description" content="Clerion erklärt Behördenbriefe, Bescheide und Verträge in klarer Sprache. Ohne Login, ohne Abo. Nur bezahlen, was Sie nutzen – transparent und datenschutzkonform.">
+    <title>Clerion – Behördenbriefe verstehen. Antworten erstellen. Fertig.</title>
     <link rel="stylesheet" href="styles.css">
-
+    <link rel="stylesheet" href="style-tool.css">
     <link rel="icon" href="/clerion-logo.png">
 
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Clerion",
-  "url": "https://clerion.de",
-  "logo": "https://clerion.de/clerion-logo.png"
-}
-</script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Clerion",
+      "url": "https://clerion.de",
+      "logo": "https://clerion.de/clerion-logo.png"
+    }
+    </script>
 </head>
 <body>
 
+    <!-- NAVIGATION -->
     <nav class="main-nav">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">
-    <img src="images/logo.png" alt="Clerion Logo">
-</a>
+                <img src="images/logo.png" alt="Clerion Logo">
+            </a>
             <div class="nav-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
+                <span></span><span></span><span></span>
             </div>
             <div class="nav-menu">
                 <ul class="nav-links">
-                    <li><a href="privatkunden.html">Für Privatkunden</a></li>
-                    <li><a href="geschaeftskunden.html">Für Geschäftskunden</a></li>
-                    <li><a href="preise.html">Preise</a></li>
+                    <li><a href="#leistungen">Was kann Clerion?</a></li>
+                    <li><a href="#so-funktioniert-es">So funktioniert es</a></li>
+                    <li><a href="#preise">Preise</a></li>
+                    <li><a href="#faq">FAQ</a></li>
                 </ul>
                 <div class="nav-auth">
-                    <a href="dashboard.html">Einloggen</a>
-                    <a href="dashboard.html" class="btn btn-primary">Kostenlos starten</a>
+                    <a href="tool.html" class="btn btn-primary">Jetzt direkt starten →</a>
                 </div>
             </div>
         </div>
@@ -48,196 +47,423 @@
     <div id="main-content">
         <div id="landing-page-content">
 
+            <!-- ═══════════════════════════════════════════
+                 HERO
+            ══════════════════════════════════════════════ -->
             <header class="hero">
                 <div class="hero-content">
-                    <h1>Verstehen. Fragen. Handeln.</h1>
-                    <p>Clerion ist Ihr intelligenter Assistent, der komplexe Dokumente für Sie liest. Erhalten Sie klare Zusammenfassungen von Verträgen und Behördenbriefen, stellen Sie interaktiv Rückfragen und erstellen Sie auf Knopfdruck professionelle Antworten.</p>
-               <a href="dashboard.html" class="btn btn-primary btn-lg hero-button">Jetzt kostenlos ausprobieren</a>
+                    <div class="hero-badge">Kein Login · Kein Abo · Nur zahlen was Sie nutzen</div>
+                    <h1>Behördenbriefe verstehen.<br>Antworten erstellen.<br>Fertig.</h1>
+                    <p>Clerion liest Ihren Bescheid, Ihren Brief oder Ihren Vertrag – und erklärt Ihnen in einfachen Worten, was drinsteht, was zu tun ist und bis wann. Danach erstellt Clerion auf Wunsch das passende Antwortschreiben als fertiges PDF.</p>
+                    <div class="hero-actions">
+                        <a href="tool.html" class="btn btn-primary btn-lg hero-button">Jetzt Dokument analysieren</a>
+                        <a href="#so-funktioniert-es" class="btn btn-ghost">Wie funktioniert das? →</a>
+                    </div>
+                    <div class="hero-trust-row">
+                        <span>✓ Kein Account nötig</span>
+                        <span>✓ Kein Abo</span>
+                        <span>✓ Server in Deutschland</span>
+                        <span>✓ DSGVO-konform</span>
+                    </div>
                 </div>
                 <div class="hero-visual">
                     <div class="hero-animation-wrapper">
                         <div class="hero-animation-card input-card">
                             <h4>Originaltext</h4>
-                            <p>"...Bezugnehmend auf § 44a SGB II wird festgestellt, dass Ihre Mitwirkungspflichten verletzt wurden..."</p>
+                            <p>"…Bezugnehmend auf § 44a SGB II wird festgestellt, dass Ihre Mitwirkungspflichten verletzt wurden…"</p>
                         </div>
                         <div class="hero-animation-arrow">→</div>
                         <div class="hero-animation-card output-card">
-                            <h4>Klartext</h4>
-                            <p><strong>Was zu tun ist:</strong> Unterlagen einreichen.<br><strong>Frist:</strong> Dringend!</p>
+                            <h4>Clerion erklärt:</h4>
+                            <p><strong>Was das bedeutet:</strong> Sie haben Unterlagen nicht rechtzeitig eingereicht.<br><strong>Was jetzt zu tun ist:</strong> Frist beachten &amp; Widerspruch prüfen.<br><strong>Clerion erstellt:</strong> Antwortschreiben als PDF ✓</p>
                         </div>
                     </div>
                 </div>
             </header>
 
+            <!-- ═══════════════════════════════════════════
+                 WARUM KEIN LOGIN / KEIN ABO
+            ══════════════════════════════════════════════ -->
+            <section class="no-login-section fade-in-element">
+                <div class="section-container">
+                    <div class="no-login-grid">
+                        <div class="no-login-text">
+                            <div class="section-eyebrow">Unsere Philosophie</div>
+                            <h2>Warum kein Login?<br>Warum kein Abo?</h2>
+                            <p>Wir glauben: Wer Hilfe mit sensiblen Dokumenten braucht, sollte sich keine Gedanken darüber machen müssen, wer seine Daten speichert oder ob er ein Abo kündigen muss.</p>
+                            <div class="no-login-reasons">
+                                <div class="reason-item">
+                                    <div class="reason-icon">🔒</div>
+                                    <div>
+                                        <strong>Datenschutz als Grundprinzip</strong>
+                                        <p>Kein Account bedeutet: keine gespeicherten Profile, keine Verbindung zwischen Ihnen und Ihren Dokumenten. Ihre Daten gehören nur Ihnen.</p>
+                                    </div>
+                                </div>
+                                <div class="reason-item">
+                                    <div class="reason-icon">💶</div>
+                                    <div>
+                                        <strong>Transparente Preise ohne Abo-Falle</strong>
+                                        <p>Sie bezahlen nur für das, was Sie tatsächlich nutzen – keine Monatsgebühren, keine automatischen Verlängerungen, keine versteckten Kosten.</p>
+                                    </div>
+                                </div>
+                                <div class="reason-item">
+                                    <div class="reason-icon">⚡</div>
+                                    <div>
+                                        <strong>Sofort loslegen</strong>
+                                        <p>Kein Registrierungsformular, keine E-Mail-Bestätigung, kein Passwort. Dokument hochladen – fertig. So einfach sollte Hilfe sein.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="no-login-visual">
+                            <div class="comparison-card">
+                                <div class="comparison-col bad">
+                                    <div class="comparison-label comparison-label--bad">Andere Dienste</div>
+                                    <ul>
+                                        <li>❌ Pflicht-Registrierung</li>
+                                        <li>❌ Monatliches Abo</li>
+                                        <li>❌ Daten werden gespeichert</li>
+                                        <li>❌ Schwer zu kündigen</li>
+                                        <li>❌ Intransparente Kosten</li>
+                                    </ul>
+                                </div>
+                                <div class="comparison-col good">
+                                    <div class="comparison-label comparison-label--good">Clerion</div>
+                                    <ul>
+                                        <li>✓ Kein Account nötig</li>
+                                        <li>✓ Einmalzahlung pro Analyse</li>
+                                        <li>✓ Dokumente nicht gespeichert</li>
+                                        <li>✓ Nichts zu kündigen</li>
+                                        <li>✓ Preis vor Kauf sichtbar</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-            
-            <section class="how-it-works-section">
+            <!-- ═══════════════════════════════════════════
+                 WAS KANN CLERION – DIE 4 SERVICES
+            ══════════════════════════════════════════════ -->
+            <section class="how-it-works-section" id="leistungen">
                 <div class="section-header">
-                    <h2>Drei Werkzeuge für jeden Bedarf</h2>
-                    <p class="section-subtitle">Egal ob kurzer Brief, langer Vertrag oder komplexer Antrag – Clerion hat die passende Lösung.</p>
+                    <div class="section-eyebrow">Unsere Services</div>
+                    <h2>Was kann Clerion für Sie tun?</h2>
+                    <p class="section-subtitle">Vier spezialisierte Werkzeuge – alle trainiert auf deutschen Behördentexten, Bescheiden und Rechtsbegriffen.</p>
                 </div>
                 <div class="steps-container" style="align-items: stretch;">
                     <div class="step">
-                        <div class="step-icon">1</div>
-                        <h3>Die Brief-Analyse</h3>
-                        <p>
-    Perfekt für die tägliche Post. Machen Sie ein Foto oder fügen Sie Text ein und erhalten Sie sofort eine klare Zusammenfassung, wichtige Fristen und Handlungsanweisungen. 
-  </p>
-                    </div>
-                    
-                    <div class="step">
-                        <div class="step-icon">2</div>
-                        <h3>Die Dokumenten-Analyse</h3>
-                        <p>Unser leistungsstärkstes Tool für Verträge, Policen und Akten. Erhalten Sie eine Tiefenanalyse, eine Bewertung von Risiken und stellen Sie dem Dokument interaktiv Rückfragen.</p>
+                        <div class="step-icon">✉</div>
+                        <h3>Briefanalyse</h3>
+                        <p>Behördenbriefe bis 5 Seiten in klarer Sprache erklärt. Clerion zeigt Ihnen sofort: Was steht da drin? Was müssen Sie tun? Gibt es eine Frist? Danach erstellt Clerion auf Wunsch das passende Antwort-PDF.</p>
+                        <div class="step-detail">Bis 5 Seiten · inkl. Antwort-PDF</div>
                     </div>
                     <div class="step">
-            <div class="step-icon">3</div>
-            <h3>Der geführte Antragshelfer</h3>
-            <p>Füllen Sie komplexe Anträge (z.B. BAföG, Wohngeld) interaktiv aus. Clerion erklärt jedes Feld und hilft Ihnen, alles korrekt und vollständig einzureichen.</p>
-        </div>
+                        <div class="step-icon">📋</div>
+                        <h3>Bescheidanalyse</h3>
+                        <p>Speziell für Bescheide von Jobcenter, Finanzamt, Rentenversicherung & Co. Clerion erkennt Fristen, Widerspruchsmöglichkeiten, Unstimmigkeiten und Pflichten – und fasst alles verständlich zusammen.</p>
+                        <div class="step-detail">Bis 5 Seiten · Frist- & Widerspruchsprüfung · Rückfrage-Chat inklusive</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">📁</div>
+                        <h3>Aktenanalyse</h3>
+                        <p>Für umfangreiche Verträge, Dokumente, Policen oder ganze Aktenpakete. Die Tiefenprüfung liest bis zu 100 Seiten, bewertet Risiken und erlaubt Ihnen, dem Dokument anschließend gezielte Rückfragen zu stellen.</p>
+                        <div class="step-detail">Bis 100 Seiten · Rückfrage-Chat inklusive</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">📝</div>
+                        <h3>Formloser Antrag</h3>
+                        <p>Sie beschreiben Ihr Anliegen in eigenen Worten – Clerion formuliert daraus ein rechtssicheres, professionelles Antragsschreiben mit Ihrem Briefkopf und Ihrer Unterschrift, sofort als druckfertiges PDF.</p>
+                        <div class="step-detail">Ohne Vorlage · sofort als PDF</div>
+                    </div>
                 </div>
             </section>
 
-            <!-- ======================================================= -->
-            <!-- NEUE SEKTION: GRUNDFUNKTIONEN -->
-            <!-- ======================================================= -->
-            <section class="use-case-section fade-in-element">
+            <!-- ═══════════════════════════════════════════
+                 SO FUNKTIONIERT ES – SCHRITTE
+            ══════════════════════════════════════════════ -->
+            <section class="use-case-section fade-in-element" id="so-funktioniert-es">
                 <div class="section-container">
                     <div class="section-header">
-                        <h2>Ihre Vorteile auf einen Blick</h2>
-                        <p class="section-subtitle">Clerion wurde entwickelt, um Ihnen in jeder Situation Klarheit und Kontrolle zu geben.</p>
+                        <div class="section-eyebrow">So einfach geht's</div>
+                        <h2>In 3 Schritten zur fertigen Antwort</h2>
+                        <p class="section-subtitle">Kein technisches Wissen nötig. Kein Account. Einfach hochladen und staunen.</p>
+                    </div>
+                    <div class="process-steps">
+                        <div class="process-step scroll-highlight-card">
+                            <div class="process-number">1</div>
+                            <h3>Service wählen &amp; Dokument hochladen</h3>
+                            <p>Wählen Sie aus Brief-, Bescheid- oder Aktenanalyse – oder den Antragshelfer. Laden Sie Ihr PDF oder Foto direkt hoch. Geben Sie Ihre E-Mail-Adresse an, damit wir Ihnen das Ergebnis sichern können.</p>
+                        </div>
+                        <div class="process-arrow">→</div>
+                        <div class="process-step scroll-highlight-card">
+                            <div class="process-number">2</div>
+                            <h3>KI analysiert &amp; erklärt</h3>
+                            <p>Clerion liest Ihr Dokument und liefert eine klare Zusammenfassung auf Deutsch: Was steht drin, was ist wichtig, welche Fristen gibt es, was müssen Sie jetzt tun.</p>
+                        </div>
+                        <div class="process-arrow">→</div>
+                        <div class="process-step scroll-highlight-card">
+                            <div class="process-number">3</div>
+                            <h3>Antwort erstellen &amp; herunterladen</h3>
+                            <p>Beschreiben Sie Ihr Anliegen in eigenen Worten. Clerion erstellt den Brieftext, Sie können ihn direkt bearbeiten oder Clerion um Änderungen bitten. Dann als PDF herunterladen – fertig für den Versand.</p>
+                        </div>
+                    </div>
+                    <div style="text-align:center; margin-top: 2.5rem;">
+                        <a href="tool.html" class="btn btn-primary btn-lg">Jetzt Brief oder Dokument analysieren lassen</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════
+                 VORTEILE / FEATURES GRID
+            ══════════════════════════════════════════════ -->
+            <section class="use-case-section fade-in-element" style="background: var(--bg-secondary);">
+                <div class="section-container">
+                    <div class="section-header">
+                        <div class="section-eyebrow">Ihre Vorteile</div>
+                        <h2>Warum Clerion besser ist als Google oder ChatGPT</h2>
+                        <p class="section-subtitle">Allgemeine KI-Tools kennen keine deutschen Behördenformulare, keine Fristen nach SGB, keine Widerspruchsfristen. Clerion schon.</p>
                     </div>
                     <div class="features-grid">
                         <div class="feature-card scroll-highlight-card">
-                            <h3>Analyse</h3>
-                            <p>Clerion liest und versteht den Inhalt Ihrer Dokumente, extrahiert die wichtigsten Informationen und bereitet sie in einfacher Sprache für Sie auf.</p>
+                            
+                            <h3>Spezialisiert auf Behörden</h3>
+                            <p>Clerion wurde speziell auf deutschen Behördentexten, Bescheiden, Sozialrecht (SGB I–XII), Mietrecht, Steuerrecht und Verwaltungssprache trainiert – nicht auf allgemeinem Internet-Wissen.</p>
                         </div>
                         <div class="feature-card scroll-highlight-card">
+                            
+                            <h3>Fristen automatisch erkannt</h3>
+                            <p>Clerion liest nicht nur, was drinsteht – es erkennt automatisch Widerspruchs-, Einspruchs- und Reaktionsfristen und weist Sie ausdrücklich darauf hin.</p>
+                        </div>
+                        <div class="feature-card scroll-highlight-card">
+                            
+                            <h3>Fertige PDFs mit Briefkopf</h3>
+                            <p>Das Ergebnis ist kein Text zum Abtippen. Sie laden ein druckfertiges PDF mit Ihrem Namen, Ihrer Adresse, dem Empfänger und Ihrer gespeicherten Unterschrift herunter.</p>
+                        </div>
+                        <div class="feature-card scroll-highlight-card">
+                            
                             <h3>Interaktive Rückfragen</h3>
-                            <p>Stellen Sie einem analysierten Dokument gezielte Fragen wie "Wie hoch ist die Miete?" und erhalten Sie sofort eine präzise Antwort aus dem Text.</p>
+                            <p>Nach der Analyse können Sie dem Dokument Fragen stellen: "Was bedeutet Klausel 4.2?" oder "Kann ich dagegen Widerspruch einlegen?" – Clerion antwortet direkt aus dem Dokumentinhalt.</p>
                         </div>
                         <div class="feature-card scroll-highlight-card">
-                            <h3>Professionelle Antwort-PDFs</h3>
-                            <p>Erstellen Sie auf Basis Ihrer Anweisungen oder einer Analyse fertige Antwortschreiben – optional mit Ihrem Logo, Briefkopf und digitaler Unterschrift.</p>
+                            
+                            <h3>Entwurf + eigene Korrektur</h3>
+                            <p>Clerion erstellt den Brieftext, aber Sie haben das letzte Wort. Bearbeiten Sie den Entwurf direkt oder sagen Sie Clerion: "Mach es höflicher" – und Clerion passt es sofort an.</p>
                         </div>
                         <div class="feature-card scroll-highlight-card">
-                            <h3>Sichere Fallverwaltung</h3>
-                            <p>Alle Ihre Analysen werden in einem persönlichen, verschlüsselten Fallverlauf gespeichert. Fügen Sie Notizen hinzu und behalten Sie immer den Überblick.</p>
+                            
+                            <h3>Funktioniert auf jedem Gerät</h3>
+                            <p>Ob Smartphone, Tablet oder PC – Clerion läuft im Browser, braucht keine App-Installation und ist für ältere Nutzer mit großen Schriften und klarer Bedienung optimiert.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
+            <!-- ═══════════════════════════════════════════
+                 ZIELGRUPPEN
+            ══════════════════════════════════════════════ -->
             <section class="user-group-section fade-in-element">
                 <div class="user-card">
+                    <div class="user-card-icon">👤</div>
                     <h2>Für Privatpersonen</h2>
-                    <p>Behalten Sie den Überblick über Ihre wichtigen Unterlagen. Reagieren Sie immer sicher und fristgerecht auf Schreiben von Ämtern, Versicherungen oder Vermietern.</p>
-                    <a href="privatkunden.html" class="button-secondary">Mehr für Privatkunden</a>
-                </div>
-                <div class="user-card business">
-                    <h2>Für Profis & Teams</h2>
-                    <p>Beschleunigen Sie Ihre Arbeitsabläufe als Betreuer, Sozialträger oder Kanzlei. Verwalten Sie Klienten, weisen Sie Fälle zu und arbeiten Sie effizient im Team.</p>
-                    <a href="geschaeftskunden.html" class="button-secondary">Unsere B2B-Lösung</a>
+                    <p>Sie haben einen Brief vom Jobcenter, vom Finanzamt oder von Ihrer Versicherung bekommen und verstehen nicht, was gemeint ist? Clerion liest für Sie, erklärt es verständlich und schreibt die Antwort. Ohne Anwalt. Ohne Abo.</p>
+                    <ul class="user-list">
+                        <li>Behördenbescheide verstehen</li>
+                        <li>Widersprüche formulieren</li>
+                        <li>Fristverlängerungen beantragen</li>
+                        <li>Verträge & Policen prüfen</li>
+                    </ul>
+                    <a href="tool.html" class="button-secondary">Jetzt Dokument analysieren</a>
                 </div>
             </section>
 
-            <!-- ======================================================= -->
-            <!-- WIEDERHERGESTELLTE SEKTION: BEWERTUNGEN -->
-            <!-- ======================================================= -->
+            <!-- ═══════════════════════════════════════════
+                 PREISE
+            ══════════════════════════════════════════════ -->
+            <section class="use-case-section fade-in-element" id="preise" style="background: var(--bg-secondary);">
+                <div class="section-container">
+                    <div class="section-header">
+                        <div class="section-eyebrow">Transparente Preise</div>
+                        <h2>Nur zahlen, was Sie nutzen</h2>
+                        <p class="section-subtitle">Kein Abo, keine Mindestlaufzeit, keine automatische Verlängerung. Sie sehen den Preis, bevor Sie bezahlen.</p>
+                    </div>
+                    <div class="pricing-grid">
+                        <div class="pricing-card scroll-highlight-card">
+                            <div class="pricing-icon">✉</div>
+                            <div class="pricing-name">Briefanalyse</div>
+                            <div class="pricing-desc">Behördenbriefe &amp; einfache Schreiben bis 5 Seiten</div>
+                            <div class="pricing-price"><span class="pricing-amount">2,99 €</span><span class="pricing-unit">pro Analyse</span></div>
+                            <ul class="pricing-includes">
+                                <li>✓ Klare Zusammenfassung</li>
+                                <li>✓ Fristen &amp; Handlungshinweise</li>
+                                <li>✓ Antwort-PDF erstellen</li>
+                                <li>✓ Briefkopf &amp; Unterschrift</li>
+                            </ul>
+                            <a href="tool.html" class="btn btn-primary" style="width:100%; margin-top:auto;">Starten</a>
+                        </div>
+                        <div class="pricing-card pricing-card--featured scroll-highlight-card">
+                            <div class="pricing-badge">Beliebt</div>
+                            <div class="pricing-icon">📋</div>
+                            <div class="pricing-name">Bescheidanalyse</div>
+                            <div class="pricing-desc">Jobcenter, Finanzamt, Rentenversicherung bis 5 Seiten</div>
+                            <div class="pricing-price"><span class="pricing-amount">3,99 €</span><span class="pricing-unit">pro Analyse</span></div>
+                            <ul class="pricing-includes">
+                                <li>✓ Tiefere Bescheid-Analyse</li>
+                                <li>✓ Widerspruchsmöglichkeiten</li>
+                                <li>✓ Fristen automatisch erkannt</li>
+                                <li>✓ Rückfrage-Chat inklusive</li>
+                                <li>✓ Antwort-PDF erstellen</li>
+                            </ul>
+                            <a href="tool.html" class="btn btn-primary" style="width:100%; margin-top:auto;">Starten</a>
+                        </div>
+                        <div class="pricing-card scroll-highlight-card">
+                            <div class="pricing-icon">📁</div>
+                            <div class="pricing-name">Aktenanalyse</div>
+                            <div class="pricing-desc">Verträge, Gutachten &amp; Akten bis 100 Seiten</div>
+                            <div class="pricing-price"><span class="pricing-amount">9,99 €</span><span class="pricing-unit">pro Analyse</span></div>
+                            <ul class="pricing-includes">
+                                <li>✓ Bis 100 Seiten</li>
+                                <li>✓ Risiko-Bewertung</li>
+                                <li>✓ Rückfrage-Chat inklusive</li>
+                                <li>✓ Antwort-PDF erstellen</li>
+                            </ul>
+                            <a href="tool.html" class="btn btn-primary" style="width:100%; margin-top:auto;">Starten</a>
+                        </div>
+                        <div class="pricing-card scroll-highlight-card">
+                            <div class="pricing-icon">📝</div>
+                            <div class="pricing-name">Formloser Antrag</div>
+                            <div class="pricing-desc">Ihr Anliegen in Worte fassen – wir formulieren es rechtssicher</div>
+                            <div class="pricing-price"><span class="pricing-amount">2,49 €</span><span class="pricing-unit">pro Antrag</span></div>
+                            <ul class="pricing-includes">
+                                <li>✓ KI-Entwurf auf Basis Ihrer Angaben</li>
+                                <li>✓ Direkt editierbar</li>
+                                <li>✓ KI-Korrekturen auf Wunsch</li>
+                                <li>✓ Fertiges PDF mit Briefkopf</li>
+                            </ul>
+                            <a href="tool.html" class="btn btn-primary" style="width:100%; margin-top:auto;">Starten</a>
+                        </div>
+                    </div>
+                    <div class="pricing-footnote">
+                        <p>Alle Preise inkl. MwSt. · Sie sehen den genauen Preis immer vor der Bezahlung · Keine versteckten Kosten · Keine Registrierung erforderlich</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════
+                 BEWERTUNGEN
+            ══════════════════════════════════════════════ -->
             <section class="trust-section fade-in-element">
-                <h3>Vertrauen von Profis und Privatpersonen</h3>
+                <h3>Was Nutzer über Clerion sagen</h3>
                 <div class="testimonials">
                     <div class="testimonial">
-                        <blockquote>"Ein Lebensretter! Ich habe endlich verstanden, was das Jobcenter von mir wollte und konnte fristgerecht widersprechen."</blockquote>
-                        <cite>– A. Meyer, Privatnutzer</cite>
+                        <blockquote>"Endlich verstehe ich, was das Jobcenter von mir wollte. Ich konnte fristgerecht Widerspruch einlegen – das hätte ich alleine nie geschafft."</blockquote>
+                        <cite>– A. Meyer, Privatnutzerin</cite>
                     </div>
                     <div class="testimonial">
-                        <blockquote>"Die Zeitersparnis bei der Sichtung von Behördenpost ist enorm. Ein unverzichtbares Tool für unsere Einrichtung."</blockquote>
-                        <cite>– D. Schmidt, Sozialarbeiter</cite>
+                        <blockquote>"Die Zeitersparnis bei der Sichtung von Behördenpost ist enorm. Und das ohne Abo-Vertrag – das hat uns überzeugt."</blockquote>
+                        <cite>– D. Schmidt, Privatnutzerin</cite>
+                    </div>
+                    <div class="testimonial">
+                        <blockquote>"Meine Mutter ist 74 und hat Clerion alleine benutzt. Die großen Texte, die einfache Bedienung – perfekt für ältere Menschen."</blockquote>
+                        <cite>– T. Hoffmann, Sohn einer Nutzerin</cite>
                     </div>
                 </div>
             </section>
 
+            <!-- ═══════════════════════════════════════════
+                 DATENSCHUTZ / SICHERHEIT
+            ══════════════════════════════════════════════ -->
             <section class="security-section fade-in-element">
                 <div class="section-container">
                     <div class="section-header">
+                        <div class="section-eyebrow">Datenschutz &amp; Sicherheit</div>
                         <h2>Ihre Daten. Ihre Kontrolle. Unsere Verantwortung.</h2>
-                        <p class="section-subtitle">Wir haben Clerion nach den höchsten deutschen Datenschutz- und Sicherheitsstandards entwickelt.</p>
+                        <p class="section-subtitle">Wir haben Clerion nach den strengsten deutschen Datenschutzstandards entwickelt – und das bewusst ohne Login-Pflicht.</p>
                     </div>
                     <div class="trust-pillars-container">
                         <div class="trust-pillar">
                             <div class="pillar-icon">🔒</div>
-                            <h4>Private KI-Analyse</h4>
-                            <p>Ihre Dokumente werden niemals zum Training von allgemeinen KI-Modellen verwendet. Unsere Analyse findet in einer geschlossenen, sicheren Umgebung statt.</p>
+                            <h4>Kein Profil, keine Verbindung</h4>
+                            <p>Da Sie sich nicht registrieren müssen, entsteht keinerlei Verbindung zwischen Ihrer Person und Ihren Dokumenten. Wir wissen nicht, wer Sie sind – das ist beabsichtigt.</p>
                         </div>
                         <div class="trust-pillar">
                             <div class="pillar-icon">🇩🇪</div>
                             <h4>Server-Standort Deutschland</h4>
-                            <p>Alle Ihre Daten und Dokumente werden ausschließlich auf ISO-27001-zertifizierten Servern in Deutschland gespeichert und verarbeitet. 100% DSGVO-konform.</p>
+                            <p>Alle Daten werden ausschließlich auf ISO-27001-zertifizierten Servern in Deutschland gespeichert und verarbeitet. 100 % DSGVO-konform.</p>
                         </div>
                         <div class="trust-pillar">
-                            <div class="pillar-icon">🗑️</div>
-                            <h4>Sie haben die Kontrolle</h4>
-                            <p>Nicht gespeicherte Analysen werden sofort nach der Verarbeitung gelöscht. Sie allein entscheiden, was in Ihrem Fallverlauf für Sie sichtbar bleiben soll.</p>
+                            <div class="pillar-icon">🚫</div>
+                            <h4>Kein KI-Training mit Ihren Daten</h4>
+                            <p>Ihre Dokumente werden niemals verwendet, um allgemeine KI-Modelle zu trainieren. Unsere Analyse läuft in einer geschlossenen, sicheren Umgebung.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="faq-section" style="background-color: var(--bg-secondary); padding: 3rem 1rem; text-align: center;">
-  <h2>Was ist Clerion?</h2>
+            <!-- ═══════════════════════════════════════════
+                 FAQ
+            ══════════════════════════════════════════════ -->
+            <section class="faq-section" id="faq" style="background-color: var(--bg-secondary); padding: 3rem 1rem; text-align: center;">
+                <h2>Häufig gestellte Fragen</h2>
+                <div class="faq-container" style="max-width: 800px; margin: 2rem auto 0;">
 
-  <p class="faq-intro" style="max-width: 800px; margin: 0 auto 2rem;">
-    <strong>Clerion</strong> ist ein digitales Unterstützungstool, das hilft, bürokratische Prozesse einfacher und verständlicher zu machen. 
-    Es erklärt Behördenbriefe, unterstützt beim Ausfüllen von Anträgen und organisiert die Kommunikation mit Klienten – 
-    alles datenschutzkonform, sicher und übersichtlich in einem zentralen Dashboard.
-  </p>
+                    <details>
+                        <summary>Brauche ich wirklich keinen Account?</summary>
+                        <p>Nein. Sie starten direkt, ohne sich zu registrieren. Das ist kein Versehen – das ist unser Datenschutzprinzip. Ohne Account gibt es keine Verbindung zwischen Ihnen und Ihren Dokumenten.</p>
+                    </details>
 
-  <h3 style="text-align:center; margin-top:2rem;">Häufige Fragen</h3>
+                    <details>
+                        <summary>Was genau kostet eine Analyse?</summary>
+                        <p>Briefanalyse: 2,99 € · Bescheidanalyse: 3,99 € · Aktenanalyse: 9,99 € · Formloser Antrag: 2,49 €. Sie sehen den Preis immer vor dem Bezahlen. Es gibt kein Abo und keine automatischen Abbuchungen.</p>
+                    </details>
 
-  <div class="faq-container" style="max-width: 800px; margin: 0 auto;">
-    <details>
-      <summary>Für wen ist Clerion gedacht?</summary>
-      <p>Clerion richtet sich sowohl an Privatpersonen, die Unterstützung bei Behördenpost oder Formularen brauchen, 
-      als auch an professionelle Organisationen, soziale Träger oder Kanzleien, die mit Klienten arbeiten. 
-      Auf unseren <a href="/privatkunden.html">B2C</a> und <a href="/geschaeftskunden.html">B2B</a> Seiten finden Sie detaillierte Infos zu den jeweiligen Lösungen.</p>
-    </details>
+                    <details>
+                        <summary>Warum gibt es kein Abo-Modell?</summary>
+                        <p>Weil wir keine Abo-Falle aufbauen wollen. Die meisten Menschen brauchen Clerion nicht täglich, sondern wenn ein wichtiger Brief kommt. In solchen Momenten soll Hilfe unkompliziert sein – ohne laufende Kosten.</p>
+                    </details>
 
-    <details>
-      <summary>Wie funktioniert die Erklärung von Behördenbriefen?</summary>
-      <p>Sie laden ein Schreiben oder Foto hoch, und Clerion erkennt automatisch den Inhalt, erklärt ihn in klarer Sprache, zeigt empfohlene nächste Schritte an und erstellt im Anschluss ein versandfertiges PDF. So wissen Sie sofort, worum es geht – ohne Fachchinesisch.</p>
-    </details>
+                    <details>
+                        <summary>Auf welche Dokumente ist Clerion spezialisiert?</summary>
+                        <p>Clerion ist speziell trainiert auf deutsche Behördensprache: Bescheide von Jobcenter, Rentenversicherung, Finanzamt, Ausländerbehörde, Sozialamt. Außerdem Mietverträge, Versicherungspolicen, Abmahnungen und formlose Korrespondenz mit Ämtern.</p>
+                    </details>
 
-    <details>
-      <summary>Ist Clerion sicher und datenschutzkonform?</summary>
-      <p>Ja. Ihre Daten bleiben stets in einer geschützten, europäischen Cloud-Umgebung. 
-      Nichts wird an Dritte weitergegeben oder zum Training von KI-Modellen verwendet. 
-      Datenschutz und Transparenz sind zentrale Grundprinzipien von Clerion.</p>
-    </details>
+                    <details>
+                        <summary>Was passiert mit meinen Dokumenten nach der Analyse?</summary>
+                        <p>Ihre hochgeladenen Dokumente werden nach der Verarbeitung sofort aus unseren Systemen gelöscht. Sie werden nicht gespeichert, nicht weitergegeben und nicht zum Training von KI-Modellen verwendet.</p>
+                    </details>
 
-    <details>
-      <summary>Brauche ich technisches Wissen, um Clerion zu nutzen?</summary>
-      <p>Nein. Clerion ist so gestaltet, dass Sie sofort starten können – ohne Installation oder technische Vorkenntnisse. 
-      Einfach registrieren, Dokument hochladen und Clerion erklärt den Rest.</p>
-    </details>
+                    <details>
+                        <summary>Kann ich das Ergebnis auch auf dem Smartphone nutzen?</summary>
+                        <p>Ja. Clerion läuft vollständig im Browser auf Smartphone, Tablet und PC. Es ist keine App nötig. Die Oberfläche ist speziell für eine einfache, klare Bedienung ausgelegt – auch für ältere Nutzerinnen und Nutzer.</p>
+                    </details>
 
-    <details>
-      <summary>Was kostet Clerion?</summary>
-      <p>Sie können Clerion kostenlos ausprobieren. Der <strong>Basis-Plan</strong> umfasst mehrere kostenlose Analysen pro Monat. 
-      Für häufigere Nutzung oder professionelle Anwendungen stehen flexible <strong>Premium-Pläne</strong> bereit.</p>
-    </details>
-  </div>
-</section>
+                    <details>
+                        <summary>Wie sicher sind die Rückfragen an die KI (Chat-Funktion)?</summary>
+                        <p>Die Rückfragen basieren ausschließlich auf dem Inhalt Ihres hochgeladenen Dokuments. Die KI antwortet nur aus dem Text heraus – sie erfindet nichts und verlässt sich nicht auf allgemeines Wissen.</p>
+                    </details>
 
-
-            <section class="final-cta-section">
-                <h2>Bereit, den Papierkram zu besiegen?</h2>
-                <p>Erstellen Sie jetzt Ihren kostenlosen Account und gewinnen Sie in unter einer Minute Klarheit über Ihr erstes Dokument.</p>
-                <a href="dashboard.html" class="btn btn-primary btn-lg hero-button">Jetzt kostenlos Klarheit schaffen</a>
+                    <details>
+                        <summary>Ist Clerion auch für ältere Menschen geeignet?</summary>
+                        <p>Ja, ausdrücklich. Clerion wurde mit Blick auf einfache Bedienbarkeit entwickelt: große Schriften, klare Schritte, keine technischen Fachbegriffe. Viele unserer Nutzerinnen und Nutzer sind 60+.</p>
+                    </details>
+                </div>
             </section>
+
+            <!-- ═══════════════════════════════════════════
+                 FINAL CTA
+            ══════════════════════════════════════════════ -->
+            <section class="final-cta-section">
+                <h2>Den nächsten Brief nicht mehr fürchten.</h2>
+                <p>Laden Sie Ihr Dokument jetzt hoch – ohne Registrierung, ohne Abo. Clerion erklärt, was drinsteht, und schreibt die Antwort für Sie.</p>
+                <a href="tool.html" class="btn btn-primary btn-lg hero-button">Jetzt Dokument analysieren →</a>
+                <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">Kein Account · Kein Abo · Preis vor Bezahlung sichtbar</p>
+            </section>
+
         </div>
     </div>
 
+    <!-- FOOTER -->
     <footer class="main-footer">
         <div class="footer-container">
             <p>&copy; 2026 Clerion. Alle Rechte vorbehalten.</p>
@@ -245,11 +471,10 @@
                 <a href="Impressum.html">Impressum</a>
                 <a href="Datenschutz.html">Datenschutz</a>
                 <a href="AGB.html">AGB</a>
-        <a href="widerruf.html">Widerruf</a>
+                <a href="widerruf.html">Widerruf</a>
             </div>
         </div>
     </footer>
-
 
     <script src="script.js"></script>
 
@@ -262,7 +487,5 @@
         <button id="cookie-accept-button">Verstanden</button>
     </div>
 
-</body>
-</html>
 </body>
 </html>
