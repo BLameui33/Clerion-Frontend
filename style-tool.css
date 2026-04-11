@@ -53,6 +53,11 @@
     --shadow-md:  0 4px 16px rgba(15,23,42,0.09), 0 1px 4px rgba(15,23,42,0.05);
     --shadow-lg:  0 12px 40px rgba(15,23,42,0.13), 0 2px 8px rgba(15,23,42,0.07);
     --shadow-blue:0 4px 18px rgba(37,99,235,0.22);
+
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-xl: 32px;
+
 }
 
 /* ─────────────────────────────────────────
@@ -1490,4 +1495,9 @@ hr {
         flex-direction: column;
         gap: var(--space-sm);
     }
+}
+.case-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
