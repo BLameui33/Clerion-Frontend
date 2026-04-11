@@ -8,6 +8,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=AezNf-b5ZfzPMxOIBFs3GqmvAIp4pMS3viyOngcfgsjKn9E4Qavyxc89InvvADH2PDjCmY1oC3g87XzU&currency=EUR"></script>
 
     <style>
         .step-container { display: none; animation: fadeIn 0.3s; }
@@ -98,7 +99,7 @@
                     <button id="signature-clear-btn" class="button-secondary">Leeren</button>
                     <button id="signature-save-btn" class="button-primary">Unterschrift sichern</button>
                 </div>
-                <p id="signature-status" class="sig-saved-msg" style="display:none;">✓ Lokal gespeichert</p>
+                <p id="signature-status" style="display:none; font-size:0.85rem; color:var(--success-color); font-weight:500; margin-top:0.6rem;">✓ Lokal gespeichert</p>
             </div>
 
         </div>
@@ -213,12 +214,16 @@
                     </div>
                 </div>
                 
-                <div class="payment-placeholder">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                    <p>Zahlungsintegration (PayPal / Stripe) folgt</p>
-                </div>
                 
-                <button id="btn-simulate-payment" class="button-primary btn-full">Bezahlen &amp; Analyse starten</button>
+                
+                <p style="text-align: center; color: #666; margin: 2rem 0;">Wählen Sie Ihre Zahlungsmethode:</p>
+                
+                <div id="paypal-button-container" style="width: 100%; max-width: 400px; margin: 0 auto;"></div>
+                
+                <div id="loading-spinner" class="hidden" style="text-align: center; margin-top: 2rem;">
+                    <p><strong>Zahlung erfolgreich! KI analysiert Ihr Dokument...</strong></p>
+                    <div class="spinner" style="margin: 1rem auto;"></div>
+                </div>
                 
                 <div id="loading-spinner" class="hidden loading-box">
                     <div class="spinner"></div>
@@ -301,9 +306,9 @@
             document.getElementById('banner-open-profile').addEventListener('click', openDrawer);
             document.getElementById('close-profile-drawer').addEventListener('click', closeDrawer);
             overlay.addEventListener('click', closeDrawer);
-
             document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeDrawer(); });
 
+            // Save profile data → hide banner + green dot
             document.getElementById('save-local-data-btn').addEventListener('click', function() {
                 var name = document.getElementById('local-name').value.trim();
                 var addr = document.getElementById('local-address').value.trim();
@@ -313,6 +318,39 @@
                 }
             });
 
+            // FIX 2: Auto-scroll to "Weiter" button when a service card is selected
+            document.querySelectorAll('.service-card').forEach(function(card) {
+                card.addEventListener('click', function() {
+                    // Small delay so the selected state renders first
+                    setTimeout(function() {
+                        var btn = document.getElementById('btn-next-to-input');
+                        if (btn) {
+                            btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 120);
+                });
+            });
+
+            // FIX 3: Chat — scroll so the *start* of the new AI response is visible
+            // We watch #chat-history for added child nodes and scroll to the last added element's top
+            var chatHistory = document.getElementById('chat-history');
+            if (chatHistory) {
+                var chatObserver = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1) {
+                                // Scroll the chat container so the new message top is visible
+                                setTimeout(function() {
+                                    node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }, 50);
+                            }
+                        });
+                    });
+                });
+                chatObserver.observe(chatHistory, { childList: true });
+            }
+
+            // Signature canvas watermark
             var watermark = document.querySelector('.sig-watermark');
             var sigCanvas = document.getElementById('signature-canvas');
             if (sigCanvas && watermark) {

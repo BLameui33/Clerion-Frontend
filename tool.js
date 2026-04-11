@@ -138,19 +138,61 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- SCHRITT 2: UPLOAD & LIMIT-PRÜFUNG ---
-    fileInput.addEventListener('change', async (e) => {
-        fileErrorEl.textContent = '';
+    
+    // NEU: Hilfsfunktion, um die Liste mit "X" zu zeichnen
+    function renderFileList() {
         fileListEl.innerHTML = '';
-        selectedFiles = Array.from(e.target.files);
-
-        // 1. Limit: Maximale Anzahl Dateien (nur für Brief/Bescheid relevant)
-        if (selectedService !== 'akte' && selectedFiles.length > 5) {
-            fileErrorEl.textContent = 'Maximal 5 Dateien gleichzeitig erlaubt.';
-            selectedFiles = [];
+        if (selectedFiles.length === 0) {
+            fileInput.value = ''; // Input zurücksetzen, wenn leer
             return;
         }
 
-        // PDF.js initialisieren für Seitenzählung
+        selectedFiles.forEach((file, index) => {
+            const li = document.createElement('li');
+            li.style.display = 'flex';
+            li.style.justifyContent = 'space-between';
+            li.style.alignItems = 'center';
+            li.style.marginBottom = '0.5rem';
+            li.style.padding = '0.5rem';
+            li.style.background = 'var(--bg-secondary)';
+            li.style.borderRadius = '4px';
+
+            const fileNameSpan = document.createElement('span');
+            fileNameSpan.textContent = `📄 ${file.name}`;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.innerHTML = '&#10006;'; // X Symbol
+            removeBtn.style.background = 'none';
+            removeBtn.style.border = 'none';
+            removeBtn.style.color = 'var(--error-color, red)';
+            removeBtn.style.cursor = 'pointer';
+            removeBtn.style.fontWeight = 'bold';
+            
+            // Lösch-Logik
+            removeBtn.addEventListener('click', () => {
+                selectedFiles.splice(index, 1); // Datei aus Array entfernen
+                renderFileList(); // Liste neu zeichnen
+            });
+
+            li.appendChild(fileNameSpan);
+            li.appendChild(removeBtn);
+            fileListEl.appendChild(li);
+        });
+    }
+
+    fileInput.addEventListener('change', async (e) => {
+        fileErrorEl.textContent = '';
+        
+        // Wir nehmen die neu ausgewählten Dateien (überschreibt vorherige Auswahl)
+        selectedFiles = Array.from(e.target.files);
+
+        if (selectedService !== 'akte' && selectedFiles.length > 5) {
+            fileErrorEl.textContent = 'Maximal 5 Dateien gleichzeitig erlaubt.';
+            selectedFiles = [];
+            renderFileList();
+            return;
+        }
+
         const pdfjsLib = window.pdfjsLib;
         if (pdfjsLib) {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
@@ -158,18 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let hasError = false;
 
-        // Jede Datei prüfen
         for (let i = 0; i < selectedFiles.length; i++) {
             const file = selectedFiles[i];
             
-            // Format-Prüfung
             if (selectedService === 'akte' && !file.type.includes('pdf')) {
                 fileErrorEl.textContent = 'Für die Aktenanalyse sind nur PDF-Dateien erlaubt.';
                 hasError = true;
                 break;
             }
 
-            // Seitenanzahl prüfen bei PDFs
             if (file.type.includes('pdf') && pdfjsLib) {
                 try {
                     const arrayBuffer = await file.arrayBuffer();
@@ -195,15 +234,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (hasError) {
             selectedFiles = [];
-            fileInput.value = '';
-        } else {
-            // Erfolgreich geprüft, Liste anzeigen
-            selectedFiles.forEach(f => {
-                const li = document.createElement('li');
-                li.textContent = `✅ ${f.name}`;
-                fileListEl.appendChild(li);
-            });
         }
+        
+        // Neue Render-Funktion aufrufen
+        renderFileList();
     });
 
     document.getElementById('btn-next-to-pay').addEventListener('click', () => {
@@ -224,13 +258,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- SCHRITT 3: ECHTER API AUFRUF (ANALYSE) ---
-    document.getElementById('btn-simulate-payment').addEventListener('click', async () => {
-        document.getElementById('btn-simulate-payment').classList.add('hidden');
-        document.getElementById('loading-spinner').classList.remove('hidden');
+    // --- SCHRITT 3: ECHTE PAYPAL BEZAHLUNG & ANALYSE ---
+    
+    // Wir definieren die Preise für die Services
+    const servicePrices = {
+        brief: "3.99",
+        bescheid: "4.99",
+        antrag: "2.99",
+        akte: "13.99"
+    };
 
+    if (window.paypal) {
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                // 1. Preis basierend auf der Auswahl holen
+                const price = servicePrices[selectedService];
+                
+                // 2. Order bei PayPal anlegen
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: { value: price },
+                        description: 'Clerion Dokumenten-Analyse: ' + selectedService.toUpperCase()
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                // 3. Wenn der Nutzer bestätigt, buchen wir das Geld ab
+                return actions.order.capture().then(function(details) {
+                    
+                    // UI umstellen: Button weg, Lade-Spinner an
+                    document.getElementById('paypal-button-container').classList.add('hidden');
+                    document.getElementById('loading-spinner').classList.remove('hidden');
+
+                    // 4. Jetzt schicken wir das Dokument und die Order-ID ans Backend
+                    executeRealAnalysis(data.orderID);
+                });
+            },
+            onError: function(err) {
+                showNotification('Zahlung abgebrochen oder fehlgeschlagen.', 'error');
+            }
+        }).render('#paypal-button-container');
+    }
+
+    // Die echte Fetch-Funktion (ersetzt die Simulator-Logik)
+    async function executeRealAnalysis(paypalOrderId) {
         const formData = new FormData();
         formData.append('serviceType', selectedService);
         formData.append('backupEmail', document.getElementById('backup-email').value);
+        formData.append('paypalOrderId', paypalOrderId); // WICHTIG: ID ans Backend senden!
         
         if (selectedService === 'antrag') {
             formData.append('intentText', document.getElementById('intent-description').value);
@@ -244,40 +319,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: formData
             });
             
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Fehler bei der Analyse');
+            const responseData = await response.json();
+            if (!response.ok) throw new Error(responseData.message || 'Fehler bei der Analyse');
 
-            currentTransactionId = data.transactionId;
-
+            currentTransactionId = responseData.transactionId;
             localStorage.setItem('clerion_pending_tx', currentTransactionId);
 
-            // UI-Steuerung basierend auf dem Service
             if (selectedService === 'antrag') {
-                // Beim Antrag verstecken wir die Zusammenfassung komplett!
                 document.getElementById('analysis-result-content').style.display = 'none';
-                
-                // Wir übertragen das Anliegen aus Schritt 2 direkt ins Formular
                 document.getElementById('freitext-input').value = document.getElementById('intent-description').value;
-                
-                // Wir starten AUTOMATISCH den Entwurf, sodass der Nutzer direkt das Korrekturfenster sieht
                 document.getElementById('btn-draft-text').click();
             } else {
-                // Bei Brief/Bescheid/Akte zeigen wir die Erklärung an
                 document.getElementById('analysis-result-content').style.display = 'block';
-                currentAnalysisSummary = data.aiExplanation.zusammenfassung || ""; // Kontext merken!
-                renderAnalysisResult(data.aiExplanation);
+                currentAnalysisSummary = responseData.aiExplanation.zusammenfassung || ""; 
+                renderAnalysisResult(responseData.aiExplanation);
+            }
+
+            const pdfSection = document.getElementById('pdf-generator-section');
+            if (selectedService === 'bescheid' || selectedService === 'akte') {
+                pdfSection.style.display = 'none';
+            } else {
+                pdfSection.style.display = 'block';
             }
 
             document.getElementById('loading-spinner').classList.add('hidden');
-            document.getElementById('btn-simulate-payment').classList.remove('hidden');
             showStep(4);
 
         } catch (error) {
             showNotification(error.message, 'error');
             document.getElementById('loading-spinner').classList.add('hidden');
-            document.getElementById('btn-simulate-payment').classList.remove('hidden');
+            document.getElementById('paypal-button-container').classList.remove('hidden'); // Bei Fehler Button wieder zeigen
         }
-    });
+    }
 
     function renderAnalysisResult(explanation) {
         let html = `<h4>Zusammenfassung</h4><p>${explanation.zusammenfassung || 'Erfolgreich analysiert.'}</p>`;

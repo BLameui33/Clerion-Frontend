@@ -157,7 +157,7 @@ body.drawer-open { overflow: hidden; }
     border-bottom: 1px solid #FDE68A;
     transition: max-height 0.4s ease, opacity 0.4s ease, padding 0.3s;
     overflow: hidden;
-    max-height: 120px;
+    max-height: 200px;
     opacity: 1;
 }
 
