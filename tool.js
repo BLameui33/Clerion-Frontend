@@ -669,16 +669,36 @@ document.addEventListener('DOMContentLoaded', () => {
             // 3. Zum Ergebnis-Schritt springen
             showStep(4);
         } else {
-            // Falls die Daten unvollständig sind, räumen wir den Speicher auf
+            
             clearClerionStorage();
         }
     }
 
-    // Hilfsfunktion zum kompletten Löschen der Session (z.B. nach Erfolg oder Abbruch)
+    // Hilfsfunktion zum kompletten Löschen der Session 
     function clearClerionStorage() {
         localStorage.removeItem('clerion_step');
         localStorage.removeItem('clerion_pending_tx');
         localStorage.removeItem('clerion_service');
         localStorage.removeItem('clerion_ai_data');
+    }
+
+    // ---  MANUELLER NEUSTART BUTTON ---
+    const btnRestart = document.getElementById('btn-restart-analysis');
+    
+    if (btnRestart) {
+        btnRestart.addEventListener('click', () => {
+            
+            const isConfirmed = confirm(
+                "Möchten Sie wirklich eine neue Analyse starten?\n\n" +
+                "ACHTUNG: Ihre aktuellen Ergebnisse gehen dabei verloren. " +
+                "Für eine neue Dokumentenprüfung fallen erneut Kosten an."
+            );
+            
+            if (isConfirmed) {
+                clearClerionStorage();
+                
+                window.location.reload();
+            }
+        });
     }
 });
