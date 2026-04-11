@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontakt & Hilfe - Clerion</title>
+    <link rel="stylesheet" href="style-tool.css">
+    <link rel="icon" href="/clerion-logo.png">
+    
+    <style>
+        .contact-container {
+            max-width: 600px;
+            margin: 4rem auto;
+            text-align: center;
+        }
+        .contact-icon {
+            background: #e6f0ff;
+            color: var(--primary-color, #2563EB);
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        .contact-box {
+            background: var(--bg-secondary, #f8f9fa);
+            border: 1px solid var(--border-color, #e5e7eb);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        .email-link {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary-color, #2563EB);
+            text-decoration: none;
+        }
+        .email-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="topbar-brand">
+                <a href="tool.html" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="28" height="28" rx="7" fill="#2563EB"/>
+                        <path d="M7 9h14M7 14h9M7 19h11" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span class="topbar-logo" style="margin-left: 10px;">Clerion</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="card contact-container">
+            <div class="contact-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </div>
+            <h2>Kontakt & Hilfe</h2>
+            <p class="step-intro" style="margin-top: 1rem;">
+                Haben Sie technische Probleme, etwa weil ein PDF-Download fehlgeschlagen ist? 
+                Oder haben Sie eine Frage zu Ihrer Dokumentenanalyse?
+            </p>
+            
+            <div class="contact-box">
+                <p style="margin-bottom: 0.5rem; color: #666;">Schreiben Sie uns jederzeit eine E-Mail an:</p>
+                <a href="mailto:info@clerion.de" class="email-link">info@clerion.de</a>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                    Bitte geben Sie bei Anfragen zu einer Analyse am besten die E-Mail Adresse an, die Sie als Backup hinterlegt haben.
+                </p>
+            </div>
+
+            <a href="tool.html" class="button-secondary" style="display: inline-block; margin-top: 2rem; text-decoration: none;">
+                ← Zurück zum Tool
+            </a>
+        </div>
+    </main>
+
+    <footer class="main-footer" style="margin-top: auto; border-top: 1px solid #eee;">
+        <div class="footer-container">
+           <p>&copy; 2026 Clerion</p>
+           <div class="footer-links">
+               <a href="Datenschutz.html">Datenschutz</a>
+               <a href="Impressum.html">Impressum</a>
+               <a href="AGB.html">AGB</a>
+               <a href="widerruf.html">Widerruf</a>
+           </div>
+       </div>
+   </footer>
+
+</body>
+</html>
