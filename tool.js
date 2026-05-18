@@ -720,22 +720,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- ADMIN TEST MODUS ---
+    // --- ADMIN TEST MODUS (SICHER) ---
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('admin') === '1') {
-        // PayPal Info-Text und Container verstecken
-        const paypalText = document.querySelector('#step-3 p[style*="Wählen Sie Ihre Zahlungsmethode"]');
-        if (paypalText) paypalText.style.display = 'none';
-        document.getElementById('paypal-button-container').style.display = 'none';
-        
-        // Admin Button anzeigen
-        const adminBtn = document.getElementById('admin-bypass-btn');
-        adminBtn.classList.remove('hidden');
-        
-        // Bei Klick: Direkt die Analyse mit dem Master-Key als Fake-PayPal-ID starten
-        adminBtn.addEventListener('click', () => {
-            adminBtn.classList.add('hidden');
-            document.getElementById('loading-spinner').classList.remove('hidden');
-            executeRealAnalysis('54dQ4e5pwKw35GM2T64Q');
+    const adminKey = urlParams.get('admin_key'); // Liest den Key aus der URL aus
+
+    // Prüft, ob überhaupt ein Key in der URL steht (egal welcher)
+    if (adminKey) { 
+        console.log("🛠️ Admin-Modus aktiv!");
+
+        // 1. PayPal rigoros ausblenden
+        const paypalContainer = document.getElementById('paypal-button-container');
+        if (paypalContainer) {
+            paypalContainer.style.setProperty('display', 'none', 'important');
+        }
+
+        // 2. Den "Zahlungsmethode"-Text ausblenden
+        const allParagraphs = document.querySelectorAll('#step-3 p');
+        allParagraphs.forEach(p => {
+            if (p.textContent.includes('Zahlungsmethode')) {
+                p.style.display = 'none';
+            }
         });
+
+        // 3. Admin-Button anzeigen
+        const adminBtn = document.getElementById('admin-bypass-btn');
+        if (adminBtn) {
+            adminBtn.classList.remove('hidden');
+            adminBtn.style.setProperty('display', 'block', 'important'); 
+            
+            // 4. Klick-Event
+            adminBtn.addEventListener('click', () => {
+                adminBtn.style.display = 'none';
+                
+                const spinner = document.getElementById('loading-spinner');
+                if (spinner) spinner.classList.remove('hidden');
+                
+                // Wir schicken genau das ans Backend, was oben in der URL stand!
+                // Nirgendwo im Code steht mehr der echte Key.
+                executeRealAnalysis(adminKey);
+            });
+        }
     }
 });
