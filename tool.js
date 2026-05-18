@@ -30,6 +30,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileErrorEl = document.getElementById('file-error');
     const uploadHint = document.getElementById('upload-hint');
 
+    // --- NEU: VORLAGEN LOGIK ---
+    const templateSelect = document.getElementById('template-select');
+    const intentDescription = document.getElementById('intent-description');
+    
+    if (templateSelect && intentDescription) {
+        templateSelect.addEventListener('change', (e) => {
+            if (e.target.value !== "") {
+                intentDescription.value = e.target.value;
+                intentDescription.focus(); // Setzt den Cursor direkt ins Textfeld
+            }
+        });
+    }
+
     // --- LOKALES GEDÄCHTNIS (Sidebar) ---
     const localFields = ['local-name', 'local-address', 'local-email', 'local-phone'];
     
@@ -152,8 +165,40 @@ document.addEventListener('DOMContentLoaded', () => {
             li.style.background = 'var(--bg-secondary)';
             li.style.borderRadius = '4px';
 
+            // --- NEU: BILDVORSCHAU ODER ICON ---
+            const fileInfoDiv = document.createElement('div');
+            fileInfoDiv.style.display = 'flex';
+            fileInfoDiv.style.alignItems = 'center';
+            fileInfoDiv.style.gap = '10px';
+            fileInfoDiv.style.overflow = 'hidden';
+
+            if (file.type.startsWith('image/')) {
+                const imgPreview = document.createElement('img');
+                imgPreview.src = URL.createObjectURL(file);
+                imgPreview.style.width = '40px';
+                imgPreview.style.height = '40px';
+                imgPreview.style.objectFit = 'cover';
+                imgPreview.style.borderRadius = '4px';
+                imgPreview.style.border = '1px solid var(--border-color, #ddd)';
+                imgPreview.style.flexShrink = '0'; // Verhindert, dass das Bild gequetscht wird
+                
+                // Speicher freigeben (Best Practice)
+                imgPreview.onload = () => URL.revokeObjectURL(imgPreview.src);
+                fileInfoDiv.appendChild(imgPreview);
+            } else {
+                const iconSpan = document.createElement('span');
+                iconSpan.textContent = '📄';
+                iconSpan.style.fontSize = '1.5rem';
+                iconSpan.style.flexShrink = '0';
+                fileInfoDiv.appendChild(iconSpan);
+            }
+
             const fileNameSpan = document.createElement('span');
-            fileNameSpan.textContent = `📄 ${file.name}`;
+            fileNameSpan.textContent = file.name;
+            fileNameSpan.style.whiteSpace = 'nowrap';
+            fileNameSpan.style.overflow = 'hidden';
+            fileNameSpan.style.textOverflow = 'ellipsis';
+            fileInfoDiv.appendChild(fileNameSpan);
             
             const removeBtn = document.createElement('button');
             removeBtn.innerHTML = '&#10006;'; // X Symbol
@@ -169,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderFileList(); // Liste neu zeichnen
             });
 
-            li.appendChild(fileNameSpan);
+            li.appendChild(fileInfoDiv);
             li.appendChild(removeBtn);
             fileListEl.appendChild(li);
         });

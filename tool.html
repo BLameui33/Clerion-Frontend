@@ -179,7 +179,18 @@
                 
                 <div id="text-area-container" class="hidden" style="margin-top:1.5rem;">
                     <label style="font-weight:600;">Beschreiben Sie kurz Ihr Anliegen:</label>
-                    <textarea id="intent-description" class="form-input" rows="6" placeholder="z.B. Ich möchte Widerspruch gegen den Bescheid vom 12.03. einlegen, weil... ODER Ich beantrage eine Fristverlängerung..."></textarea>
+                    
+                    <select id="template-select" class="form-input" style="margin-top: 0.5rem; margin-bottom: 0.5rem; font-size: 0.95rem; cursor: pointer;">
+                        <option value="">💡 In eigenen Worten schreiben oder Vorlage wählen...</option>
+                        <option value="Ich lege hiermit Widerspruch gegen Ihre Mahnung vom [Datum] ein. Die Forderung ist aus meiner Sicht unberechtigt, weil [Grund einfügen].">Widerspruch: Unberechtigte Mahnung</option>
+                        <option value="Ich lege Widerspruch gegen den Bescheid vom [Datum] ein. Bitte prüfen Sie den Vorgang erneut, da [Grund einfügen].">Widerspruch: Behördenbescheid</option>
+                        <option value="Ich beantrage hiermit eine Fristverlängerung bis zum [Datum] für die Einreichung der geforderten Unterlagen.">Antrag: Fristverlängerung</option>
+                        <option value="Ich beantrage eine Ratenzahlung für den offenen Betrag. Ich schlage vor, monatlich [Betrag] € zum [Tag] des Monats zu überweisen.">Antrag: Ratenzahlung</option>
+                        <option value="Ich melde hiermit einen Mangel: [Mangel beschreiben]. Bitte beheben Sie diesen bis zum [Datum]. Bis dahin behalte ich mir eine Minderung vor.">Forderung: Mangel / Reparatur</option>
+                        <option value="Ich widerrufe hiermit meinen Vertrag vom [Datum] fristgerecht. Bitte bestätigen Sie mir den Widerruf schriftlich.">Forderung: Vertrag widerrufen</option>
+                    </select>
+
+                    <textarea id="intent-description" class="form-input" rows="6" placeholder="z.B. Ich möchte Widerspruch einlegen..."></textarea>
                 </div>
 
                 <hr>
