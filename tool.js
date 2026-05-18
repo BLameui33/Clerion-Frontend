@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedService === 'antrag') {
             uploadArea.classList.add('hidden');
             textAreaArea.classList.remove('hidden');
-            document.getElementById('input-title').textContent = 'Was möchten Sie beantragen?';
+            document.getElementById('input-title').textContent = 'Was genau möchten Sie schreiben?';
         } else {
             uploadArea.classList.remove('hidden');
             textAreaArea.classList.add('hidden');
@@ -336,10 +336,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const pdfSection = document.getElementById('pdf-generator-section');
-            if (selectedService === 'bescheid' || selectedService === 'akte') {
+            // Blende den PDF-Generator NUR bei der Akte aus
+            if (selectedService === 'akte') {
                 pdfSection.style.display = 'none';
             } else {
                 pdfSection.style.display = 'block';
+                // Überschrift anpassen
+                const pdfHeading = pdfSection.querySelector('h3');
+                if (pdfHeading) {
+                    pdfHeading.textContent = selectedService === 'bescheid' ? 'Widerspruch konfigurieren' : 'Antwortschreiben konfigurieren';
+                }
             }
 
             document.getElementById('loading-spinner').classList.add('hidden');
@@ -421,10 +427,14 @@ document.addEventListener('DOMContentLoaded', () => {
         btnDraft.disabled = true;
         btnDraft.textContent = 'Erstelle Entwurf...';
 
+        
         // NEU: Wir senden den Kontext der Briefanalyse mit ans Backend!
         const payload = { intentText };
         if (selectedService === 'brief' && currentAnalysisSummary) {
             payload.documentContext = currentAnalysisSummary;
+        } else if (selectedService === 'bescheid' && fullAnalysisContextText) {
+            // Bei Bescheiden den gesamten Kontext (Fristen, Klauseln) für einen präzisen Widerspruch mitsenden
+            payload.documentContext = fullAnalysisContextText;
         }
 
         try {
@@ -652,11 +662,18 @@ document.addEventListener('DOMContentLoaded', () => {
             currentAnalysisSummary = savedAiData.zusammenfassung || "";
 
             // 2. UI-Bereiche anpassen
+            // 2. UI-Bereiche anpassen
             const pdfSection = document.getElementById('pdf-generator-section');
-            if (selectedService === 'bescheid' || selectedService === 'akte') {
+            if (selectedService === 'akte') {
                 pdfSection.style.display = 'none';
                 document.getElementById('chat-section').style.display = 'block';
             } else {
+                pdfSection.style.display = 'block';
+                if (selectedService === 'bescheid') {
+                    document.getElementById('chat-section').style.display = 'block';
+                    const pdfHeading = pdfSection.querySelector('h3');
+                    if (pdfHeading) pdfHeading.textContent = 'Widerspruch konfigurieren';
+                }
                 pdfSection.style.display = 'block';
                 // Falls es ein Antrag war, Analyse ausblenden
                 if(selectedService === 'antrag') {
@@ -699,6 +716,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 window.location.reload();
             }
+        });
+    }
+
+    // --- ADMIN TEST MODUS ---
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === '1') {
+        // PayPal Info-Text und Container verstecken
+        const paypalText = document.querySelector('#step-3 p[style*="Wählen Sie Ihre Zahlungsmethode"]');
+        if (paypalText) paypalText.style.display = 'none';
+        document.getElementById('paypal-button-container').style.display = 'none';
+        
+        // Admin Button anzeigen
+        const adminBtn = document.getElementById('admin-bypass-btn');
+        adminBtn.classList.remove('hidden');
+        
+        // Bei Klick: Direkt die Analyse mit dem Master-Key als Fake-PayPal-ID starten
+        adminBtn.addEventListener('click', () => {
+            adminBtn.classList.add('hidden');
+            document.getElementById('loading-spinner').classList.remove('hidden');
+            executeRealAnalysis('54dQ4e5pwKw35GM2T64Q');
         });
     }
 });
