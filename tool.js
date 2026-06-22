@@ -311,6 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             document.getElementById('summary-service').textContent = selectedService.toUpperCase();
+            document.getElementById('summary-email').textContent = backupEmail;
             document.getElementById('teaser-result-box').classList.remove('hidden');
             
             // Text einfügen

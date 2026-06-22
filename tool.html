@@ -394,24 +394,7 @@
                 });
             });
 
-            // FIX 3: Chat — scroll so the *start* of the new AI response is visible
-            // We watch #chat-history for added child nodes and scroll to the last added element's top
-            var chatHistory = document.getElementById('chat-history');
-            if (chatHistory) {
-                var chatObserver = new MutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
-                        mutation.addedNodes.forEach(function(node) {
-                            if (node.nodeType === 1) {
-                                // Scroll the chat container so the new message top is visible
-                                setTimeout(function() {
-                                    node.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                }, 50);
-                            }
-                        });
-                    });
-                });
-                chatObserver.observe(chatHistory, { childList: true });
-            }
+            
 
             // Signature canvas watermark
             var watermark = document.querySelector('.sig-watermark');
