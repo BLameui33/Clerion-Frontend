@@ -233,6 +233,43 @@
                         <strong id="summary-email">...</strong>
                     </div>
                 </div>
+
+                <div id="teaser-result-box" class="teaser-container hidden">
+                    
+                    <!-- Klartext: Zeigt, dass die KI es verstanden hat -->
+                    <div class="teaser-clear">
+                        <h4><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Dokument erfolgreich analysiert</h4>
+                        <p id="teaser-zusammenfassung" style="margin:0; font-size: 0.95rem; line-height: 1.5;">Lädt Vorschau...</p>
+                    </div>
+
+                    <!-- Verschwommen: Das was sie kaufen sollen -->
+                    <div class="teaser-blurred-section">
+                        <h4 style="margin-bottom: 0.5rem;">Fristen & Handlungspflichten</h4>
+                        <ul style="margin:0 0 1rem 1.5rem; padding:0;">
+                            <li><strong>14. Oktober 2026:</strong> Hier steht eine wichtige Frist, die Sie einhalten müssen.</li>
+                            <li><strong>Zahlungsaufforderung:</strong> Der Absender verlangt von Ihnen eine Zahlung in Höhe von X Euro.</li>
+                        </ul>
+                        <h4 style="margin-bottom: 0.5rem;">Wichtige Klauseln erklärt</h4>
+                        <p>In Absatz 3.2 versteckt sich eine rechtliche Vorgabe, die für Sie bedeutet, dass...</p>
+                    </div>
+
+                    <!-- Das Schloss-Overlay -->
+                    <div class="teaser-overlay">
+                        <div class="teaser-lock-badge">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            Zahlungspflichtig freischalten
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rechts-Disclaimer für RDG-Sicherheit -->
+                <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.85rem; border: 1px solid #ffeeba;">
+                    <label style="display: flex; gap: 10px; align-items: flex-start; cursor: pointer; margin: 0;">
+                        <input type="checkbox" id="legal-disclaimer-check" style="margin-top: 3px; min-width: 16px; min-height: 16px;">
+                        <span><strong>Wichtig:</strong> Ich verstehe, dass Clerion eine reine Lese- und Formulierungshilfe ist und <strong>keine Rechtsberatung</strong> ersetzt. Alle Texte sind vor Nutzung eigenverantwortlich zu prüfen.</span>
+                    </label>
+                </div>
+                
                 
                 
                 

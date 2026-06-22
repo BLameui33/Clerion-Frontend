@@ -280,21 +280,53 @@ document.addEventListener('DOMContentLoaded', () => {
         renderFileList();
     });
 
-    document.getElementById('btn-next-to-pay').addEventListener('click', () => {
+    document.getElementById('btn-next-to-pay').addEventListener('click', async () => {
         const backupEmail = document.getElementById('backup-email').value;
         
         if (!backupEmail) return showNotification('Bitte geben Sie eine Backup E-Mail Adresse an.', 'error');
-        
-        if (selectedService === 'antrag') {
-            if(!document.getElementById('intent-description').value) return showNotification('Bitte beschreiben Sie Ihr Anliegen.', 'error');
-        } else {
-            if(selectedFiles.length === 0) return showNotification('Bitte laden Sie Dokumente hoch.', 'error');
-        }
+        if (selectedService === 'antrag' && !document.getElementById('intent-description').value) return showNotification('Bitte beschreiben Sie Ihr Anliegen.', 'error');
+        if (selectedService !== 'antrag' && selectedFiles.length === 0) return showNotification('Bitte laden Sie Dokumente hoch.', 'error');
 
-        document.getElementById('summary-service').textContent = selectedService.toUpperCase();
-        document.getElementById('summary-email').textContent = backupEmail;
-        
-        showStep(3);
+        // Button in Ladezustand versetzen
+        const btn = document.getElementById('btn-next-to-pay');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:8px;"></span> KI erstellt Vorschau...';
+
+        try {
+            // Formulardaten vorbereiten
+            const formData = new FormData();
+            formData.append('serviceType', selectedService);
+            if (selectedService === 'antrag') {
+                formData.append('intentText', document.getElementById('intent-description').value);
+            } else {
+                selectedFiles.forEach(f => formData.append('documents', f));
+            }
+
+            // TEASER VOM BACKEND HOLEN
+            const response = await fetch(`${API_BASE_URL}/api/paygo/preview-teaser`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            document.getElementById('summary-service').textContent = selectedService.toUpperCase();
+            document.getElementById('teaser-result-box').classList.remove('hidden');
+            
+            // Text einfügen
+            document.getElementById('teaser-zusammenfassung').textContent = data.zusammenfassung || "Dokument erfolgreich eingelesen.";
+
+            showStep(3);
+
+        } catch (error) {
+            console.error('Teaser konnte nicht geladen werden:', error);
+            showNotification('Fehler bei der Vorschau. Sie können trotzdem fortfahren.', 'error');
+            document.getElementById('teaser-result-box').classList.add('hidden');
+            showStep(3);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
     });
 
     // --- SCHRITT 3: ECHTER API AUFRUF (ANALYSE) ---
@@ -310,6 +342,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.paypal) {
         paypal.Buttons({
+            // NEU: Zwingt den Nutzer, das RDG-Schild abzuhaken!
+            onClick: function(data, actions) {
+                if (!document.getElementById('legal-disclaimer-check').checked) {
+                    showNotification('Bitte bestätigen Sie den rechtlichen Hinweis (Checkbox setzen), um fortzufahren.', 'error');
+                    return actions.reject(); 
+                }
+                return actions.resolve(); 
+            },
             createOrder: function(data, actions) {
                 // 1. Preis basierend auf der Auswahl holen
                 const price = servicePrices[selectedService];
